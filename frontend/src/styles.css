@@ -50,3 +50,321 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
   z-index: 2500;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 }
+
+/* Verify Transaction Form */
+.verify-transaction .form-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.verify-transaction .form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.verify-transaction .form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.verify-transaction .form-field label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.verify-transaction .form-field input[type="text"],
+.verify-transaction .form-field input[type="number"],
+.verify-transaction .form-field input[type="date"],
+.verify-transaction .form-field input[type="datetime-local"],
+.verify-transaction .form-field input[type="month"],
+.verify-transaction .form-field input[type="time"],
+.verify-transaction .form-field select {
+  padding: 8px 12px;
+  border: 1px solid #e6eef8;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #f8fafc;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.verify-transaction .form-field input[type="text"]:focus,
+.verify-transaction .form-field input[type="number"]:focus,
+.verify-transaction .form-field input[type="date"]:focus,
+.verify-transaction .form-field input[type="datetime-local"]:focus,
+.verify-transaction .form-field input[type="month"]:focus,
+.verify-transaction .form-field input[type="time"]:focus,
+.verify-transaction .form-field select:focus {
+  outline: none;
+  border-color: #4f46e5;
+  background: white;
+}
+
+/* Remove spinners from number inputs */
+.verify-transaction .form-field input[type="number"].no-spinners::-webkit-outer-spin-button,
+.verify-transaction .form-field input[type="number"].no-spinners::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.verify-transaction .form-field input[type="number"].no-spinners {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.verify-transaction .form-field select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23374151' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.verify-transaction .form-field input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.verify-transaction .form-actions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+  border-top: 1px solid #e6eef8;
+}
+
+.verify-transaction .check-btn {
+  min-width: 200px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.verify-transaction .check-btn:hover {
+  background: #4338ca;
+  transform: translateY(-1px);
+}
+
+.verify-transaction .check-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .verify-transaction .form-columns {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* Form validation errors */
+.verify-transaction .form-field input.error,
+.verify-transaction .form-field select.error {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+.verify-transaction .error-message {
+  color: #dc2626;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+.verify-transaction .check-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Transaction Result Page */
+.transaction-result .result-card {
+  padding: 32px;
+  border-radius: 12px;
+  text-align: center;
+  margin: 24px 0;
+  border: 2px solid;
+}
+
+.transaction-result .result-card.fraud {
+  background: #fef2f2;
+  border-color: #dc2626;
+}
+
+.transaction-result .result-card.legitimate {
+  background: #f0fdf4;
+  border-color: #16a34a;
+}
+
+.transaction-result .result-icon {
+  margin: 0 auto 20px;
+  width: 80px;
+  height: 80px;
+}
+
+.transaction-result .result-card.fraud .result-icon {
+  color: #dc2626;
+}
+
+.transaction-result .result-card.legitimate .result-icon {
+  color: #16a34a;
+}
+
+.transaction-result .result-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+}
+
+.transaction-result .result-card.fraud .result-title {
+  color: #991b1b;
+}
+
+.transaction-result .result-card.legitimate .result-title {
+  color: #15803d;
+}
+
+.transaction-result .result-description {
+  font-size: 16px;
+  color: #374151;
+  margin: 0 0 20px 0;
+  line-height: 1.6;
+}
+
+.transaction-result .result-confidence {
+  margin-top: 24px;
+  text-align: left;
+}
+
+.transaction-result .result-confidence label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #374151;
+}
+
+.transaction-result .confidence-bar {
+  width: 100%;
+  height: 24px;
+  background: #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.transaction-result .confidence-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+  transition: width 0.5s ease;
+}
+
+.transaction-result .confidence-value {
+  font-weight: 600;
+  color: #4f46e5;
+}
+
+.transaction-result .result-metric {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+}
+
+.transaction-result .result-metric label {
+  font-weight: 500;
+  color: #374151;
+}
+
+.transaction-result .metric-value {
+  font-weight: 600;
+  font-size: 18px;
+  color: #4f46e5;
+}
+
+.transaction-result .result-details {
+  margin-top: 24px;
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.transaction-result .result-details h4 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  color: #111827;
+}
+
+.transaction-result .details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.transaction-result .detail-item {
+  padding: 8px 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.transaction-result .detail-label {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: capitalize;
+  margin-bottom: 4px;
+}
+
+.transaction-result .detail-value {
+  display: block;
+  font-weight: 500;
+  color: #111827;
+}
+
+.transaction-result .result-reasons {
+  margin-top: 24px;
+  padding: 20px;
+  background: #fffbeb;
+  border-radius: 8px;
+  border: 1px solid #fbbf24;
+}
+
+.transaction-result .result-reasons h4 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  color: #92400e;
+}
+
+.transaction-result .result-reasons ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.transaction-result .result-reasons li {
+  color: #78350f;
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.transaction-result .result-actions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.transaction-result .result-actions button {
+  min-width: 200px;
+}

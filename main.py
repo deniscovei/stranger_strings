@@ -55,8 +55,8 @@ def main(csv_path='dataset/transactions.csv', run_viz=False, run_random_search=F
         X_train, y_train, X_test, y_test, verbose=True
     )
     
-    # Step 5: Train LightGBM with XGBoost features
-    print('\nStep 5: Training LightGBM model with XGBoost predictions...\n')
+    # Step 5: Train LightGBM
+    print('\nStep 5: Training LightGBM model...\n')
     lgb_model, y_train_pred_lgb, y_test_pred_lgb, lgb_fi, comparison = train_and_evaluate_lightgbm(
         X_train, y_train, X_test, y_test, 
         y_train_pred_xgb, y_test_pred_xgb, 

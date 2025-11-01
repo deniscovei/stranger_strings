@@ -9,8 +9,8 @@ export default function RightMenu({ onToggle, onOpenChat, onNavigate }) {
       </div>
 
       <nav className="menu-items">
-        <button className="menu-item" onClick={() => onNavigate?.('data')}>Your Data</button>
-        <button className="menu-item">Your Analytics</button>
+        <button className="menu-item" onClick={() => onNavigate?.('data')}>Manage Data</button>
+        <button className="menu-item" onClick={() => onNavigate?.('verify')}>Verify Transaction</button>
         <div className="menu-sep" />
         <button className="chat-btn" onClick={onOpenChat}>Open Chat</button>
       </nav>

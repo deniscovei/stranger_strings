@@ -4,6 +4,8 @@ import Predictions from './components/Predictions'
 import RightMenu from './components/RightMenu'
 import ChatModal from './components/ChatModal'
 import DataPage from './components/DataPage'
+import VerifyTransaction from './components/VerifyTransaction'
+import TransactionResult from './components/TransactionResult'
 import strangerLogo from './assets/stranger-logo.svg'
 import { fetchData, fetchPredictions } from './api'
 
@@ -34,6 +36,19 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(true)
   const [chatOpen, setChatOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState('home')
+  const [verificationResult, setVerificationResult] = useState(null)
+
+  const handleNavigate = (page, data) => {
+    setCurrentPage(page)
+    if (page === 'result' && data) {
+      setVerificationResult(data)
+    }
+  }
+
+  const handleBackToVerify = () => {
+    setCurrentPage('verify')
+    setVerificationResult(null)
+  }
 
   return (
     <>
@@ -48,7 +63,7 @@ export default function App() {
       
       <div className={`container layout ${menuOpen ? '' : 'menu-closed'}`}>
         <aside className={`left-menu-col ${menuOpen ? 'open' : 'closed'}`}>
-          <RightMenu onToggle={() => setMenuOpen((s) => !s)} onOpenChat={() => setChatOpen(true)} onNavigate={(page) => setCurrentPage(page)} />
+          <RightMenu onToggle={() => setMenuOpen((s) => !s)} onOpenChat={() => setChatOpen(true)} onNavigate={handleNavigate} />
         </aside>
 
       <main className="main-col">
@@ -62,6 +77,10 @@ export default function App() {
           <>
             {currentPage === 'data' ? (
               <DataPage />
+            ) : currentPage === 'verify' ? (
+              <VerifyTransaction onNavigate={handleNavigate} />
+            ) : currentPage === 'result' ? (
+              <TransactionResult result={verificationResult} onBack={handleBackToVerify} />
             ) : (
               <>
                 <DataSummary data={data} />
