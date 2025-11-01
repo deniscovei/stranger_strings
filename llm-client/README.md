@@ -52,6 +52,31 @@ docker compose exec postgres psql -U mcp_readonly -d txdb -c "SELECT COUNT(*) FR
 docker compose run --rm llm-client
 ```
 
+## Data Loading
+
+The system automatically loads transaction data on startup:
+
+- **First run**: Data is loaded from the mounted CSV file
+- **Subsequent runs**: Existing data is preserved (no reload)
+- **Force reload**: Set `FORCE_RELOAD=true` in `.env` or run:
+  ```bash
+  FORCE_RELOAD=true docker compose up -d
+  ```
+
+### Manual Data Operations
+
+```bash
+# Check transaction count
+docker exec stranger_strings_postgres psql -U mcp_readonly -d txdb -c "SELECT COUNT(*) FROM transactions;"
+
+# Manually reload data (truncates and reloads)
+docker exec stranger_strings_postgres psql -U mcp_readonly -d txdb -c "TRUNCATE transactions;"
+docker compose restart data-loader
+
+# View sample data
+docker exec stranger_strings_postgres psql -U mcp_readonly -d txdb -c "SELECT * FROM transactions LIMIT 5;"
+```
+
 ### 3. Test the API
 ```bash
 curl http://localhost:5000/health

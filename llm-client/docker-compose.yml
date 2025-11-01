@@ -12,12 +12,37 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./sql/init.sql:/docker-entrypoint-initdb.d/01-schema.sql
       - ${TRANSACTIONS_FILE:-../dataset/transactions}:/dataset/transactions:ro  # Mount your transactions CSV file
-      - ./sql/load_data.sql:/docker-entrypoint-initdb.d/02-load-data.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mcp_readonly} -d ${POSTGRES_DB:-txdb}"]
       interval: 5s
       timeout: 5s
       retries: 5
+
+  data-loader:
+    image: postgres:16-alpine
+    container_name: stranger_strings_data_loader
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ${TRANSACTIONS_FILE:-../dataset/transactions}:/dataset/transactions:ro
+      - ./sql/load_data_always.sql:/load_data.sql:ro
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:-your_secure_password}
+      FORCE_RELOAD: ${FORCE_RELOAD:-false}  # Set to 'true' to force data reload
+    command: >
+      sh -c "
+        echo 'Waiting for database to be ready...' &&
+        sleep 2 &&
+        echo 'Loading transaction data...' &&
+        if [ \"$$FORCE_RELOAD\" = \"true\" ]; then
+          echo 'Force reload enabled - truncating existing data...' &&
+          psql -h postgres -U ${POSTGRES_USER:-mcp_readonly} -d ${POSTGRES_DB:-txdb} -c 'TRUNCATE transactions;'
+        fi &&
+        psql -h postgres -U ${POSTGRES_USER:-mcp_readonly} -d ${POSTGRES_DB:-txdb} -f /load_data.sql &&
+        echo 'Data loading complete!'
+      "
+    restart: "no"
 
   llm-client:
     build: .
@@ -50,6 +75,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      data-loader:
+        condition: service_completed_successfully
 
 volumes:
   postgres_data:
