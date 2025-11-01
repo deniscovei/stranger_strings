@@ -47,6 +47,7 @@ services:
       FLASK_PORT: ${API_CONTAINER_PORT:-5000}
       MODEL_PATH: /app/models/lightgbm_model.pkl
       DATABASE_URI: postgresql://${POSTGRES_USER:-mcp_readonly}:${POSTGRES_PASSWORD:-your_secure_password}@postgres:5432/${POSTGRES_DB:-txdb}
+      AWS_BEARER_TOKEN_BEDROCK: ${AWS_BEARER_TOKEN_BEDROCK}
     depends_on:
       postgres:
         condition: service_healthy
