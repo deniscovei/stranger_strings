@@ -29,3 +29,15 @@ export async function verifyTransaction(transactionData) {
 	const res = await axios.post('/api/verify-transaction', transactionData)
 	return res.data
 }
+
+export async function fetchChartData() {
+	// Expected backend endpoint: GET /charts/data
+	const res = await axios.get('/charts/data')
+	return res.data
+}
+
+export async function fetchChartSummary() {
+	// Expected backend endpoint: GET /charts/summary
+	const res = await axios.get('/charts/summary')
+	return res.data
+}

@@ -1,7 +1,20 @@
 from flask import Flask
+from flask_cors import CORS
 import os
 from config import load_model
-from routes import health_bp, predict_bp
+from routes import health_bp, predict_bp, claudiu_bp, charts_bp
+
+app = Flask(__name__)
+CORS(app)  # Enable CORS for frontend
+
+# Load model at startup
+load_model()
+
+# Register blueprints
+app.register_blueprint(health_bp)
+app.register_blueprint(predict_bp)
+app.register_blueprint(claudiu_bp)
+app.register_blueprint(charts_bp)
 
 app = Flask(__name__)
 
