@@ -39,5 +39,15 @@ export async function fetchChartData() {
 export async function fetchChartSummary() {
 	// Expected backend endpoint: GET /charts/summary
 	const res = await axios.get('/charts/summary')
+export async function fetchTransactions() {
+	// Expected backend endpoint: GET /api/transactions
+	const res = await axios.get('/api/transactions')
+	return res.data
+}
+
+export async function sendChatMessage(message, conversationHistory = []) {
+	// Expected backend endpoint: POST /api/chat
+	const res =
+		await axios.post('/api/chat', {message, history : conversationHistory})
 	return res.data
 }
