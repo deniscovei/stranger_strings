@@ -1,0 +1,5 @@
+# Ignore everything inside the dataset directory
+dataset/*
+
+# But keep the directory itself
+!dataset/.gitkeep
