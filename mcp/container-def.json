@@ -1,0 +1,13 @@
+[
+  {
+    "name": "mcp-server",
+    "image": "660491133720.dkr.ecr.us-west-2.amazonaws.com/mcp-server:latest",
+    "portMappings": [
+      {
+        "containerPort": 8080,
+        "protocol": "tcp"
+      }
+    ],
+    "essential": true
+  }
+]
