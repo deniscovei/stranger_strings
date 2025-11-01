@@ -3,6 +3,8 @@ import pickle
 import numpy as np
 import pandas as pd
 from typing import Dict, Any
+import sys
+import os
 
 app = Flask(__name__)
 
@@ -15,20 +17,13 @@ try:
 except Exception as e:
     print(f"⚠ Warning: Could not load model - {e}")
 
-# All expected features from the dataset
-EXPECTED_FEATURES = [
-    'accountNumber', 'customerId', 'creditLimit', 'availableMoney',
-    'transactionDateTime', 'transactionAmount', 'merchantName', 'acqCountry',
-    'merchantCountryCode', 'posEntryMode', 'posConditionCode', 'merchantCategoryCode',
-    'currentExpDate', 'accountOpenDate', 'dateOfLastAddressChange', 'cardCVV',
-    'enteredCVV', 'cardLast4Digits', 'transactionType', 'echoBuffer',
-    'currentBalance', 'merchantCity', 'merchantState', 'merchantZip',
-    'cardPresent', 'posOnPremises', 'recurringAuthInd', 'expirationDateKeyInMatch'
-]
+# Load reference data for merchant encoding (if available)
+merchant_encoding_map = {}
 
-def preprocess_transaction(transaction: Dict[str, Any]) -> np.ndarray:
+def preprocess_single_transaction(transaction: Dict[str, Any]) -> np.ndarray:
     """
-    Preprocess a transaction dictionary into model input format.
+    Preprocess a single transaction following the same pipeline as training.
+    Matches the preprocessing.py logic exactly.
     
     Args:
         transaction: Dictionary containing transaction features
@@ -36,73 +31,83 @@ def preprocess_transaction(transaction: Dict[str, Any]) -> np.ndarray:
     Returns:
         Preprocessed feature array ready for model prediction
     """
-    # Convert to DataFrame for easier preprocessing
+    # Convert to DataFrame
     df = pd.DataFrame([transaction])
     
-    # Handle datetime conversions
-    datetime_cols = ['transactionDateTime', 'accountOpenDate', 'dateOfLastAddressChange']
-    for col in datetime_cols:
-        if col in df.columns and df[col].notna().any():
-            df[col] = pd.to_datetime(df[col], errors='coerce')
-            # Extract useful features from datetime
-            if col == 'transactionDateTime':
-                df['transaction_hour'] = df[col].dt.hour
-                df['transaction_day'] = df[col].dt.day
-                df['transaction_month'] = df[col].dt.month
-                df['transaction_dayofweek'] = df[col].dt.dayofweek
-                df['transaction_year'] = df[col].dt.year
-            elif col == 'accountOpenDate':
-                df['account_open_year'] = df[col].dt.year
-                df['account_open_month'] = df[col].dt.month
-            elif col == 'dateOfLastAddressChange':
-                df['address_change_year'] = df[col].dt.year
-                df['address_change_month'] = df[col].dt.month
-            # Drop original datetime columns
+    # Step 1: Drop columns that were dropped during training
+    columns_to_drop = [
+        "enteredCVV", "creditLimit", "acqCountry", "customerId", 
+        "echoBuffer", "merchantCity", "merchantState", "merchantZip", 
+        "posOnPremises", "recurringAuthInd"
+    ]
+    for col in columns_to_drop:
+        if col in df.columns:
             df = df.drop(columns=[col])
     
-    # Handle boolean conversions (False/True strings from CSV)
-    bool_cols = ['cardPresent', 'expirationDateKeyInMatch']
-    for col in bool_cols:
+    # Step 2: One-hot encoding for categorical columns
+    columns_with_nulls = ['merchantCountryCode', 'transactionType']
+    columns_without_nulls = ['merchantCategoryCode']
+    all_encode_columns = columns_with_nulls + columns_without_nulls
+    
+    # Handle columns with nulls - create indicator columns
+    for col in columns_with_nulls:
         if col in df.columns:
-            if isinstance(df[col].iloc[0], bool):
-                df[col] = df[col].astype(int)
-            elif isinstance(df[col].iloc[0], str):
-                df[col] = df[col].map({'False': 0, 'True': 1, 'false': 0, 'true': 0}).fillna(0).astype(int)
+            null_indicator_col = f'no{col}'
+            df[null_indicator_col] = df[col].isnull().astype(int)
+            df[col] = df[col].fillna('MISSING')
     
-    # Handle categorical columns - use hash encoding for consistency
-    categorical_cols = [
-        'merchantName', 'acqCountry', 'merchantCountryCode', 'posEntryMode',
-        'posConditionCode', 'merchantCategoryCode', 'transactionType',
-        'merchantCity', 'merchantState', 'posOnPremises', 'recurringAuthInd'
-    ]
-    
-    for col in categorical_cols:
+    # Perform one-hot encoding
+    encoded_dfs = []
+    for col in all_encode_columns:
         if col in df.columns:
-            # Convert empty strings and NaN to 'UNKNOWN'
-            df[col] = df[col].fillna('UNKNOWN').astype(str)
-            # Hash encode categorical values
-            df[col] = df[col].apply(lambda x: abs(hash(x)) % 100000)
+            one_hot = pd.get_dummies(df[col], prefix=col, drop_first=False)
+            
+            if col in columns_with_nulls:
+                missing_col_name = f'{col}_MISSING'
+                if missing_col_name in one_hot.columns:
+                    one_hot = one_hot.drop(columns=[missing_col_name])
+            
+            encoded_dfs.append(one_hot)
+            df = df.drop(columns=[col])
     
-    # Handle CVV matching (414 == 414 means match)
-    if 'cardCVV' in df.columns and 'enteredCVV' in df.columns:
-        df['cvv_match'] = (df['cardCVV'] == df['enteredCVV']).astype(int)
+    if encoded_dfs:
+        df = pd.concat([df] + encoded_dfs, axis=1)
     
-    # Handle text/numeric fields
-    text_cols = ['cardCVV', 'enteredCVV', 'cardLast4Digits', 'currentExpDate', 'merchantZip', 'echoBuffer']
-    for col in text_cols:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+    # Step 3: Convert date columns to numeric (days difference)
+    df['transactionDateTime'] = pd.to_datetime(df['transactionDateTime'], errors='coerce')
     
-    # Ensure all remaining object columns are converted
-    for col in df.columns:
-        if df[col].dtype == 'object':
-            df[col] = df[col].fillna('UNKNOWN').astype(str).apply(lambda x: abs(hash(x)) % 100000)
+    date_columns = {
+        'currentExpDate': 'daysToCurrentExpDate',
+        'accountOpenDate': 'daysSinceAccountOpen',
+        'dateOfLastAddressChange': 'daysSinceLastAddressChange'
+    }
     
-    # Fill any remaining NaN values with 0
+    for original_col, new_col in date_columns.items():
+        if original_col in df.columns:
+            df[original_col] = pd.to_datetime(df[original_col], errors='coerce')
+            df[new_col] = (df['transactionDateTime'] - df[original_col]).dt.days
+            
+            if new_col == "daysToCurrentExpDate":
+                df[new_col] = -df[new_col]
+            
+            df = df.drop(columns=[original_col])
+    
+    df = df.drop(columns=['transactionDateTime'], errors='ignore')
+    
+    # Step 4: Ordinal encode merchantName
+    # Use a simple median rank if we don't have the merchant mapping
+    if 'merchantName' in df.columns:
+        # For single prediction, use hash-based ordinal encoding
+        df['merchantName_ordinal'] = df['merchantName'].astype(str).apply(lambda x: abs(hash(x)) % 10000)
+        df = df.drop(columns=['merchantName'])
+    
+    # Fill any remaining NaN values
     df = df.fillna(0)
     
-    # Convert all to float for model compatibility
-    df = df.astype(float)
+    # Ensure all numeric
+    for col in df.columns:
+        if df[col].dtype == 'object':
+            df[col] = 0
     
     return df.values
 
@@ -118,6 +123,7 @@ def health():
 def predict():
     """
     Predict if a transaction is fraudulent.
+    Follows the exact same prediction logic as run_model.py
     
     Expected JSON body:
     {
@@ -154,31 +160,57 @@ def predict():
                 'error': 'No transaction data provided'
             }), 400
         
-        # Preprocess the transaction
-        features = preprocess_transaction(transaction)
+        # Preprocess the transaction (same as run_model.py preprocessing)
+        features = preprocess_single_transaction(transaction)
         
-        # Make prediction
-        prediction = model.predict(features)[0]
-        
-        # Get probability if the model supports it
-        fraud_probability = None
-        if hasattr(model, 'predict_proba'):
-            probabilities = model.predict_proba(features)[0]
-            fraud_probability = float(probabilities[1])  # Probability of fraud class
-        
-        # Prepare response
-        result = {
-            'prediction': int(prediction),
-            'is_fraud': bool(prediction),
-            'fraud_probability': fraud_probability,
-            'transaction_id': transaction.get('row_id', None)
-        }
+        # Make prediction (handle Isolation Forest differently like run_model.py)
+        if hasattr(model, 'decision_function') and type(model).__name__ == 'IsolationForest':
+            # Isolation Forest returns -1 for anomalies, 1 for normal
+            prediction_raw = model.predict(features)[0]
+            prediction = 1 if prediction_raw == -1 else 0  # Convert -1 -> 1 (fraud), 1 -> 0 (normal)
+            
+            # Get anomaly score
+            anomaly_score = None
+            if hasattr(model, 'decision_function'):
+                scores = model.decision_function(features)
+                anomaly_score = float(scores[0])
+            
+            result = {
+                'prediction': int(prediction),
+                'is_fraud': bool(prediction),
+                'anomaly_score': anomaly_score,
+                'model_type': 'IsolationForest',
+                'transaction_id': transaction.get('row_id', None)
+            }
+        else:
+            # Standard classification model (LightGBM, XGBoost, etc.)
+            prediction = model.predict(features)[0]
+            
+            # Get probability if the model supports it
+            probability_non_fraud = None
+            probability_fraud = None
+            
+            if hasattr(model, 'predict_proba'):
+                probabilities = model.predict_proba(features)[0]
+                probability_non_fraud = float(probabilities[0])
+                probability_fraud = float(probabilities[1])
+            
+            result = {
+                'prediction': int(prediction),
+                'is_fraud': bool(prediction),
+                'probability_non_fraud': probability_non_fraud,
+                'probability_fraud': probability_fraud,
+                'model_type': type(model).__name__,
+                'transaction_id': transaction.get('row_id', None)
+            }
         
         return jsonify(result), 200
         
     except Exception as e:
+        import traceback
         return jsonify({
             'error': str(e),
+            'traceback': traceback.format_exc(),
             'message': 'Error processing transaction'
         }), 500
 
