@@ -4,6 +4,7 @@ import Predictions from './components/Predictions'
 import RightMenu from './components/RightMenu'
 import ChatModal from './components/ChatModal'
 import DataPage from './components/DataPage'
+import ManageData from './components/ManageData'
 import VerifyTransaction from './components/VerifyTransaction'
 import TransactionResult from './components/TransactionResult'
 import strangerLogo from './assets/stranger-logo.svg'
@@ -76,7 +77,7 @@ export default function App() {
         {!loading && (
           <>
             {currentPage === 'data' ? (
-              <DataPage />
+              <ManageData />
             ) : currentPage === 'verify' ? (
               <VerifyTransaction onNavigate={handleNavigate} />
             ) : currentPage === 'result' ? (
