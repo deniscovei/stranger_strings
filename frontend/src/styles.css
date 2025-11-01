@@ -9,20 +9,28 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
 /* Layout for right menu */
 /* layout and left sidebar */
 .layout { display: block }
-.main-col { margin-left: 260px; transition: margin-left .18s ease }
-.left-menu-col { position: fixed; left: 0; top: 0; bottom: 0; width: 260px; z-index: 1000 }
-.left-menu-col.closed { width: 72px }
+.main-col { margin-left: 260px; transition: margin-left 0.4s ease-in-out }
+.left-menu-col { position: fixed; left: 0; top: 0; bottom: 0; width: 260px; z-index: 1000; transition: width 0.4s ease-in-out }
+.left-menu-col.closed { width: 60px; overflow: hidden }
 
-.left-menu { background: #fff; height: 100vh; padding: 16px 12px; box-shadow: 2px 0 20px rgba(2,6,23,0.06); display: flex; flex-direction: column }
-.left-menu .menu-header { display: flex; align-items: center; gap: 8px }
-.left-menu .menu-toggle { background: transparent; border: none; font-size: 18px }
-.left-menu .menu-items { display: flex; flex-direction: column; gap: 8px; margin-top: 12px }
-.left-menu .menu-item { padding: 8px 10px; border-radius: 6px; border: 1px solid #e6eef8; background: #f8fafc; text-align: left }
-.left-menu .chat-btn { padding: 10px; border-radius: 6px; background: #4f46e5; color: white; border: none }
-.left-menu .menu-footer { margin-top: auto; font-size: 12px; color: #6b7280 }
+.left-menu { background: #fff; height: 100vh; padding: 16px 12px; box-shadow: 2px 0 20px rgba(2,6,23,0.06); display: flex; flex-direction: column; width: 260px }
+.left-menu .menu-header { display: flex; align-items: center; gap: 8px; min-height: 28px }
+.left-menu .menu-header h3 { margin: 0; font-size: 16px; white-space: nowrap; opacity: 1; transition: opacity 0.4s ease-in-out }
+.left-menu .menu-toggle { background: transparent; border: none; font-size: 18px; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 28px; height: 28px }
+.left-menu .menu-toggle svg { display: block }
+.left-menu .menu-items { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; opacity: 1; transition: opacity 0.4s ease-in-out }
+.left-menu .menu-item { padding: 8px 10px; border-radius: 6px; border: 1px solid #e6eef8; background: #f8fafc; text-align: left; cursor: pointer; white-space: nowrap }
+.left-menu .chat-btn { padding: 10px; border-radius: 6px; background: #4f46e5; color: white; border: none; cursor: pointer; white-space: nowrap }
+.left-menu .menu-footer { margin-top: auto; font-size: 12px; color: #6b7280; opacity: 1; transition: opacity 0.4s ease-in-out }
+
+/* When closed, fade out content but keep same internal structure */
+.left-menu-col.closed .left-menu { padding: 16px 12px }
+.left-menu-col.closed .menu-header h3 { opacity: 0; pointer-events: none }
+.left-menu-col.closed .menu-items { opacity: 0; pointer-events: none }
+.left-menu-col.closed .menu-footer { opacity: 0; pointer-events: none }
 
 /* when closed, shrink main column margin */
-.container.menu-closed .main-col { margin-left: 72px }
+.container.menu-closed .main-col { margin-left: 60px }
 
 /* Chat modal */
 .chat-modal-overlay { position: fixed; inset: 0; background: rgba(2,6,23,0.45); display: flex; align-items: center; justify-content: center; z-index: 2000 }
@@ -743,20 +751,38 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
 .chat-page {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 120px);
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 260px; /* Leave space for sidebar */
+  height: 100vh;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 0;
+  box-shadow: none;
   overflow: hidden;
+  margin: 0;
+  transition: left 0.4s ease-in-out;
+}
+
+/* Adjust chat page when menu is closed */
+.container.menu-closed .chat-page {
+  left: 60px;
 }
 
 .chat-page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
+  padding: 20px 80px 20px 40px; /* Default when open */
   border-bottom: 2px solid #e5e7eb;
   background: #f9fafb;
+  transition: padding-left 0.4s ease-in-out;
+}
+
+/* Return to normal padding when menu is closed */
+.container.menu-closed .chat-page-header {
+  padding-left: 24px;
 }
 
 .chat-page-header h2 {
@@ -791,15 +817,16 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
   flex: 1;
   overflow-y: auto;
   background: #f8fafc;
+  padding: 0 10%; /* Reduced from 15% to 10% to move bubbles closer to edges */
 }
 
 .chat-messages {
-  padding: 24px;
+  padding: 24px 0;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-width: 900px;
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 0;
 }
 
 .chat-message {
@@ -808,7 +835,7 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
   gap: 8px;
   padding: 16px;
   border-radius: 12px;
-  max-width: 80%;
+  max-width: 75%; /* 75% max width before wrapping */
   animation: fadeIn 0.3s ease;
 }
 
@@ -882,7 +909,7 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
 }
 
 .message-content {
-  font-size: 15px;
+  font-size: 17.55px; /* 19.5px * 0.9 = 17.55px (10% decrease from previous) */
   line-height: 1.6;
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -894,6 +921,114 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
 
 .chat-message.assistant .message-content {
   color: #111827;
+}
+
+/* Markdown styling in chat messages */
+.message-content h1,
+.message-content h2,
+.message-content h3,
+.message-content h4,
+.message-content h5,
+.message-content h6 {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.message-content h1 { font-size: 1.8em; }
+.message-content h2 { font-size: 1.5em; }
+.message-content h3 { font-size: 1.3em; }
+.message-content h4 { font-size: 1.1em; }
+
+.message-content p {
+  margin-top: 0;
+  margin-bottom: 0.8em;
+}
+
+.message-content p:last-child {
+  margin-bottom: 0;
+}
+
+.message-content ul,
+.message-content ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.message-content li {
+  margin-bottom: 0.3em;
+}
+
+.message-content code {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+.message-content pre {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.8em;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 0.5em 0;
+}
+
+.message-content pre code {
+  background: none;
+  padding: 0;
+}
+
+.message-content blockquote {
+  border-left: 3px solid #4f46e5;
+  padding-left: 1em;
+  margin-left: 0;
+  margin-right: 0;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.message-content a {
+  color: #4f46e5;
+  text-decoration: underline;
+}
+
+.message-content a:hover {
+  color: #4338ca;
+}
+
+.message-content strong {
+  font-weight: 600;
+}
+
+.message-content em {
+  font-style: italic;
+}
+
+.message-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.8em 0;
+}
+
+.message-content th,
+.message-content td {
+  border: 1px solid #e5e7eb;
+  padding: 0.5em;
+  text-align: left;
+}
+
+.message-content th {
+  background: #f9fafb;
+  font-weight: 600;
+}
+
+.message-content hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 1em 0;
 }
 
 /* Typing indicator */
@@ -934,7 +1069,7 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
 .chat-input-form {
   display: flex;
   gap: 12px;
-  padding: 20px 24px;
+  padding: 20px 10%; /* Reduced from 15% to 10% to match messages container */
   border-top: 2px solid #e5e7eb;
   background: white;
 }
@@ -1002,8 +1137,12 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
     padding: 16px;
   }
 
+  .chat-messages-container {
+    padding: 0 5%; /* Reduce padding on mobile */
+  }
+
   .chat-messages {
-    padding: 16px;
+    padding: 16px 0;
   }
 
   .chat-message {
@@ -1011,7 +1150,7 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
   }
 
   .chat-input-form {
-    padding: 16px;
+    padding: 16px 5%; /* Reduce padding on mobile */
     gap: 8px;
   }
 

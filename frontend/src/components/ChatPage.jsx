@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { sendChatMessage } from '../api'
 import DarkModeToggle from '../components/DarkModeToggle'
 
@@ -6,7 +8,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Hello! I\'m your AI assistant. How can I help you today?',
+      content: 'Hello, I am ClaudIA, your AI assistant. How can I be of use today?',
       timestamp: new Date()
     }
   ])
@@ -48,11 +50,12 @@ export default function ChatPage() {
 
     try {
       // Call API to get LLM response
-      const response = await sendChatMessage(inputMessage.trim(), messages)
+      const response = await sendChatMessage(inputMessage.trim())
       
+      // Backend returns a plain string
       const assistantMessage = {
         role: 'assistant',
-        content: response.message || response.content || 'I received your message.',
+        content: typeof response === 'string' ? response : (response.message || response.content || 'I received your message.'),
         timestamp: new Date()
       }
 
@@ -60,10 +63,20 @@ export default function ChatPage() {
     } catch (error) {
       console.error('Failed to send message:', error)
       
+      // Determine error message based on error type
+      let errorContent = 'Sorry, I encountered an error. Please try again.'
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        errorContent = 'The request timed out after 15 seconds. The AI might be busy. Please try again.'
+      } else if (error.response) {
+        errorContent = `Error: ${error.response.data?.error || error.response.statusText || 'Server error'}`
+      } else if (error.request) {
+        errorContent = 'Could not reach the server. Please check your connection.'
+      }
+      
       // Add error message
       const errorMessage = {
         role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.',
+        content: errorContent,
         timestamp: new Date(),
         isError: true
       }
@@ -110,7 +123,7 @@ export default function ChatPage() {
 
       <div className="chat-page-header">
         <div>
-          <h2>AI Assistant</h2>
+          <h2>ClaudIA</h2>
           <p className="chat-subtitle">Ask me anything about your data and transactions</p>
         </div>
         <button className="clear-chat-btn" onClick={clearChat}>
@@ -127,12 +140,18 @@ export default function ChatPage() {
             >
               <div className="message-header">
                 <span className="message-role">
-                  {message.role === 'user' ? '👤 You' : '🤖 AI Assistant'}
+                  {message.role === 'user' ? '👤 You' : '🤖 ClaudIA'}
                 </span>
                 <span className="message-time">{formatTime(message.timestamp)}</span>
               </div>
               <div className="message-content">
-                {message.content}
+                {message.role === 'assistant' && !message.isError ? (
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {message.content}
+                  </ReactMarkdown>
+                ) : (
+                  message.content
+                )}
               </div>
             </div>
           ))}
@@ -140,7 +159,7 @@ export default function ChatPage() {
           {isLoading && (
             <div className="chat-message assistant loading">
               <div className="message-header">
-                <span className="message-role">🤖 AI Assistant</span>
+                <span className="message-role">🤖 ClaudIA</span>
               </div>
               <div className="message-content">
                 <div className="typing-indicator">
