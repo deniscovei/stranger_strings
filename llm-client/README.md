@@ -21,15 +21,32 @@ llm-client/
 
 ## Quick Start
 
-### 1. Build containers
+### 1. Configure data file path
+
+⚠️ **IMPORTANT**: Before running, configure your transactions data file path:
+
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit .env and set TRANSACTIONS_FILE to your local path
+# Example: TRANSACTIONS_FILE=../dataset/transactions
+```
+
+See `SETUP.md` for detailed instructions.
+
+### 2. Build containers
 ```bash
 docker compose build
 ```
 
-### 2. Start services
+### 3. Start services
 ```bash
 # Start PostgreSQL and Backend API
 docker compose up -d postgres backend-api
+
+# Verify data loaded (should show count > 0)
+docker compose exec postgres psql -U mcp_readonly -d txdb -c "SELECT COUNT(*) FROM transactions;"
 
 # Run interactive LLM client
 docker compose run --rm llm-client
