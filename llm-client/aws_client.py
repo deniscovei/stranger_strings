@@ -29,27 +29,27 @@ def execute_sql_query(query):
 try:
     conn = psycopg2.connect(os.environ.get('DATABASE_URI'))
     cursor = conn.cursor()
-    
+
     # Get table schema
     cursor.execute("""
-        SELECT column_name, data_type 
-        FROM information_schema.columns 
+        SELECT column_name, data_type
+        FROM information_schema.columns
         WHERE table_name = 'transactions'
         ORDER BY ordinal_position;
     """)
     schema_info = cursor.fetchall()
     schema_text = "\n".join([f"- {col[0]}: {col[1]}" for col in schema_info])
-    
+
     # Get row count
     cursor.execute("SELECT COUNT(*) FROM transactions;")
     row_count = cursor.fetchone()[0]
-    
+
     # Get sample data
     cursor.execute("SELECT * FROM transactions LIMIT 2;")
     samples = cursor.fetchall()
     col_names = [desc[0] for desc in cursor.description]
     sample_text = "\n".join([str(dict(zip(col_names, row))) for row in samples])
-    
+
     db_context = f"""You have access to a PostgreSQL database with a 'transactions' table containing {row_count:,} transaction records.
 
 Table Schema (transactions):
@@ -63,7 +63,7 @@ The system will execute your query and return the results. Only then can you ans
 Always use SELECT queries. Be specific and limit results appropriately (use LIMIT when counting or aggregating large datasets)."""
 
     print(f"✓ Connected to database: {row_count:,} transactions loaded\n")
-    
+
 except Exception as e:
     db_context = "Database connection failed. Unable to access transaction data."
     print(f"⚠ Warning: Could not connect to database - {e}\n")
@@ -99,16 +99,16 @@ while True:
     except KeyboardInterrupt:
         print("\nInterrupted. Goodbye!")
         break
-    
+
     # Check for exit commands
     if user_message.lower() in ['exit', 'quit', 'q']:
         print("Goodbye!")
         break
-    
+
     # Skip empty messages
     if not user_message:
         continue
-    
+
     # Create conversation with the user message
     conversation = [
         {
@@ -116,7 +116,7 @@ while True:
             "content": [{"text": user_message}],
         }
     ]
-    
+
     try:
         # Send the message to the model with database context
         response = client.converse(
@@ -125,11 +125,11 @@ while True:
             system=[{"text": db_context}],  # Add database schema as system context
             inferenceConfig={"maxTokens": 2048, "temperature": 0.7},
         )
-        
+
         # Extract and print the response text
         response_text = response["output"]["message"]["content"][0]["text"]
         print(f"\nClaudiu: {response_text}\n")
-        
+
         # Check if response contains SQL query
         if "```sql" in response_text.lower():
             # Extract SQL query
@@ -138,40 +138,40 @@ while True:
             if sql_match:
                 sql_query = sql_match.group(1).strip()
                 print(f"🔍 Executing query: {sql_query}\n")
-                
+
                 # Execute the query
                 result = execute_sql_query(sql_query)
-                
+
                 if result["success"]:
                     # Format and display results
                     print("📊 Query Results:")
                     print(f"Columns: {', '.join(result['columns'])}")
                     print(f"Rows returned: {len(result['rows'])}\n")
-                    
+
                     for i, row in enumerate(result['rows'][:20], 1):  # Show first 20 rows
                         print(f"{i}. {dict(zip(result['columns'], row))}")
-                    
+
                     if len(result['rows']) > 20:
                         print(f"\n... ({len(result['rows']) - 20} more rows)")
                     print()
-                    
+
                     # Send results back to Claude for interpretation
                     followup = [{
                         "role": "user",
                         "content": [{"text": f"Query results: {result['rows'][:50]}"}]  # Limit for token efficiency
                     }]
-                    
+
                     followup_response = client.converse(
                         modelId=model_id,
                         messages=conversation + [{"role": "assistant", "content": [{"text": response_text}]}] + followup,
                         system=[{"text": db_context}],
                         inferenceConfig={"maxTokens": 1024, "temperature": 0.7},
                     )
-                    
+
                     interpretation = followup_response["output"]["message"]["content"][0]["text"]
                     print(f"Claudiu: {interpretation}\n")
                 else:
                     print(f"❌ Query error: {result['error']}\n")
-        
+
     except Exception as e:
         print(f"\nError: {str(e)}\n")
