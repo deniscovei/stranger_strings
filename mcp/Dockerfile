@@ -1,14 +1,21 @@
-FROM python:3.10-slim
+# Dockerfile
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Copy requirements first for better caching
-COPY requirements.txt /app/
+# (Optional) system deps for some wheels
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install deps
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application
-COPY server.py /app/
+# Your code
+COPY . .
 
-EXPOSE 8080
-
-CMD ["python", "server.py"]
+# Default command; args can be appended at `docker run`
+CMD ["python", "openai_client.py"]
