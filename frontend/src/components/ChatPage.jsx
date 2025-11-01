@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { sendChatMessage } from '../api'
+import DarkModeToggle from '../components/DarkModeToggle'
 
 export default function ChatPage() {
   const [messages, setMessages] = useState([
@@ -101,7 +102,12 @@ export default function ChatPage() {
   }
 
   return (
+    
     <div className="chat-page">
+      <div className="top-right-controls">
+        <DarkModeToggle />
+      </div>
+
       <div className="chat-page-header">
         <div>
           <h2>AI Assistant</h2>

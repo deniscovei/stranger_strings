@@ -41,15 +41,25 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
 .chat-footer button { padding: 8px 12px; background: #4f46e5; color: white; border: none; border-radius: 6px }
 
 /* Top-right logo */
-.top-right-logo {
+/* .top-right-logo {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  width: 40px;
-  height: 40px;
+  top: 0px;
+  right: 10px;
+  width: 94px;
+  height: 94px;
+  z-index: 2500;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+} */
+ .top-right-logo {
+  position: fixed;
+  top: -3px;
+  right: 0;        /* mai la dreapta decât 10px */
+  width: 90px;    /* mai mare */
+  height: 112px;
   z-index: 2500;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 }
+
 
 /* Verify Transaction Form */
 .verify-transaction .form-columns {
@@ -964,4 +974,481 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
     padding: 12px 16px;
   }
 }
+/* Manage Data: action buttons */
+.data-actions {
+  display: flex;
+  justify-content: center; /* centrează pe orizontală */
+  align-items: center;
+  gap: 12px;               /* spațiu între butoane */
+  margin-top: 32px;        /* distanță față de tabel */
+}
+
+.upload-data-btn {
+  padding: 12px 28px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+  min-width: 180px; /* menține butoane egale */
+  text-align: center;
+}
+
+.upload-data-btn:hover:not(:disabled) {
+  background: #4338ca;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
+}
+
+.upload-data-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.upload-data-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .data-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .upload-data-btn {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+/* --- Dark Mode Toggle positioning next to logo --- */
+.top-right-controls {
+  position: fixed;
+  top: 0px;
+  right: 82px; /* 40px logo + ~12px gap + puțin spațiu */
+  z-index: 2500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.top-right-controls { top: 31px; }
+
+/* Toggle button style (același look & feel ca restul UI) */
+.dark-toggle-btn {
+  padding: 8px 12px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+  line-height: 1;
+}
+
+.dark-toggle-btn:hover {
+  background: #4338ca;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
+}
+
+.dark-toggle-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Dacă vrei ca butonul să dispară pe ecrane foarte mici, poți ascunde sau repoziționa */
+@media (max-width: 480px) {
+  .top-right-controls {
+    right: 100px;
+  }
+}
+/* =======================
+   Dark Mode (root: .dark)
+   ======================= */
+.dark body {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+.dark section {
+  background: #0b1220;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  border-color: #1f2937;
+}
+
+.dark .manage-data-container h2 {
+  color: #e5e7eb;
+}
+
+.dark .search-bar,
+.dark .filter-dropdown,
+.dark .items-per-page-select,
+.dark .chat-input {
+  background: #0b1220;
+  color: #e5e7eb;
+  border-color: #1f2937;
+}
+
+.dark .search-bar:focus,
+.dark .filter-dropdown:focus,
+.dark .items-per-page-select:focus,
+.dark .chat-input:focus {
+  background: #111827;
+  border-color: #6366f1;
+}
+
+/* transactions list */
+.dark .transactions-list {
+  background: #0b1220;
+  border-color: #1f2937;
+}
+
+.dark .transaction-header {
+  background: #111827;
+  color: #cbd5e1;
+  border-bottom-color: #1f2937;
+}
+
+.dark .transaction-row {
+  color: #e5e7eb;
+  border-bottom-color: #1f2937;
+}
+
+.dark .transaction-row:hover {
+  background: #111827;
+}
+
+/* badges */
+.dark .status-badge.fraud {
+  background: #2b1a1a;
+  color: #fca5a5;
+}
+.dark .status-badge.legitimate {
+  background: #0f2316;
+  color: #86efac;
+}
+
+/* pagination */
+.dark .pagination-controls {
+  background: #0b1220;
+}
+.dark .pagination-btn {
+  background: #0b1220;
+  color: #cbd5e1;
+  border-color: #1f2937;
+}
+.dark .pagination-btn:hover:not(:disabled) {
+  background: #111827;
+  border-color: #6366f1;
+  color: #e5e7eb;
+}
+.dark .pagination-btn.active {
+  background: #4f46e5;
+  color: white;
+  border-color: #4f46e5;
+}
+.dark .pagination-btn:disabled {
+  background: #0b1220;
+}
+
+/* summary + controls */
+.dark .data-summary {
+  background: #0b1220;
+  color: #94a3b8;
+}
+
+/* buttons (upload/remove/toggle reuse culorile brand) */
+.dark .upload-data-btn,
+.dark .dark-toggle-btn,
+.dark .clear-chat-btn,
+.dark .chat-send-btn {
+  /* păstrează culorile brand pentru consistență */
+  background: #4f46e5;
+  color: #fff;
+}
+.dark .upload-data-btn:hover,
+.dark .dark-toggle-btn:hover,
+.dark .clear-chat-btn:hover,
+.dark .chat-send-btn:hover {
+  background: #4338ca;
+}
+/* ==== Dark Mode overrides for Chat page ==== */
+.dark .chat-page {
+  background: #0b1220;
+}
+
+.dark .chat-page-header {
+  background: #111827;
+  border-bottom-color: #1f2937;
+}
+
+.dark .chat-subtitle {
+  color: #94a3b8;
+}
+
+.dark .chat-messages-container {
+  background: #0f172a;
+}
+
+.dark .chat-messages {
+  /* păstrezi layoutul, doar culori mai “dark” */
+}
+
+.dark .chat-message.assistant {
+  background: #0b1220;
+  border: 1px solid #1f2937;
+  color: #e5e7eb;
+}
+
+.dark .chat-message.user {
+  /* păstrăm bula brand albastră, doar text clar */
+  background: #4f46e5;
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.dark .message-role { color: #cbd5e1; }
+.dark .message-time { color: #94a3b8; }
+
+.dark .chat-message.error {
+  background: #2b1a1a;
+  border-color: #7f1d1d;
+  color: #fecaca;
+}
+
+.dark .typing-indicator span {
+  background: #9ca3af;
+}
+
+.dark .chat-input-form {
+  background: #0b1220;
+  border-top-color: #1f2937;
+}
+
+.dark .chat-input {
+  background: #111827;
+  color: #e5e7eb;
+  border-color: #1f2937;
+}
+
+.dark .chat-input:focus {
+  border-color: #6366f1;
+}
+
+.dark .chat-send-btn {
+  /* același buton brand în dark */
+  background: #4f46e5;
+  color: #fff;
+}
+
+.dark .chat-send-btn:hover:not(:disabled) {
+  background: #4338ca;
+}
+
+.dark .clear-chat-btn {
+  background: #ef4444;
+  color: #fff;
+}
+
+.dark .clear-chat-btn:hover {
+  background: #dc2626;
+}
+
+/* (opțional) scroll bar discret în dark */
+.dark .chat-messages-container::-webkit-scrollbar {
+  width: 10px;
+}
+.dark .chat-messages-container::-webkit-scrollbar-thumb {
+  background: #1f2937;
+  border-radius: 8px;
+}
+
+/* ==== Dark Mode: Verify Transaction ==== */
+.dark .verify-transaction {
+  background: #0b1220;               /* card/section mai închis */
+  box-shadow: 0 1px 2px rgba(0,0,0,.4);
+  border-color: #1f2937;
+}
+
+.dark .verify-transaction h2 { color: #e5e7eb; }
+.dark .verify-transaction p  { color: #94a3b8; }
+
+/* Labels */
+.dark .verify-transaction .form-field label {
+  color: #cbd5e1;
+}
+
+/* Inputs + Selects */
+.dark .verify-transaction .form-field input[type="text"],
+.dark .verify-transaction .form-field input[type="number"],
+.dark .verify-transaction .form-field input[type="date"],
+.dark .verify-transaction .form-field input[type="datetime-local"],
+.dark .verify-transaction .form-field input[type="month"],
+.dark .verify-transaction .form-field input[type="time"],
+.dark .verify-transaction .form-field select {
+  background: #111827;
+  color: #e5e7eb;
+  border: 1px solid #1f2937;
+}
+
+.dark .verify-transaction .form-field input::placeholder {
+  color: #94a3b8; opacity: 1;
+}
+
+/* Focus state */
+.dark .verify-transaction .form-field input[type="text"]:focus,
+.dark .verify-transaction .form-field input[type="number"]:focus,
+.dark .verify-transaction .form-field input[type="date"]:focus,
+.dark .verify-transaction .form-field input[type="datetime-local"]:focus,
+.dark .verify-transaction .form-field input[type="month"]:focus,
+.dark .verify-transaction .form-field input[type="time"]:focus,
+.dark .verify-transaction .form-field select:focus {
+  background: #0b1220;
+  border-color: #6366f1;
+}
+
+/* Dropdown arrow mai deschis în dark */
+.dark .verify-transaction .form-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23cbd5e1' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+}
+
+/* Checkbox */
+.dark .verify-transaction .form-field input[type="checkbox"] {
+  accent-color: #4f46e5;   /* suportat modern browsers */
+}
+
+/* Erori */
+.dark .verify-transaction .form-field input.error,
+.dark .verify-transaction .form-field select.error {
+  border-color: #dc2626;
+  background: #2b1a1a;
+}
+.dark .verify-transaction .error-message { color: #fca5a5; }
+
+/* Footer acțiuni + buton */
+.dark .verify-transaction .form-actions {
+  border-top-color: #1f2937;
+}
+.dark .verify-transaction .check-btn {
+  background: #4f46e5;
+  color: #fff;
+}
+.dark .verify-transaction .check-btn:hover { background: #4338ca; }
+.dark .verify-transaction .check-btn:disabled {
+  background: #9ca3af; opacity: .6; cursor: not-allowed;
+}
+/* Fix select arrows in Dark Mode (Verify Transaction) */
+.dark .verify-transaction .form-field select {
+  /* deja ai culorile; adaugăm controlul pentru background svg */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23cbd5e1' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 12px !important;
+  padding-right: 40px;
+
+  /* ascunde săgeata nativă, ca să nu apară dublă */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* (opțional, pentru vechiul Edge/IE) */
+.verify-transaction .form-field select::-ms-expand { display: none; }
+/* Chat text visibility in Dark Mode */
+.dark .chat-message.assistant .message-content {
+  color: #e5e7eb;   /* text deschis pentru bula asistentului */
+}
+
+.dark .chat-message.user .message-content {
+  color: #ffffff;   /* text alb în bula utilizatorului */
+}
+
+.dark .chat-message.assistant .message-header,
+.dark .chat-message.assistant .message-role,
+.dark .chat-message.assistant .message-time {
+  color: #cbd5e1;   /* antet/rol/oră mai vizibile */
+}
+
+/* mesaj de eroare în dark */
+.dark .chat-message.error .message-content {
+  color: #fecaca;
+}
+
+/* (opțional) crește puțin contrastul bulei asistentului */
+.dark .chat-message.assistant {
+  background: #0f172a;
+  border: 1px solid #1f2937;
+}
+/* ==== Dark Mode: Left Menu / Sidebar ==== */
+.dark .left-menu {
+  background: #0b1220;
+  box-shadow: 2px 0 20px rgba(0,0,0,0.35);
+  border-right: 1px solid #1f2937;
+}
+
+.dark .left-menu .menu-header {
+  color: #e5e7eb;
+}
+
+.dark .left-menu .menu-toggle {
+  color: #cbd5e1;
+}
+
+.dark .left-menu .menu-items {
+  /* nothing special; keep layout */
+}
+
+.dark .left-menu .menu-item {
+  color: #e5e7eb;
+  background: #111827;
+  border: 1px solid #1f2937;
+}
+
+.dark .left-menu .menu-item:hover {
+  background: #0f172a;
+  border-color: #6366f1;
+}
+
+.dark .left-menu .menu-item:active {
+  background: #0c1324;
+}
+
+/* dacă ai un "active" pe item-ul din meniu */
+.dark .left-menu .menu-item.active {
+  background: #1f2233;
+  border-color: #6366f1;
+  color: #ffffff;
+}
+
+/* butonul violet rămâne în brand, dar cu hover adaptat */
+.dark .left-menu .chat-btn {
+  background: #4f46e5;
+  color: #fff;
+}
+.dark .left-menu .chat-btn:hover {
+  background: #4338ca;
+}
+
+/* footer text */
+.dark .left-menu .menu-footer {
+  color: #94a3b8;
+}
+
+/* când sidebar-ul e în modul "closed" păstrăm contrast bun pentru fundal */
+.dark .left-menu-col.closed .left-menu {
+  background: #0b1220;
+  border-right-color: #1f2937;
+}
+
+.top-right-controls { top: 31px; transform: translateY(8px); } /* coboară cu 8px */
+
 

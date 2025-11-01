@@ -8,7 +8,7 @@ import ManageData from './components/ManageData'
 import ChatPage from './components/ChatPage'
 import VerifyTransaction from './components/VerifyTransaction'
 import TransactionResult from './components/TransactionResult'
-import strangerLogo from './assets/stranger-logo.svg'
+import strangerLogo from './assets/stranger-logo.png'
 import { fetchData, fetchPredictions } from './api'
 
 export default function App() {

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { fetchTransactions, uploadDataFile } from '../api'
+import DarkModeToggle from '../components/DarkModeToggle'
+
 
 export default function ManageData() {
   const [transactions, setTransactions] = useState([])
@@ -24,8 +26,6 @@ export default function ManageData() {
       setTransactions(data)
       setFilteredTransactions(data)
     } catch (err) {
-    //   console.error('Failed to load transactions:', err)
-    //   setError('Failed to load transactions')
       // Use mock data for development
       const mockData = generateMockData()
       setTransactions(mockData)
@@ -40,20 +40,17 @@ export default function ManageData() {
   }, [searchTerm, filterBy, transactions])
 
   useEffect(() => {
-    // Reset to first page when filters change
     setCurrentPage(1)
   }, [searchTerm, filterBy, itemsPerPage])
 
   const filterTransactions = () => {
     let filtered = [...transactions]
 
-    // Apply fraud filter
     if (filterBy !== 'all') {
       const isFraudFilter = filterBy === 'fraud' ? 1 : 0
       filtered = filtered.filter(t => t.isFraud === isFraudFilter)
     }
 
-    // Apply search filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
       filtered = filtered.filter(t => 
@@ -68,48 +65,36 @@ export default function ManageData() {
   }
 
   const handleUploadData = () => {
-    // Trigger the hidden file input click
     fileInputRef.current?.click()
   }
 
   const handleFileChange = async (event) => {
     const file = event.target.files?.[0]
-    
-    if (!file) {
-      return
-    }
+    if (!file) return
 
-    // Validate file type
     if (!file.name.endsWith('.csv')) {
       alert('Please select a CSV file')
-      event.target.value = '' // Reset input
+      event.target.value = ''
       return
     }
 
-    // Validate file size (e.g., max 1000MB)
-    const maxSize = 1000 * 1024 * 1024 // 1000MB
+    const maxSize = 1000 * 1024 * 1024
     if (file.size > maxSize) {
       alert('File size must be less than 1000MB')
-      event.target.value = '' // Reset input
+      event.target.value = ''
       return
     }
 
     try {
       setUploading(true)
       const result = await uploadDataFile(file)
-      
-      // Show success message
       alert(`File uploaded successfully! ${result.message || 'Data has been processed.'}`)
-      
-      // Reload transactions to show new data
       await loadTransactions()
-      
-      // Reset file input
       event.target.value = ''
     } catch (err) {
       console.error('Failed to upload file:', err)
       alert(`Upload failed: ${err.response?.data?.message || err.message || 'Unknown error'}`)
-      event.target.value = '' // Reset input
+      event.target.value = ''
     } finally {
       setUploading(false)
     }
@@ -147,7 +132,7 @@ export default function ManageData() {
     })
   }
 
-  // Pagination calculations
+  // Pagination
   const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
@@ -167,28 +152,20 @@ export default function ManageData() {
     const maxPagesToShow = 5
 
     if (totalPages <= maxPagesToShow) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i)
-      }
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
     } else {
       if (currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) {
-          pages.push(i)
-        }
+        for (let i = 1; i <= 4; i++) pages.push(i)
         pages.push('...')
         pages.push(totalPages)
       } else if (currentPage >= totalPages - 2) {
         pages.push(1)
         pages.push('...')
-        for (let i = totalPages - 3; i <= totalPages; i++) {
-          pages.push(i)
-        }
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i)
       } else {
         pages.push(1)
         pages.push('...')
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-          pages.push(i)
-        }
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i)
         pages.push('...')
         pages.push(totalPages)
       }
@@ -197,8 +174,24 @@ export default function ManageData() {
     return pages
   }
 
+  // 🗑️ Remove Data
+  const handleRemoveData = () => {
+    const confirmDelete = window.confirm('Are you sure you want to remove all data? This action cannot be undone.')
+    if (!confirmDelete) return
+
+    setTransactions([])
+    setFilteredTransactions([])
+    alert('All data has been removed successfully.')
+  }
+
   return (
     <div className="manage-data-container">
+      {/* Toggle + logo area */}
+    <div className="top-right-controls">
+      {/* Dacă ai deja logo-ul cu clasa .top-right-logo, îl poți lăsa cum e.
+          Acest container poziționează doar butonul lângă logo. */}
+      <DarkModeToggle />
+    </div>
       <h2>My Data</h2>
       
       <div className="data-controls">
@@ -260,80 +253,60 @@ export default function ManageData() {
           </div>
 
           {filteredTransactions.length > 0 && (
-            <>
-              <div className="pagination-controls">
-                <div className="pagination-info">
-                  <span>
-                    Showing {startIndex + 1} to {Math.min(endIndex, filteredTransactions.length)} of {filteredTransactions.length} transactions
-                  </span>
-                  <div className="items-per-page">
-                    <label htmlFor="itemsPerPage">Items per page:</label>
-                    <select
-                      id="itemsPerPage"
-                      value={itemsPerPage}
-                      onChange={handleItemsPerPageChange}
-                      className="items-per-page-select"
-                    >
-                      <option value={25}>25</option>
-                      <option value={50}>50</option>
-                      <option value={75}>75</option>
-                      <option value={100}>100</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="pagination-buttons">
-                  <button
-                    className="pagination-btn"
-                    onClick={() => handlePageChange(1)}
-                    disabled={currentPage === 1}
+            <div className="pagination-controls">
+              <div className="pagination-info">
+                <span>
+                  Showing {startIndex + 1} to {Math.min(endIndex, filteredTransactions.length)} of {filteredTransactions.length} transactions
+                </span>
+                <div className="items-per-page">
+                  <label htmlFor="itemsPerPage">Items per page:</label>
+                  <select
+                    id="itemsPerPage"
+                    value={itemsPerPage}
+                    onChange={handleItemsPerPageChange}
+                    className="items-per-page-select"
                   >
-                    &laquo; First
-                  </button>
-                  <button
-                    className="pagination-btn"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                  >
-                    &lsaquo; Prev
-                  </button>
-
-                  {getPageNumbers().map((page, index) => (
-                    page === '...' ? (
-                      <span key={`ellipsis-${index}`} className="pagination-ellipsis">...</span>
-                    ) : (
-                      <button
-                        key={page}
-                        className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
-                        onClick={() => handlePageChange(page)}
-                      >
-                        {page}
-                      </button>
-                    )
-                  ))}
-
-                  <button
-                    className="pagination-btn"
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                  >
-                    Next &rsaquo;
-                  </button>
-                  <button
-                    className="pagination-btn"
-                    onClick={() => handlePageChange(totalPages)}
-                    disabled={currentPage === totalPages}
-                  >
-                    Last &raquo;
-                  </button>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                    <option value={75}>75</option>
+                    <option value={100}>100</option>
+                  </select>
                 </div>
               </div>
-            </>
+
+              <div className="pagination-buttons">
+                <button className="pagination-btn" onClick={() => handlePageChange(1)} disabled={currentPage === 1}>
+                  &laquo; First
+                </button>
+                <button className="pagination-btn" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+                  &lsaquo; Prev
+                </button>
+
+                {getPageNumbers().map((page, index) =>
+                  page === '...' ? (
+                    <span key={`ellipsis-${index}`} className="pagination-ellipsis">...</span>
+                  ) : (
+                    <button
+                      key={page}
+                      className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
+                      onClick={() => handlePageChange(page)}
+                    >
+                      {page}
+                    </button>
+                  )
+                )}
+
+                <button className="pagination-btn" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+                  Next &rsaquo;
+                </button>
+                <button className="pagination-btn" onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages}>
+                  Last &raquo;
+                </button>
+              </div>
+            </div>
           )}
 
-          <div className="data-summary">
-            Total: {transactions.length} transactions
-          </div>
+          <div className="data-summary">Total: {transactions.length} transactions</div>
 
           <input
             type="file"
@@ -343,13 +316,23 @@ export default function ManageData() {
             style={{ display: 'none' }}
           />
 
-          <button 
-            className="upload-data-btn" 
-            onClick={handleUploadData}
-            disabled={uploading}
-          >
-            {uploading ? 'Uploading...' : 'Upload Data'}
-          </button>
+          <div className="data-actions">
+            <button 
+              className="upload-data-btn" 
+              onClick={handleUploadData}
+              disabled={uploading}
+            >
+              {uploading ? 'Uploading...' : 'Upload Data'}
+            </button>
+
+            <button 
+              className="upload-data-btn"  // same class → same style
+              onClick={handleRemoveData}
+              disabled={transactions.length === 0}
+            >
+              Remove Data
+            </button>
+          </div>
         </>
       )}
     </div>
