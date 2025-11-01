@@ -3,18 +3,18 @@ services:
     image: postgres:16-alpine
     container_name: denis_postgres
     environment:
-      POSTGRES_DB: txdb
-      POSTGRES_USER: mcp_readonly
-      POSTGRES_PASSWORD: your_secure_password
+      POSTGRES_DB: ${POSTGRES_DB:-txdb}
+      POSTGRES_USER: ${POSTGRES_USER:-mcp_readonly}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-your_secure_password}
     ports:
-      - "5433:5432"
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/01-schema.sql
-      - ../dataset/transactions:/data/transactions:ro  # Mount your transactions CSV file
-      - ./load_data.sql:/docker-entrypoint-initdb.d/02-load-data.sql
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ../dataset/transactions:/dataset/transactions:ro  # Mount your transactions CSV file
+      - ./sql/load_data.sql:/docker-entrypoint-initdb.d/02-load-data.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mcp_readonly -d txdb"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mcp_readonly} -d ${POSTGRES_DB:-txdb}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -31,20 +31,22 @@ services:
         condition: service_healthy
     environment:
       # Override DATABASE_URI to use the postgres service name
-      DATABASE_URI: postgresql://mcp_readonly:your_secure_password@postgres:5432/txdb
+      DATABASE_URI: postgresql://${POSTGRES_USER:-mcp_readonly}:${POSTGRES_PASSWORD:-your_secure_password}@postgres:5432/${POSTGRES_DB:-txdb}
 
   backend-api:
     build: .
     container_name: denis_api
-    command: python backend_api.py
+    command: python backend/backend_api.py
     ports:
-      - "5000:5000"
+      - "${API_HOST_PORT:-5000}:${API_CONTAINER_PORT:-5000}"
     volumes:
-      - ./lightgbm_model.pkl:/app/lightgbm_model.pkl:ro
-      - ./backend_api.py:/app/backend_api.py:ro
+      - ./models:/app/models:ro
+      - ./backend:/app/backend:ro
     environment:
-      FLASK_ENV: development
-      DATABASE_URI: postgresql://mcp_readonly:your_secure_password@postgres:5432/txdb
+      FLASK_ENV: ${FLASK_ENV:-development}
+      FLASK_PORT: ${API_CONTAINER_PORT:-5000}
+      MODEL_PATH: /app/models/lightgbm_model.pkl
+      DATABASE_URI: postgresql://${POSTGRES_USER:-mcp_readonly}:${POSTGRES_PASSWORD:-your_secure_password}@postgres:5432/${POSTGRES_DB:-txdb}
     depends_on:
       postgres:
         condition: service_healthy

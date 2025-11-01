@@ -12,15 +12,17 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy all application code
 COPY aws_client.py .
-COPY backend_api.py .
-COPY lightgbm_model.pkl .
+COPY backend/ ./backend/
+COPY models/ ./models/
+COPY sql/ ./sql/
 
 # Copy .env file if it exists (optional, can be mounted at runtime)
 COPY .env* ./
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
-ENV FLASK_APP=backend_api.py
+ENV FLASK_APP=backend/backend_api.py
+ENV MODEL_PATH=/app/models/lightgbm_model.pkl
 
 # Default: Run the LLM client (can override in docker-compose)
 CMD ["python", "aws_client.py"]
