@@ -50,6 +50,9 @@ docker compose exec postgres psql -U mcp_readonly -d txdb -c "SELECT COUNT(*) FR
 
 # Run interactive LLM client
 docker compose run --rm llm-client
+
+# Stop the container
+docker compose down -v 
 ```
 
 ### 3. Test the API
