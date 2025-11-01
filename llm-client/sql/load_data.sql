@@ -1,14 +1,4 @@
--- Ensure user exists and has proper permissions
-DO $$
-BEGIN
-    -- Create user if it doesn't exist
-    IF NOT EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'mcp_readonly') THEN
-        CREATE USER mcp_readonly WITH PASSWORD 'your_secure_password';
-        RAISE NOTICE 'Created user mcp_readonly';
-    END IF;
-END $$;
-
--- Grant all necessary permissions to the user
+-- Grant comprehensive permissions to the user (user was already created in init.sql)
 GRANT ALL PRIVILEGES ON DATABASE txdb TO mcp_readonly;
 GRANT ALL PRIVILEGES ON SCHEMA public TO mcp_readonly;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO mcp_readonly;

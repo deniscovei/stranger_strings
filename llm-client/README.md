@@ -21,18 +21,60 @@ llm-client/
 
 ## Quick Start
 
-### 1. Build containers
+### 1. Configure data file path
+
+⚠️ **IMPORTANT**: Before running, configure your transactions data file path:
+
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit .env and set TRANSACTIONS_FILE to your local path
+# Example: TRANSACTIONS_FILE=../dataset/transactions
+```
+
+See `SETUP.md` for detailed instructions.
+
+### 2. Build containers
 ```bash
 docker compose build
 ```
 
-### 2. Start services
+### 3. Start services
 ```bash
 # Start PostgreSQL and Backend API
 docker compose up -d postgres backend-api
 
+# Verify data loaded (should show count > 0)
+docker compose exec postgres psql -U mcp_readonly -d txdb -c "SELECT COUNT(*) FROM transactions;"
+
 # Run interactive LLM client
 docker compose run --rm llm-client
+```
+
+## Data Loading
+
+The system automatically loads transaction data on startup:
+
+- **First run**: Data is loaded from the mounted CSV file
+- **Subsequent runs**: Existing data is preserved (no reload)
+- **Force reload**: Set `FORCE_RELOAD=true` in `.env` or run:
+  ```bash
+  FORCE_RELOAD=true docker compose up -d
+  ```
+
+### Manual Data Operations
+
+```bash
+# Check transaction count
+docker exec stranger_strings_postgres psql -U mcp_readonly -d txdb -c "SELECT COUNT(*) FROM transactions;"
+
+# Manually reload data (truncates and reloads)
+docker exec stranger_strings_postgres psql -U mcp_readonly -d txdb -c "TRUNCATE transactions;"
+docker compose restart data-loader
+
+# View sample data
+docker exec stranger_strings_postgres psql -U mcp_readonly -d txdb -c "SELECT * FROM transactions LIMIT 5;"
 ```
 
 ### 3. Test the API

@@ -1,3 +1,15 @@
+-- Ensure user exists first
+DO $$
+BEGIN
+    -- Create user if it doesn't exist
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'mcp_readonly') THEN
+        CREATE USER mcp_readonly WITH PASSWORD 'your_secure_password';
+        RAISE NOTICE 'Created user mcp_readonly';
+    ELSE
+        RAISE NOTICE 'User mcp_readonly already exists';
+    END IF;
+END $$;
+
 -- Create the transactions table
 CREATE TABLE IF NOT EXISTS transactions (
     row_id bigint,
@@ -32,5 +44,5 @@ CREATE TABLE IF NOT EXISTS transactions (
     isFraud boolean
 );
 
--- Grant permissions to the user
+-- Grant permissions to the user on the table
 GRANT ALL PRIVILEGES ON TABLE transactions TO mcp_readonly;
