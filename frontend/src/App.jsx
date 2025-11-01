@@ -5,6 +5,7 @@ import RightMenu from './components/RightMenu'
 import ChatModal from './components/ChatModal'
 import DataPage from './components/DataPage'
 import ManageData from './components/ManageData'
+import ChatPage from './components/ChatPage'
 import VerifyTransaction from './components/VerifyTransaction'
 import TransactionResult from './components/TransactionResult'
 import strangerLogo from './assets/stranger-logo.svg'
@@ -41,9 +42,15 @@ export default function App() {
 
   const handleNavigate = (page, data) => {
     setCurrentPage(page)
+    setChatOpen(false) // Close chat modal when navigating
     if (page === 'result' && data) {
       setVerificationResult(data)
     }
+  }
+
+  const handleOpenChat = () => {
+    setCurrentPage('chat')
+    setChatOpen(false)
   }
 
   const handleBackToVerify = () => {
@@ -64,7 +71,7 @@ export default function App() {
       
       <div className={`container layout ${menuOpen ? '' : 'menu-closed'}`}>
         <aside className={`left-menu-col ${menuOpen ? 'open' : 'closed'}`}>
-          <RightMenu onToggle={() => setMenuOpen((s) => !s)} onOpenChat={() => setChatOpen(true)} onNavigate={handleNavigate} />
+          <RightMenu onToggle={() => setMenuOpen((s) => !s)} onOpenChat={handleOpenChat} onNavigate={handleNavigate} />
         </aside>
 
       <main className="main-col">
@@ -78,6 +85,8 @@ export default function App() {
           <>
             {currentPage === 'data' ? (
               <ManageData />
+            ) : currentPage === 'chat' ? (
+              <ChatPage />
             ) : currentPage === 'verify' ? (
               <VerifyTransaction onNavigate={handleNavigate} />
             ) : currentPage === 'result' ? (
