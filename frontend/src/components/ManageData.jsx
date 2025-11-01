@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { fetchTransactions, uploadDataFile } from '../api'
-import DarkModeToggle from '../components/DarkModeToggle'
 
 
 export default function ManageData() {
@@ -186,12 +185,6 @@ export default function ManageData() {
 
   return (
     <div className="manage-data-container">
-      {/* Toggle + logo area */}
-    <div className="top-right-controls">
-      {/* Dacă ai deja logo-ul cu clasa .top-right-logo, îl poți lăsa cum e.
-          Acest container poziționează doar butonul lângă logo. */}
-      <DarkModeToggle />
-    </div>
       <h2>My Data</h2>
       
       <div className="data-controls">

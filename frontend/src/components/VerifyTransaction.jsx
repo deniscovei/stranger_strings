@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { verifyTransaction } from '../api'
-import DarkModeToggle from '../components/DarkModeToggle'
 
 
 export default function VerifyTransaction({ onNavigate }) {
@@ -28,6 +27,10 @@ export default function VerifyTransaction({ onNavigate }) {
 
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showJsonModal, setShowJsonModal] = useState(false)
+  const [jsonText, setJsonText] = useState('')
+  const [jsonError, setJsonError] = useState('')
+  const [isJsonSubmitting, setIsJsonSubmitting] = useState(false)
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -145,6 +148,8 @@ export default function VerifyTransaction({ onNavigate }) {
     return Object.keys(newErrors).length === 0
   }
 
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     
@@ -154,46 +159,111 @@ export default function VerifyTransaction({ onNavigate }) {
       return
     }
 
-    setIsSubmitting(true)
+  setIsSubmitting(true)
 
     try {
-      // Combine date and time into a single datetime string
-      const transactionDateTime = `${formData.transactionDate}T${formData.transactionTime}`
-      
-      const submitData = {
-        ...formData,
-        transactionDateTime,
-      }
+      // Build the payload using helper so the same shape can be used for JSON-send
+      const submitData = buildSubmitData()
 
       // Call API to verify transaction
       const result = await verifyTransaction(submitData)
       
+      // Transform API response to match expected format for TransactionResult
+      // Include full submitData to show all transaction details (matching JSON verbosity)
+      const transformedResult = {
+        isFraud: result.is_fraud,
+        confidence: result.is_fraud ? result.probability_fraud : result.probability_non_fraud,
+        prediction: result.prediction,
+        modelType: result.model_type,
+        probabilityFraud: result.probability_fraud,
+        probabilityNonFraud: result.probability_non_fraud,
+        transactionId: result.transaction_id,
+        details: submitData
+      }
+      
       // Navigate to result page with the result data
-      onNavigate?.('result', result)
+      onNavigate?.('result', transformedResult)
       
     } catch (error) {
       console.error('Error verifying transaction:', error)
-      
-      // For development: simulate a response if API fails
-      const mockResult = {
-        isFraud: Math.random() > 0.5,
-        confidence: Math.random(),
-        riskScore: Math.random() * 100,
-        details: {
-          amount: formData.transactionAmount,
-          merchant: formData.merchantName,
-          date: formData.transactionDate,
-        },
-        reasons: [
-          'Transaction amount is unusual for this account',
-          'Merchant location differs from typical spending pattern',
-          'Transaction time is outside normal hours'
-        ]
-      }
-      
-      onNavigate?.('result', mockResult)
+      alert(`Failed to verify transaction: ${error.response?.data?.error || error.message || 'Unknown error'}`)
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  // Helper to build the payload that matches backend API
+  const buildSubmitData = () => {
+    const transactionDateTime = `${formData.transactionDate}T${formData.transactionTime}`
+    return {
+      accountNumber: formData.accountNumber,
+      availableMoney: formData.availableMoney ? parseFloat(formData.availableMoney) : undefined,
+      transactionDateTime: transactionDateTime,
+      transactionAmount: formData.transactionAmount ? parseFloat(formData.transactionAmount) : undefined,
+      merchantName: formData.merchantName,
+      merchantCountryCode: formData.merchantCountryCode,
+      posEntryMode: formData.posEntryMode ? String(formData.posEntryMode).padStart(2, '0') : formData.posEntryMode,
+      posConditionCode: formData.posConditionCode ? String(formData.posConditionCode).padStart(2, '0') : formData.posConditionCode,
+      merchantCategoryCode: formData.merchantCategoryCode,
+      currentExpDate: formData.currentExpDate,
+      accountOpenDate: formData.accountOpenDate,
+      dateOfLastAddressChange: formData.dateOfLastAddressChange,
+      cardCVV: formData.cardCVV,
+      cardLast4Digits: formData.cardLast4Digits,
+      transactionType: formData.transactionType,
+      currentBalance: formData.currentBalance ? parseFloat(formData.currentBalance) : undefined,
+      cardPresent: formData.cardPresent,
+      expirationDateKeyInMatch: formData.expirationDateKeyInMatch,
+    }
+  }
+
+  const openJsonModal = () => {
+    try {
+      const payload = buildSubmitData()
+      setJsonText(JSON.stringify(payload, null, 2))
+    } catch (err) {
+      setJsonText('')
+    }
+    setJsonError('')
+    setShowJsonModal(true)
+  }
+
+  const sendJson = async () => {
+    setJsonError('')
+    let parsed
+    try {
+      parsed = JSON.parse(jsonText)
+      if (!parsed || typeof parsed !== 'object') {
+        setJsonError('JSON must be an object with the transaction fields')
+        return
+      }
+    } catch (err) {
+      setJsonError('Invalid JSON: ' + err.message)
+      return
+    }
+
+    setIsJsonSubmitting(true)
+    try {
+      const result = await verifyTransaction(parsed)
+
+      const transformedResult = {
+        isFraud: result.is_fraud,
+        confidence: result.is_fraud ? result.probability_fraud : result.probability_non_fraud,
+        prediction: result.prediction,
+        modelType: result.model_type,
+        probabilityFraud: result.probability_fraud,
+        probabilityNonFraud: result.probability_non_fraud,
+        transactionId: result.transaction_id,
+        details: parsed
+      }
+
+      setShowJsonModal(false)
+      onNavigate?.('result', transformedResult)
+    } catch (error) {
+      console.error('Error sending JSON payload:', error)
+      setJsonError(error.response?.data?.error || error.message || 'Unknown error')
+    } finally {
+      setIsJsonSubmitting(false)
     }
   }
 
@@ -323,18 +393,6 @@ export default function VerifyTransaction({ onNavigate }) {
 
   return (
     <section className="verify-transaction">
-      
-  <>
-    <div className="top-right-controls">
-      <DarkModeToggle />
-    </div>
-
-    <section className="verify-transaction">
-      {/* restul conținutului existent */}
-    </section>
-  </>
-
-
       <h2>Verify a Transaction</h2>
       <p>Enter transaction details below to verify if it's potentially fraudulent.</p>
 
@@ -360,11 +418,42 @@ export default function VerifyTransaction({ onNavigate }) {
         </div>
 
         <div className="form-actions">
-          <button type="submit" className="chat-btn check-btn" disabled={isSubmitting}>
+          <button type="submit" className="check-btn" disabled={isSubmitting}>
             {isSubmitting ? 'Checking...' : 'Check'}
+          </button>
+          <button type="button" className="json-btn" onClick={openJsonModal} disabled={isSubmitting}>
+            Check JSON
           </button>
         </div>
       </form>
+
+      {showJsonModal && (
+        <div className="chat-modal-overlay">
+          <div className="chat-modal">
+            <div className="chat-header">
+              <h3>Send JSON to /predict</h3>
+              <button className="close-btn" onClick={() => setShowJsonModal(false)}>×</button>
+            </div>
+
+            <div className="chat-body">
+              <textarea
+                value={jsonText}
+                onChange={e => setJsonText(e.target.value)}
+                style={{ width: '100%', height: 260, fontFamily: 'monospace', fontSize: 13, padding: 8, borderRadius: 8, border: '1px solid #e6eef8' }}
+              />
+              {jsonError && <div style={{ color: '#dc2626', marginTop: 8 }}>{jsonError}</div>}
+            </div>
+
+            <div className="chat-footer">
+              <button className="chat-btn" onClick={() => setShowJsonModal(false)}>Cancel</button>
+              <button className="chat-send-btn" onClick={sendJson} disabled={isJsonSubmitting}>
+                {isJsonSubmitting ? 'Sending...' : 'Send JSON'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </section>
   )
 }
