@@ -18,6 +18,6 @@ Go to the correct folder: `cd /llm-client`
 
 Install requirements: `pip install -r requirements.txt`
 
-Create your local `.env` file and complete the correct Bedrock bearer token (from Whatsapp)
+Create your local `.env` file and complete the correct Bedrock bearer token (from Whatsapp) - `boto3` fetches this token automatically
 
 Run file: `python aws_client.py`
