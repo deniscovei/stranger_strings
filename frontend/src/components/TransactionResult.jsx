@@ -10,7 +10,10 @@ export default function TransactionResult({ result, onBack }) {
     )
   }
 
-  const isFraudulent = result.isFraud || result.prediction === 'fraud' || result.prediction === 1
+  const isFraudulent = result.isFraud || result.prediction === 1
+  const confidence = isFraudulent 
+    ? (result.probabilityFraud || result.confidence || 0) 
+    : (result.probabilityNonFraud || (1 - result.confidence) || 0)
 
   return (
     <section className="transaction-result">
@@ -42,30 +45,35 @@ export default function TransactionResult({ result, onBack }) {
             : 'This transaction appears to be legitimate based on the analysis. No fraud indicators were detected.'}
         </p>
 
-        {result.confidence && (
-          <div className="result-confidence">
-            <label>Confidence Score:</label>
-            <div className="confidence-bar">
-              <div 
-                className="confidence-fill"
-                style={{ width: `${result.confidence * 100}%` }}
-              />
-            </div>
-            <span className="confidence-value">{(result.confidence * 100).toFixed(1)}%</span>
+        <div className="result-confidence">
+          <label>Confidence Score:</label>
+          <div className="confidence-bar">
+            <div 
+              className="confidence-fill"
+              style={{ width: `${confidence * 100}%` }}
+            />
+          </div>
+          <span className="confidence-value">{(confidence * 100).toFixed(2)}%</span>
+        </div>
+
+        {result.modelType && (
+          <div className="result-metric">
+            <label>Model Type:</label>
+            <span className="metric-value">{result.modelType}</span>
           </div>
         )}
 
-        {result.riskScore && (
+        {result.probabilityFraud !== undefined && (
           <div className="result-metric">
-            <label>Risk Score:</label>
-            <span className="metric-value">{result.riskScore.toFixed(2)}</span>
+            <label>Fraud Probability:</label>
+            <span className="metric-value">{(result.probabilityFraud * 100).toFixed(2)}%</span>
           </div>
         )}
 
-        {result.anomalyScore && (
+        {result.probabilityNonFraud !== undefined && (
           <div className="result-metric">
-            <label>Anomaly Score:</label>
-            <span className="metric-value">{result.anomalyScore.toFixed(2)}</span>
+            <label>Non-Fraud Probability:</label>
+            <span className="metric-value">{(result.probabilityNonFraud * 100).toFixed(2)}%</span>
           </div>
         )}
       </div>
@@ -96,7 +104,7 @@ export default function TransactionResult({ result, onBack }) {
       )}
 
       <div className="result-actions">
-        <button className="chat-btn" onClick={onBack}>
+        <button className="chat-btn check-btn" onClick={onBack}>
           Check Another Transaction
         </button>
       </div>

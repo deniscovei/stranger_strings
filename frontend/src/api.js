@@ -25,8 +25,11 @@ export async function uploadDataFile(file) {
 }
 
 export async function verifyTransaction(transactionData) {
-	// Expected backend endpoint: POST /api/verify-transaction
-	const res = await axios.post('/api/verify-transaction', transactionData)
+	// Backend endpoint: POST /api/predict (proxied to
+	// http://localhost:5000/predict)
+	const res =
+		await axios.post('/api/predict', transactionData,
+						 {headers : {'Content-Type' : 'application/json'}})
 	return res.data
 }
 
