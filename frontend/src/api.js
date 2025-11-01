@@ -29,3 +29,16 @@ export async function verifyTransaction(transactionData) {
 	const res = await axios.post('/api/verify-transaction', transactionData)
 	return res.data
 }
+
+export async function fetchTransactions() {
+	// Expected backend endpoint: GET /api/transactions
+	const res = await axios.get('/api/transactions')
+	return res.data
+}
+
+export async function sendChatMessage(message, conversationHistory = []) {
+	// Expected backend endpoint: POST /api/chat
+	const res =
+		await axios.post('/api/chat', {message, history : conversationHistory})
+	return res.data
+}
