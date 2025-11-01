@@ -33,5 +33,21 @@ services:
       # Override DATABASE_URI to use the postgres service name
       DATABASE_URI: postgresql://mcp_readonly:your_secure_password@postgres:5432/txdb
 
+  backend-api:
+    build: .
+    container_name: denis_api
+    command: python backend_api.py
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./lightgbm_model.pkl:/app/lightgbm_model.pkl:ro
+      - ./backend_api.py:/app/backend_api.py:ro
+    environment:
+      FLASK_ENV: development
+      DATABASE_URI: postgresql://mcp_readonly:your_secure_password@postgres:5432/txdb
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   postgres_data:
