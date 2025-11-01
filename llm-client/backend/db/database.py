@@ -6,92 +6,135 @@ from typing import List, Dict, Any
 
 class Database:
     def __init__(self):
-        self.conn_params = {
-            'host': os.getenv('POSTGRES_HOST', 'localhost'),
-            'database': os.getenv('POSTGRES_DB', 'fraud_detection'),
-            'user': os.getenv('POSTGRES_USER', 'postgres'),
-            'password': os.getenv('POSTGRES_PASSWORD', 'postgres')
-        }
+        print("✓ Database instance created\n")
 
     def get_connection(self):
-        return psycopg2.connect(**self.conn_params)
+        # return psycopg2.connect(**self.conn_params)
 
-    def init_db(self):
-        """Initialize database tables"""
-        with self.get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute("""
-                CREATE TABLE IF NOT EXISTS transactions (
-                    transaction_id SERIAL PRIMARY KEY,
-                    account_number BIGINT,
-                    customer_id BIGINT,
-                    transaction_amount DECIMAL,
-                    transaction_date TIMESTAMP,
-                    merchant_name VARCHAR(255),
-                    merchant_country VARCHAR(3),
-                    merchant_category_code VARCHAR(50),
-                    transaction_type VARCHAR(50),
-                    card_present BOOLEAN,
-                    cvv_provided BOOLEAN,
-                    is_fraud BOOLEAN DEFAULT FALSE,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
-                """)
+        try:
+            conn = psycopg2.connect(os.environ.get('DATABASE_URI'))
+            cursor = conn.cursor()
+
+            # Get table schema
+            cursor.execute("""
+                SELECT column_name, data_type
+                FROM information_schema.columns
+                WHERE table_name = 'transactions'
+                ORDER BY ordinal_position;
+            """)
+            schema_info = cursor.fetchall()
+            print(schema_info)
+            return conn
+        except Exception as e:
+            db_context = "Database connection failed. Unable to access transaction data."
+            print(f"⚠ Warning: Could not connect to database - {e}\n")
 
     def insert_transaction(self, transaction: Dict[str, Any]) -> int:
-        """Insert a single transaction and return its ID"""
+        """Insert a single transaction"""
         with self.get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute("""
                 INSERT INTO transactions (
-                    account_number, customer_id, transaction_amount,
-                    transaction_date, merchant_name, merchant_country,
-                    merchant_category_code, transaction_type, card_present,
-                    cvv_provided, is_fraud
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                RETURNING transaction_id
+                    row_id, accountNumber, customerId, creditLimit, availableMoney,
+                    transactionDateTime, transactionAmount, merchantName, acqCountry,
+                    merchantCountryCode, posEntryMode, posConditionCode, merchantCategoryCode,
+                    currentExpDate, accountOpenDate, dateOfLastAddressChange, cardCVV,
+                    enteredCVV, cardLast4Digits, transactionType, echoBuffer,
+                    currentBalance, merchantCity, merchantState, merchantZip,
+                    cardPresent, posOnPremises, recurringAuthInd,
+                    expirationDateKeyInMatch, isFraud
+                ) VALUES (
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                )
+                RETURNING row_id
                 """, (
+                    transaction.get('row_id'),
                     transaction.get('accountNumber'),
                     transaction.get('customerId'),
-                    transaction.get('transactionAmount'),
+                    transaction.get('creditLimit'),
+                    transaction.get('availableMoney'),
                     transaction.get('transactionDateTime'),
+                    transaction.get('transactionAmount'),
                     transaction.get('merchantName'),
+                    transaction.get('acqCountry'),
                     transaction.get('merchantCountryCode'),
+                    transaction.get('posEntryMode'),
+                    transaction.get('posConditionCode'),
                     transaction.get('merchantCategoryCode'),
-                    transaction.get('transactionType'),
-                    transaction.get('cardPresent'),
+                    transaction.get('currentExpDate'),
+                    transaction.get('accountOpenDate'),
+                    transaction.get('dateOfLastAddressChange'),
+                    transaction.get('cardCVV'),
                     transaction.get('enteredCVV'),
+                    transaction.get('cardLast4Digits'),
+                    transaction.get('transactionType'),
+                    transaction.get('echoBuffer'),
+                    transaction.get('currentBalance'),
+                    transaction.get('merchantCity'),
+                    transaction.get('merchantState'),
+                    transaction.get('merchantZip'),
+                    transaction.get('cardPresent'),
+                    transaction.get('posOnPremises'),
+                    transaction.get('recurringAuthInd'),
+                    transaction.get('expirationDateKeyInMatch'),
                     transaction.get('isFraud', False)
                 ))
                 return cur.fetchone()[0]
 
     def bulk_insert_transactions(self, df: pd.DataFrame) -> int:
         """Insert multiple transactions from a DataFrame"""
+        required_columns = [
+            'row_id', 'accountNumber', 'customerId', 'creditLimit', 'availableMoney',
+            'transactionDateTime', 'transactionAmount', 'merchantName', 'acqCountry',
+            'merchantCountryCode', 'posEntryMode', 'posConditionCode', 'merchantCategoryCode',
+            'currentExpDate', 'accountOpenDate', 'dateOfLastAddressChange', 'cardCVV',
+            'enteredCVV', 'cardLast4Digits', 'transactionType', 'echoBuffer',
+            'currentBalance', 'merchantCity', 'merchantState', 'merchantZip',
+            'cardPresent', 'posOnPremises', 'recurringAuthInd', 'expirationDateKeyInMatch'
+        ]
+
+        # Ensure all required columns exist
+        for col in required_columns:
+            if col not in df.columns:
+                df[col] = None
+
         with self.get_connection() as conn:
             with conn.cursor() as cur:
-                values = df[[
-                    'accountNumber', 'customerId', 'transactionAmount',
-                    'transactionDateTime', 'merchantName', 'merchantCountryCode',
-                    'merchantCategoryCode', 'transactionType', 'cardPresent',
-                    'enteredCVV'
-                ]].values.tolist()
-
+                values = df[required_columns].values.tolist()
                 execute_batch(cur, """
                 INSERT INTO transactions (
-                    account_number, customer_id, transaction_amount,
-                    transaction_date, merchant_name, merchant_country,
-                    merchant_category_code, transaction_type, card_present,
-                    cvv_provided
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    row_id, accountNumber, customerId, creditLimit, availableMoney,
+                    transactionDateTime, transactionAmount, merchantName, acqCountry,
+                    merchantCountryCode, posEntryMode, posConditionCode, merchantCategoryCode,
+                    currentExpDate, accountOpenDate, dateOfLastAddressChange, cardCVV,
+                    enteredCVV, cardLast4Digits, transactionType, echoBuffer,
+                    currentBalance, merchantCity, merchantState, merchantZip,
+                    cardPresent, posOnPremises, recurringAuthInd,
+                    expirationDateKeyInMatch, isFraud
+                ) VALUES (
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, False
+                )
                 """, values)
 
                 return len(values)
 
     def clear_transactions(self):
         """Clear all transactions"""
-        with self.get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute("TRUNCATE TABLE transactions RESTART IDENTITY")
+        try:
+            query = "DELETE FROM transactions"
+
+            conn = self.get_connection()
+            cursor = conn.cursor()
+            cursor.execute(query)
+            deleted_count = cursor.rowcount
+            conn.commit()
+            cursor.close()
+            return deleted_count
+        except Exception as e:
+            print(f"⚠ Warning: Could not clear transactions - {e}\n")
+            raise e
 
 # Create singleton instance
 db = Database()

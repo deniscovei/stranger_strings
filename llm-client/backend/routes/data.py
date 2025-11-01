@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 import pandas as pd
-from ..db.database import db
+from db.database import db
 from io import StringIO
 
 data_bp = Blueprint('data', __name__)
@@ -35,7 +35,10 @@ def upload_data():
 def clear_data():
     """Clear all data from the transactions table"""
     try:
-        db.clear_transactions()
-        return jsonify({'message': 'Successfully cleared all transaction data'}), 200
+        rows_affected = db.clear_transactions()
+        if rows_affected == 0:
+            return jsonify({'error': 'Failed to clear all transaction data'}), 500
+
+        return jsonify({'message': f"Successfully cleared all transaction data: {rows_affected}"}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

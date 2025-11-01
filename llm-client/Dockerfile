@@ -24,4 +24,4 @@ ENV FLASK_APP=backend/backend_api.py
 ENV MODEL_PATH=/app/models/lightgbm_model.pkl
 
 # Default: Run the LLM client (can override in docker-compose)
-CMD ["python", "aws_client.py"]
+CMD ["python", "backend/routes/aws_client.py"]

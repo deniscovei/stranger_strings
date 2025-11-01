@@ -2,12 +2,8 @@ from flask import Flask
 import os
 from config import load_model
 from routes import health_bp, predict_bp, claudiu_bp, data_bp
-from db.database import db
 
 app = Flask(__name__)
-
-# Initialize database
-db.init_db()
 
 # Load model at startup
 load_model()
