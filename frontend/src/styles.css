@@ -1,0 +1,52 @@
+body { font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin: 0; padding: 20px; background: #f8fafc; color: #0f172a }
+.container { max-width: 980px; margin: 0 auto }
+header h1 { margin: 0 0 16px 0 }
+section { background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 2px rgba(2,6,23,0.06); margin-bottom: 18px }
+.table-wrap { overflow: auto }
+table { width: 100%; border-collapse: collapse }
+th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
+
+/* Layout for right menu */
+/* layout and left sidebar */
+.layout { display: block }
+.main-col { margin-left: 260px; transition: margin-left .18s ease }
+.left-menu-col { position: fixed; left: 0; top: 0; bottom: 0; width: 260px; z-index: 1000 }
+.left-menu-col.closed { width: 72px }
+
+.left-menu { background: #fff; height: 100vh; padding: 16px 12px; box-shadow: 2px 0 20px rgba(2,6,23,0.06); display: flex; flex-direction: column }
+.left-menu .menu-header { display: flex; align-items: center; gap: 8px }
+.left-menu .menu-toggle { background: transparent; border: none; font-size: 18px }
+.left-menu .menu-items { display: flex; flex-direction: column; gap: 8px; margin-top: 12px }
+.left-menu .menu-item { padding: 8px 10px; border-radius: 6px; border: 1px solid #e6eef8; background: #f8fafc; text-align: left }
+.left-menu .chat-btn { padding: 10px; border-radius: 6px; background: #4f46e5; color: white; border: none }
+.left-menu .menu-footer { margin-top: auto; font-size: 12px; color: #6b7280 }
+
+/* when closed, shrink main column margin */
+.container.menu-closed .main-col { margin-left: 72px }
+
+/* Chat modal */
+.chat-modal-overlay { position: fixed; inset: 0; background: rgba(2,6,23,0.45); display: flex; align-items: center; justify-content: center; z-index: 2000 }
+.chat-modal { width: 520px; max-width: calc(100% - 32px); background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(2,6,23,0.4); display: flex; flex-direction: column; max-height: 80vh }
+.chat-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #eef2ff }
+.close-btn { background: transparent; border: none; font-size: 18px }
+.chat-body { padding: 12px 16px; overflow: auto; flex: 1; display: flex; flex-direction: column; gap: 8px }
+.chat-msg { padding: 8px 12px; border-radius: 8px; max-width: 85% }
+.chat-msg.system { align-self: center; background: #f1f5f9 }
+.chat-msg.user { align-self: flex-end; background: #eef2ff }
+.chat-msg.assistant { align-self: flex-start; background: #fff7ed }
+.chat-from { font-size: 11px; color: #374151; margin-bottom: 4px }
+.chat-text { font-size: 14px }
+.chat-footer { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid #eef2ff }
+.chat-footer input { flex: 1; padding: 8px 10px; border-radius: 6px; border: 1px solid #e6eef8 }
+.chat-footer button { padding: 8px 12px; background: #4f46e5; color: white; border: none; border-radius: 6px }
+
+/* Top-right logo */
+.top-right-logo {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  z-index: 2500;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
