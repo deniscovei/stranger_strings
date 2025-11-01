@@ -1,0 +1,19 @@
+# Core MCP server
+fastmcp==2.13.0.2
+
+# OpenAI Agents SDK cu suport LiteLLM (pentru integrarea oricărui LLM, inclusiv AWS Bedrock)
+openai-agents[litellm]==0.4.2
+
+# Web framework deps
+httpx>=0.27.0
+pydantic>=2.8.0
+
+# Async helpers (folosite de Agents SDK și FastMCP)
+websockets>=12.0
+asyncio
+
+# Environment management
+python-dotenv>=1.0.1
+
+# Optional (utile pentru debugging și color output)
+rich>=13.7.0
