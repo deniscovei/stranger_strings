@@ -1,18 +1,28 @@
-from fastmcp import FastMCP
+from fastmcp.server import FastMCP as MCPServer
+from fastmcp import tool
+import asyncio
 
-# Creează aplicația MCP
-app = FastMCP("demo-server")
+# dacă ai integrat LLM-ul AWS
+try:
+    from aws_llm_agent import ask_bedrock
+except ImportError:
+    async def ask_bedrock(prompt: str):
+        return "LLM integration not available yet."
 
-# Definește o funcție pe care AI-ul o poate apela
-@app.tool()
-def get_balance(account_number: str) -> dict:
-    """Returnează un sold fictiv pentru un cont bancar."""
-    return {
-        "account_number": account_number,
-        "balance": 1234.56,
-        "currency": "USD"
-    }
+# inițializează serverul MCP
+server = MCPServer("banking-mcp")
 
-# Pornește serverul MCP cu transport HTTP
+@tool
+def ask_ai(prompt: str) -> str:
+    """Send a question to the AWS Bedrock LLM agent."""
+    print(f"[debug] Sending prompt to Bedrock: {prompt}")
+    return asyncio.run(ask_bedrock(prompt))
+
 if __name__ == "__main__":
-    app.run(transport="http", host="0.0.0.0", port=8080)
+    print("✅ MCP server running on http://localhost:8080")
+    print("Available tools:")
+    for t in server.tools:
+        print(f"  - {t.name}")
+    server.run()
+from dotenv import load_dotenv
+load_dotenv()
