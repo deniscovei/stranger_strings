@@ -1,0 +1,41 @@
+from flask import Blueprint, request, jsonify
+import pandas as pd
+from ..db.database import db
+from io import StringIO
+
+data_bp = Blueprint('data', __name__)
+
+@data_bp.route('/upload', methods=['POST'])
+def upload_data():
+    """Upload CSV file and insert into database"""
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+
+    file = request.files['file']
+    if not file.filename.endswith('.csv'):
+        return jsonify({'error': 'File must be CSV format'}), 400
+
+    try:
+        # Read CSV file
+        csv_data = StringIO(file.stream.read().decode("UTF-8"))
+        df = pd.read_csv(csv_data)
+
+        # Insert data
+        rows_inserted = db.bulk_insert_transactions(df)
+
+        return jsonify({
+            'message': f'Successfully uploaded {rows_inserted} records',
+            'rows_processed': rows_inserted
+        }), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@data_bp.route('/clear', methods=['POST'])
+def clear_data():
+    """Clear all data from the transactions table"""
+    try:
+        db.clear_transactions()
+        return jsonify({'message': 'Successfully cleared all transaction data'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

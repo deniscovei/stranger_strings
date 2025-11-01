@@ -11,7 +11,6 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy all application code
-COPY aws_client.py .
 COPY backend/ ./backend/
 COPY models/ ./models/
 COPY sql/ ./sql/
