@@ -21,7 +21,8 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
 .left-menu .menu-items { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; opacity: 1; transition: opacity 0.4s ease-in-out }
 .left-menu .menu-item { padding: 8px 10px; border-radius: 6px; border: 1px solid #e6eef8; background: #f8fafc; text-align: left; cursor: pointer; white-space: nowrap }
 .left-menu .chat-btn { padding: 10px; border-radius: 6px; background: #4f46e5; color: white; border: none; cursor: pointer; white-space: nowrap }
-.left-menu .menu-footer { margin-top: auto; font-size: 12px; color: #6b7280; opacity: 1; transition: opacity 0.4s ease-in-out }
+.left-menu .menu-footer { margin-top: auto; font-size: 12px; color: #6b7280; opacity: 1; transition: opacity 0.4s ease-in-out; display: flex; flex-direction: column; gap: 10px; align-items: center }
+.left-menu .menu-footer .theme-toggle-slider { margin-bottom: 8px }
 
 /* When closed, fade out content but keep same internal structure */
 .left-menu-col.closed .left-menu { padding: 16px 12px }
@@ -1224,29 +1225,113 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
 }
 .top-right-controls { top: 31px; }
 
-/* Toggle button style (același look & feel ca restul UI) */
-.dark-toggle-btn {
-  padding: 8px 12px;
-  background: #4f46e5;
-  color: white;
+/* Theme Toggle Slider */
+.theme-toggle-slider {
+  background: transparent;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
+  padding: 0;
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  width: 90px;
+  margin: 0 auto;
 }
 
-.dark-toggle-btn:hover {
-  background: #4338ca;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
+.theme-toggle-track {
+  position: relative;
+  width: 100%;
+  height: 24px;
+  background: linear-gradient(to right, #fbbf24, #f59e0b, #8b5cf6, #6366f1, #312e81);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
 }
 
-.dark-toggle-btn:active {
-  transform: translateY(0);
-  box-shadow: none;
+.theme-toggle-icons {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 6px;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.theme-icon {
+  color: white;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  flex-shrink: 0;
+}
+
+.theme-toggle-thumb {
+  position: absolute;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+.theme-toggle-thumb.light {
+  left: 2px;
+}
+
+.theme-toggle-thumb.dark {
+  left: calc(100% - 22px);
+}
+
+.theme-toggle-slider:hover .theme-toggle-track {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 0 2px rgba(79, 70, 229, 0.3);
+}
+
+.theme-toggle-slider:active .theme-toggle-thumb {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  width: 22px;
+  height: 22px;
+  left: calc(var(--thumb-position) - 1px);
+}
+
+.theme-toggle-slider:active .theme-toggle-thumb.light {
+  left: 1px;
+}
+
+.theme-toggle-slider:active .theme-toggle-thumb.dark {
+  left: calc(100% - 23px);
+}
+
+/* View Transitions API - Circle reveal from bottom-left */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.6s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
+  animation-name: reveal-circle;
+}
+
+@keyframes reveal-circle {
+  from {
+    clip-path: circle(0% at 0% 100%);
+  }
+  to {
+    clip-path: circle(150% at 0% 100%);
+  }
 }
 
 /* Dacă vrei ca butonul să dispară pe ecrane foarte mici, poți ascunde sau repoziționa */
@@ -1352,7 +1437,6 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
 
 /* buttons (upload/remove/toggle reuse culorile brand) */
 .dark .upload-data-btn,
-.dark .dark-toggle-btn,
 .dark .clear-chat-btn,
 .dark .chat-send-btn {
   /* păstrează culorile brand pentru consistență */
@@ -1360,11 +1444,17 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
   color: #fff;
 }
 .dark .upload-data-btn:hover,
-.dark .dark-toggle-btn:hover,
 .dark .clear-chat-btn:hover,
 .dark .chat-send-btn:hover {
   background: #4338ca;
 }
+
+/* Dark mode theme toggle slider */
+.dark .theme-toggle-track {
+  background: linear-gradient(to right, #f59e0b, #d97706, #7c3aed, #5b21b6, #1e1b4b);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
 /* ==== Dark Mode overrides for Chat page ==== */
 .dark .chat-page {
   background: #0b1220;

@@ -1,4 +1,5 @@
 import React from 'react'
+import DarkModeToggle from './DarkModeToggle'
 
 export default function RightMenu({ onToggle, onOpenChat, onNavigate, isOpen = true }) {
   return (
@@ -22,6 +23,7 @@ export default function RightMenu({ onToggle, onOpenChat, onNavigate, isOpen = t
       </nav>
 
       <footer className="menu-footer">
+        <DarkModeToggle />
         <small>Logged in as <strong>User</strong></small>
       </footer>
     </div>

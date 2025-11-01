@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { verifyTransaction } from '../api'
-import DarkModeToggle from '../components/DarkModeToggle'
 
 
 export default function VerifyTransaction({ onNavigate }) {
@@ -394,18 +393,6 @@ export default function VerifyTransaction({ onNavigate }) {
 
   return (
     <section className="verify-transaction">
-      
-  <>
-    <div className="top-right-controls">
-      <DarkModeToggle />
-    </div>
-
-    <section className="verify-transaction">
-      {/* restul conținutului existent */}
-    </section>
-  </>
-
-
       <h2>Verify a Transaction</h2>
       <p>Enter transaction details below to verify if it's potentially fraudulent.</p>
 
