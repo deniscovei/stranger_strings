@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
 import VerifyTransaction from './VerifyTransaction'
-import { uploadDataFile } from '../api'
+import { verifyMultipleTransactions } from '../api'
 
 export default function VerifyTransactionsPage() {
   const [activeTab, setActiveTab] = useState('verify') // 'verify' or 'batch'
@@ -25,12 +25,12 @@ export default function VerifyTransactionsPage() {
 
     try {
       setUploading(true)
-      const response = await uploadDataFile(file, '/predict_multiple') // Send file to /predict_multiple
+      const response = await verifyMultipleTransactions(file) // Send file to /predict_multiple
       setBatchResults(response.predictions) // Store predictions in state
       event.target.value = '' // Reset file input
     } catch (err) {
-      console.error('Error uploading file:', err)
-      alert('Failed to upload file. Please try again.')
+      console.error('Error predicting', err)
+      alert('Failed to predict. Please try again.')
     } finally {
       setUploading(false)
     }
