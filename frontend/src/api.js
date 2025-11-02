@@ -2,8 +2,13 @@ import axios from 'axios'
 
 export async function fetchData() {
 	// Expected backend endpoint: GET /api/data
-	const res = await axios.get('/api/data')
-	return res.data
+	try{
+		const res = await axios.get('/api/data')
+		return res.data
+	} catch (err) {
+		console.error('Error in fetchData:', err.response || err.message || err);
+		throw err;
+	}
 }
 
 export async function fetchPredictions() {
@@ -49,6 +54,11 @@ export async function fetchTransactions() {
 	// Expected backend endpoint: GET /api/transactions
 	const res = await axios.get('/api/transactions')
 	return res.data
+}
+
+export async function clearData() {
+	const res = await axios.post('/api/clear')
+	return res
 }
 
 export async function sendChatMessage(message) {

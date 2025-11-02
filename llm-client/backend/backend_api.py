@@ -15,6 +15,7 @@ load_model()
 app.register_blueprint(health_bp)
 app.register_blueprint(predict_bp)
 app.register_blueprint(claudiu_bp)
+app.register_blueprint(data_bp)
 app.register_blueprint(charts_bp)
 app.register_blueprint(sql_query_bp)
 

@@ -29,6 +29,27 @@ class Database:
             db_context = "Database connection failed. Unable to access transaction data."
             print(f"⚠ Warning: Could not connect to database - {e}\n")
 
+    def get_data(self):
+        """Return data to be displayed on frontend"""
+
+        try:
+            conn = psycopg2.connect(os.environ.get('DATABASE_URI'))
+            cursor = conn.cursor()
+
+            # Get table schema
+            cursor.execute("""
+                SELECT accountNumber, transactionDateTime, transactionAmount,
+                merchantName, transactionType, merchantCategoryCode,
+                merchantCountryCode, isFraud
+                FROM transactions;
+            """)
+            rows = cursor.fetchall()
+            return rows
+        except Exception as e:
+            db_context = "Database connection failed. Unable to access transaction data."
+            print(f"⚠ Warning: Could not connect to database - {e}\n")
+
+
     def insert_transaction(self, transaction: Dict[str, Any]) -> int:
         """Insert a single transaction"""
 
@@ -161,6 +182,11 @@ class Database:
             cursor.execute(query)
             deleted_count = cursor.rowcount
             conn.commit()
+
+            query2 = "SELECT COUNT(*) FROM transactions;"
+            cursor.execute(query2)
+            result = cursor.fetchone()[0]
+            print(f"{result} rows left in the database")
             cursor.close()
             return deleted_count
         except Exception as e:

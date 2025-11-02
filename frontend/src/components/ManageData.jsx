@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { fetchTransactions, uploadDataFile } from '../api'
-import TransactionModal from "./TransactionModels";
-
+import { fetchData, uploadDataFile, clearData } from '../api'
+import TransactionModal from './TransactionModels' // Import TransactionModal
 
 export default function ManageData() {
   const [transactions, setTransactions] = useState([])
@@ -22,14 +21,17 @@ export default function ManageData() {
 
   const loadTransactions = async () => {
     try {
+      console.log('Fetching transactions...')
       setLoading(true)
-      const data = await fetchTransactions()
+      const data = await fetchData()
+      console.log('Transactions fetched:', data)
       setTransactions(data)
       setFilteredTransactions(data)
     } catch (err) {
       const mockData = generateMockData()
       setTransactions(mockData)
       setFilteredTransactions(mockData)
+      console.error('Failed to fetch transactions:', err.response || err.message || err)
     } finally {
       setLoading(false)
     }
@@ -136,7 +138,7 @@ export default function ManageData() {
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     })
   }
 
@@ -175,12 +177,23 @@ export default function ManageData() {
   }
 
   // Remove Data
-  const handleRemoveData = () => {
+  const handleRemoveData = async () => {
     const confirmDelete = window.confirm('Are you sure you want to remove all data? This action cannot be undone.')
     if (!confirmDelete) return
-    setTransactions([])
-    setFilteredTransactions([])
-    alert('All data has been removed successfully.')
+
+    try {
+      const response = await clearData() // Call the /clear endpoint
+      if (response.status === 200) {
+        setTransactions([])
+        setFilteredTransactions([])
+        alert('All data has been removed successfully.')
+      } else {
+        alert('Failed to clear data. Please try again.')
+      }
+    } catch (err) {
+      console.error('Failed to clear data:', err)
+      alert('An error occurred while clearing data.')
+    }
   }
 
   // Row click handlers (mouse + keyboard)
