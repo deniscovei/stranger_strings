@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { fetchData, uploadDataFile } from '../api'
+import TransactionModal from './TransactionModels' // Import TransactionModal
 
 export default function ManageData() {
   const [transactions, setTransactions] = useState([])
