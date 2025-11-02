@@ -70,9 +70,13 @@ class Database:
             cursor = conn.cursor()
 
             cursor.execute("""
-                SELECT accountNumber, transactionDateTime, transactionAmount,
-                merchantName, transactionType, merchantCategoryCode,
-                merchantCountryCode, isFraud
+                SELECT row_id, accountNumber, customerId, creditLimit, availableMoney,
+                transactionDateTime, transactionAmount, merchantName, acqCountry,
+                merchantCountryCode, posEntryMode, posConditionCode, merchantCategoryCode,
+                currentExpDate, accountOpenDate, dateOfLastAddressChange, cardCVV,
+                enteredCVV, cardLast4Digits, transactionType, echoBuffer, currentBalance,
+                merchantCity, merchantState, merchantZip, cardPresent, posOnPremises,
+                recurringAuthInd, expirationDateKeyInMatch, isFraud
                 FROM transactions
                 ORDER BY transactionDateTime DESC
                 LIMIT %s OFFSET %s;
@@ -158,9 +162,13 @@ class Database:
             params.extend([limit, offset])
             
             query = f"""
-                SELECT accountNumber, transactionDateTime, transactionAmount,
-                merchantName, transactionType, merchantCategoryCode,
-                merchantCountryCode, isFraud
+                SELECT row_id, accountNumber, customerId, creditLimit, availableMoney,
+                transactionDateTime, transactionAmount, merchantName, acqCountry,
+                merchantCountryCode, posEntryMode, posConditionCode, merchantCategoryCode,
+                currentExpDate, accountOpenDate, dateOfLastAddressChange, cardCVV,
+                enteredCVV, cardLast4Digits, transactionType, echoBuffer, currentBalance,
+                merchantCity, merchantState, merchantZip, cardPresent, posOnPremises,
+                recurringAuthInd, expirationDateKeyInMatch, isFraud
                 FROM transactions
                 WHERE {where_sql}
                 ORDER BY transactionDateTime DESC
@@ -318,6 +326,152 @@ class Database:
         except Exception as e:
             print(f"⚠ Warning: Could not clear transactions - {e}\n")
             raise e
+
+    def get_merchants_count(self, search_term, filter_by):
+        """Get count of merchants with filters"""
+        try:
+            conn = psycopg2.connect(os.environ.get('DATABASE_URI'))
+            cursor = conn.cursor()
+            
+            # Build WHERE clause
+            where_clauses = []
+            params = []
+            
+            # Filter by fraud status
+            if filter_by == 'fraud':
+                where_clauses.append("SUM(CASE WHEN isFraud = true THEN 1 ELSE 0 END) > 0")
+            elif filter_by == 'legitimate':
+                where_clauses.append("SUM(CASE WHEN isFraud = false THEN 1 ELSE 0 END) > 0")
+            
+            # Search term for merchant name
+            if search_term:
+                where_clauses.append("merchantName ILIKE %s")
+                params.append(f"%{search_term}%")
+            
+            # Base query
+            having_clause = ""
+            if filter_by in ['fraud', 'legitimate']:
+                having_clause = f"HAVING {where_clauses[0]}"
+                where_clauses = where_clauses[1:]
+            
+            where_sql = " AND ".join(where_clauses) if where_clauses else "1=1"
+            
+            query = f"""
+                SELECT COUNT(*) FROM (
+                    SELECT merchantName
+                    FROM transactions
+                    WHERE {where_sql}
+                    GROUP BY merchantName
+                    {having_clause}
+                ) AS merchant_list;
+            """
+            
+            cursor.execute(query, params)
+            count = cursor.fetchone()[0]
+            cursor.close()
+            conn.close()
+            return count
+        except Exception as e:
+            print(f"⚠ Warning: Could not get merchants count - {e}\n")
+            return 0
+
+    def get_merchants_filtered(self, offset, limit, search_term, filter_by):
+        """Return filtered and paginated merchant statistics"""
+        try:
+            conn = psycopg2.connect(os.environ.get('DATABASE_URI'))
+            cursor = conn.cursor()
+            
+            # Build WHERE clause
+            where_clauses = []
+            params = []
+            
+            # Search term for merchant name
+            if search_term:
+                where_clauses.append("merchantName ILIKE %s")
+                params.append(f"%{search_term}%")
+            
+            where_sql = " AND ".join(where_clauses) if where_clauses else "1=1"
+            
+            # HAVING clause for fraud filter
+            having_clause = ""
+            if filter_by == 'fraud':
+                having_clause = "HAVING SUM(CASE WHEN isFraud = true THEN 1 ELSE 0 END) > 0"
+            elif filter_by == 'legitimate':
+                having_clause = "HAVING SUM(CASE WHEN isFraud = false THEN 1 ELSE 0 END) > 0"
+            
+            # Add limit and offset params
+            params.extend([limit, offset])
+            
+            query = f"""
+                SELECT 
+                    merchantName,
+                    COUNT(*) AS totalTransactions,
+                    SUM(CASE WHEN isFraud = true THEN 1 ELSE 0 END) AS fraudCount,
+                    SUM(CASE WHEN isFraud = false THEN 1 ELSE 0 END) AS legitimateCount,
+                    ROUND(100.0 * SUM(CASE WHEN isFraud = true THEN 1 ELSE 0 END) / COUNT(*), 2) AS fraudPercentage,
+                    SUM(transactionAmount) AS totalAmount,
+                    ROUND(AVG(transactionAmount), 2) AS avgAmount
+                FROM transactions
+                WHERE {where_sql}
+                GROUP BY merchantName
+                {having_clause}
+                ORDER BY totalTransactions DESC
+                LIMIT %s OFFSET %s;
+            """
+            
+            cursor.execute(query, params)
+            rows = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            return rows
+        except Exception as e:
+            print(f"⚠ Warning: Could not get merchant data - {e}\n")
+            return []
+
+    def get_merchant_transactions_count(self, merchant_name):
+        """Get count of transactions for a specific merchant"""
+        try:
+            conn = psycopg2.connect(os.environ.get('DATABASE_URI'))
+            cursor = conn.cursor()
+            
+            query = "SELECT COUNT(*) FROM transactions WHERE merchantName = %s;"
+            cursor.execute(query, (merchant_name,))
+            count = cursor.fetchone()[0]
+            cursor.close()
+            conn.close()
+            return count
+        except Exception as e:
+            print(f"⚠ Warning: Could not get merchant transactions count - {e}\n")
+            return 0
+
+    def get_merchant_transactions(self, merchant_name, offset, limit):
+        """Return paginated transactions for a specific merchant"""
+        try:
+            conn = psycopg2.connect(os.environ.get('DATABASE_URI'))
+            cursor = conn.cursor()
+            
+            query = """
+                SELECT row_id, accountNumber, customerId, creditLimit, availableMoney,
+                transactionDateTime, transactionAmount, merchantName, acqCountry,
+                merchantCountryCode, posEntryMode, posConditionCode, merchantCategoryCode,
+                currentExpDate, accountOpenDate, dateOfLastAddressChange, cardCVV,
+                enteredCVV, cardLast4Digits, transactionType, echoBuffer, currentBalance,
+                merchantCity, merchantState, merchantZip, cardPresent, posOnPremises,
+                recurringAuthInd, expirationDateKeyInMatch, isFraud
+                FROM transactions
+                WHERE merchantName = %s
+                ORDER BY transactionDateTime DESC
+                LIMIT %s OFFSET %s;
+            """
+            
+            cursor.execute(query, (merchant_name, limit, offset))
+            rows = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            return rows
+        except Exception as e:
+            print(f"⚠ Warning: Could not get merchant transactions - {e}\n")
+            return []
 
 # Create singleton instance
 db = Database()
