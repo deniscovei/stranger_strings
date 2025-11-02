@@ -228,7 +228,7 @@ export default function ManageData() {
               <div className="no-results">No transactions found</div>
             ) : (
               currentTransactions.map((transaction, index) => (
-                <div key={index} className="transaction-row">
+                <div key={index} className={`transaction-row ${transaction.isFraud ? 'fraud-row' : 'legitimate-row'}`}>
                   <div>{transaction.accountNumber}</div>
                   <div>{formatDateTime(transaction.transactionDateTime)}</div>
                   <div>${transaction.transactionAmount}</div>
