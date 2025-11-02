@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import logo from '../assets/stranger-logo.svg'
+import logo from '../assets/stranger-logo.png'
 
 export default function WelcomeScreen({ onFinished }) {
   const [fadeOut, setFadeOut] = useState(false)

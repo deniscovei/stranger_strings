@@ -1,5 +1,5 @@
 body { font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin: 0; padding: 20px; background: #f8fafc; color: #0f172a }
-.container { max-width: 980px; margin: 0 auto }
+.container { max-width: 1400px; margin: 0 auto }
 header h1 { margin: 0 0 16px 0 }
 section { background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 2px rgba(2,6,23,0.06); margin-bottom: 18px }
 .table-wrap { overflow: auto }
@@ -9,20 +9,29 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
 /* Layout for right menu */
 /* layout and left sidebar */
 .layout { display: block }
-.main-col { margin-left: 260px; transition: margin-left .18s ease }
-.left-menu-col { position: fixed; left: 0; top: 0; bottom: 0; width: 260px; z-index: 1000 }
-.left-menu-col.closed { width: 72px }
+.main-col { margin-left: 260px; transition: margin-left 0.4s ease-in-out }
+.left-menu-col { position: fixed; left: 0; top: 0; bottom: 0; width: 260px; z-index: 1000; transition: width 0.4s ease-in-out }
+.left-menu-col.closed { width: 60px; overflow: hidden }
 
-.left-menu { background: #fff; height: 100vh; padding: 16px 12px; box-shadow: 2px 0 20px rgba(2,6,23,0.06); display: flex; flex-direction: column }
-.left-menu .menu-header { display: flex; align-items: center; gap: 8px }
-.left-menu .menu-toggle { background: transparent; border: none; font-size: 18px }
-.left-menu .menu-items { display: flex; flex-direction: column; gap: 8px; margin-top: 12px }
-.left-menu .menu-item { padding: 8px 10px; border-radius: 6px; border: 1px solid #e6eef8; background: #f8fafc; text-align: left }
-.left-menu .chat-btn { padding: 10px; border-radius: 6px; background: #4f46e5; color: white; border: none }
-.left-menu .menu-footer { margin-top: auto; font-size: 12px; color: #6b7280 }
+.left-menu { background: #fff; height: 100vh; padding: 16px 12px; box-shadow: 2px 0 20px rgba(2,6,23,0.06); display: flex; flex-direction: column; width: 260px }
+.left-menu .menu-header { display: flex; align-items: center; gap: 8px; min-height: 28px }
+.left-menu .menu-header h3 { margin: 0; font-size: 16px; white-space: nowrap; opacity: 1; transition: opacity 0.4s ease-in-out }
+.left-menu .menu-toggle { background: transparent; border: none; font-size: 18px; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 28px; height: 28px }
+.left-menu .menu-toggle svg { display: block }
+.left-menu .menu-items { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; opacity: 1; transition: opacity 0.4s ease-in-out }
+.left-menu .menu-item { padding: 8px 10px; border-radius: 6px; border: 1px solid #e6eef8; background: #f8fafc; text-align: left; cursor: pointer; white-space: nowrap }
+.left-menu .chat-btn { padding: 10px; border-radius: 6px; background: #4f46e5; color: white; border: none; cursor: pointer; white-space: nowrap }
+.left-menu .menu-footer { margin-top: auto; font-size: 12px; color: #6b7280; opacity: 1; transition: opacity 0.4s ease-in-out; display: flex; flex-direction: column; gap: 10px; align-items: center }
+.left-menu .menu-footer .theme-toggle-slider { margin-bottom: 8px }
+
+/* When closed, fade out content but keep same internal structure */
+.left-menu-col.closed .left-menu { padding: 16px 12px }
+.left-menu-col.closed .menu-header h3 { opacity: 0; pointer-events: none }
+.left-menu-col.closed .menu-items { opacity: 0; pointer-events: none }
+.left-menu-col.closed .menu-footer { opacity: 0; pointer-events: none }
 
 /* when closed, shrink main column margin */
-.container.menu-closed .main-col { margin-left: 72px }
+.container.menu-closed .main-col { margin-left: 60px }
 
 /* Chat modal */
 .chat-modal-overlay { position: fixed; inset: 0; background: rgba(2,6,23,0.45); display: flex; align-items: center; justify-content: center; z-index: 2000 }
@@ -41,15 +50,25 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
 .chat-footer button { padding: 8px 12px; background: #4f46e5; color: white; border: none; border-radius: 6px }
 
 /* Top-right logo */
-.top-right-logo {
+/* .top-right-logo {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  width: 40px;
-  height: 40px;
+  top: 0px;
+  right: 10px;
+  width: 94px;
+  height: 94px;
+  z-index: 2500;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+} */
+ .top-right-logo {
+  position: fixed;
+  top: -3px;
+  right: 0;        /* mai la dreapta decât 10px */
+  width: 90px;    /* mai mare */
+  height: 112px;
   z-index: 2500;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 }
+
 
 /* Verify Transaction Form */
 .verify-transaction .form-columns {
@@ -136,25 +155,33 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
   margin-top: 24px;
   display: flex;
   justify-content: center;
+  gap: 12px;
   padding-top: 20px;
   border-top: 1px solid #e6eef8;
 }
 
-.verify-transaction .check-btn {
+.verify-transaction .check-btn,
+.verify-transaction .json-btn {
   min-width: 200px;
   padding: 12px 24px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s, transform 0.1s;
+  border-radius: 8px;
+  border: none;
+  background: #4f46e5;
+  color: white;
 }
 
-.verify-transaction .check-btn:hover {
+.verify-transaction .check-btn:hover,
+.verify-transaction .json-btn:hover {
   background: #4338ca;
   transform: translateY(-1px);
 }
 
-.verify-transaction .check-btn:active {
+.verify-transaction .check-btn:active,
+.verify-transaction .json-btn:active {
   transform: translateY(0);
 }
 
@@ -180,10 +207,18 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
   display: block;
 }
 
-.verify-transaction .check-btn:disabled {
+.verify-transaction .check-btn:disabled,
+.verify-transaction .json-btn:disabled {
   background: #9ca3af;
   cursor: not-allowed;
   opacity: 0.6;
+  transform: none;
+}
+
+.verify-transaction .check-btn:disabled:hover,
+.verify-transaction .json-btn:disabled:hover {
+  background: #9ca3af;
+  transform: none;
 }
 
 /* Transaction Result Page */
@@ -368,3 +403,1326 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
 .transaction-result .result-actions button {
   min-width: 200px;
 }
+
+/* Make the action button on the result page match the themed check button */
+.transaction-result .check-btn {
+  min-width: 200px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  border-radius: 8px;
+  border: none;
+  background: #4f46e5;
+  color: white;
+}
+
+.transaction-result .check-btn:hover {
+  background: #4338ca;
+  transform: translateY(-1px);
+}
+
+.transaction-result .check-btn:active {
+  transform: translateY(0);
+}
+
+/* Small helper for modal textarea button spacing */
+.chat-modal .chat-footer .chat-btn {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+/* Manage Data Page */
+.manage-data-container {
+  padding: 20px;
+  max-width: 100%;
+  width: 100%;
+}
+
+.manage-data-container h2 {
+  margin: 0 0 24px 0;
+  font-size: 28px;
+  color: #111827;
+}
+
+.data-controls {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.search-bar {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid #e6eef8;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #f8fafc;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.search-bar:focus {
+  outline: none;
+  border-color: #4f46e5;
+  background: white;
+}
+
+.filter-dropdown {
+  padding: 10px 16px;
+  border: 1px solid #e6eef8;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23374151' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+  min-width: 180px;
+}
+
+.filter-dropdown:focus {
+  outline: none;
+  border-color: #4f46e5;
+  background-color: white;
+}
+
+.transactions-list {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 600px;
+}
+
+.transaction-header {
+  display: grid;
+  grid-template-columns: 150px 180px 120px 1fr 180px 120px 130px;
+  gap: 16px;
+  padding: 12px 16px;
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+  font-weight: 600;
+  font-size: 13px;
+  color: #374151;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.transaction-header > div {
+  text-align: center;
+}
+
+.transaction-row {
+  display: grid;
+  grid-template-columns: 150px 180px 120px 1fr 180px 120px 130px;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+  color: #111827;
+  transition: background-color 0.2s;
+}
+
+.transaction-row > div {
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.transaction-row:hover {
+  background: #f9fafb;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.fraud {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-badge.legitimate {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.no-results {
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+/* Pagination Controls */
+.pagination-controls {
+  margin-top: 20px;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pagination-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.items-per-page {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.items-per-page label {
+  font-weight: 500;
+  color: #374151;
+}
+
+.items-per-page-select {
+  padding: 6px 12px;
+  border: 1px solid #e6eef8;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.items-per-page-select:focus {
+  outline: none;
+  border-color: #4f46e5;
+}
+
+.pagination-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pagination-btn {
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  color: #374151;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 44px;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #f3f4f6;
+  border-color: #4f46e5;
+  color: #4f46e5;
+}
+
+.pagination-btn.active {
+  background: #4f46e5;
+  color: white;
+  border-color: #4f46e5;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f9fafb;
+}
+
+.pagination-ellipsis {
+  padding: 8px 4px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.data-summary {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.upload-data-btn {
+  margin-top: 24px;
+  padding: 12px 24px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.upload-data-btn:hover {
+  background: #4338ca;
+  transform: translateY(-1px);
+}
+
+.upload-data-btn:active {
+  transform: translateY(0);
+}
+
+.upload-data-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+}
+
+.upload-data-btn:disabled:hover {
+  background: #9ca3af;
+  transform: none;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 1200px) {
+  .transaction-header,
+  .transaction-row {
+    font-size: 12px;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .data-controls {
+    flex-direction: column;
+  }
+
+  .filter-dropdown {
+    width: 100%;
+  }
+
+  .transactions-list {
+    overflow-x: auto;
+  }
+
+  .transaction-header,
+  .transaction-row {
+    gap: 12px;
+  }
+
+  .pagination-info {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .pagination-buttons {
+    gap: 4px;
+  }
+
+  .pagination-btn {
+    padding: 6px 10px;
+    font-size: 13px;
+    min-width: 38px;
+  }
+}
+
+/* Chat Page */
+.chat-page {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 260px; /* Leave space for sidebar */
+  height: 100vh;
+  background: white;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
+  margin: 0;
+  transition: left 0.4s ease-in-out;
+}
+
+/* Adjust chat page when menu is closed */
+.container.menu-closed .chat-page {
+  left: 60px;
+}
+
+.chat-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 80px 20px 40px; /* Default when open */
+  border-bottom: 2px solid #e5e7eb;
+  background: #f9fafb;
+  transition: padding-left 0.4s ease-in-out;
+}
+
+/* Return to normal padding when menu is closed */
+.container.menu-closed .chat-page-header {
+  padding-left: 24px;
+}
+
+.chat-page-header h2 {
+  margin: 0 0 4px 0;
+  font-size: 24px;
+  color: #111827;
+}
+
+.chat-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.clear-chat-btn {
+  padding: 8px 16px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.clear-chat-btn:hover {
+  background: #dc2626;
+}
+
+.chat-messages-container {
+  flex: 1;
+  overflow-y: auto;
+  background: #f8fafc;
+  padding: 0 10%; /* Reduced from 15% to 10% to move bubbles closer to edges */
+}
+
+.chat-messages {
+  padding: 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 100%;
+  margin: 0;
+}
+
+.chat-message {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 12px;
+  max-width: 75%; /* 75% max width before wrapping */
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chat-message.user {
+  align-self: flex-end;
+  background: #4f46e5;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-message.assistant {
+  align-self: flex-start;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-bottom-left-radius: 4px;
+}
+
+.chat-message.error {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+.chat-message.loading {
+  background: white;
+  border: 1px solid #e5e7eb;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.message-role {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.chat-message.user .message-role {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.chat-message.assistant .message-role {
+  color: #374151;
+}
+
+.message-time {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.chat-message.user .message-time {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.chat-message.assistant .message-time {
+  color: #6b7280;
+}
+
+.message-content {
+  font-size: 17.55px; /* 19.5px * 0.9 = 17.55px (10% decrease from previous) */
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.chat-message.user .message-content {
+  color: white;
+}
+
+.chat-message.assistant .message-content {
+  color: #111827;
+}
+
+/* Markdown styling in chat messages */
+.message-content h1,
+.message-content h2,
+.message-content h3,
+.message-content h4,
+.message-content h5,
+.message-content h6 {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.message-content h1 { font-size: 1.8em; }
+.message-content h2 { font-size: 1.5em; }
+.message-content h3 { font-size: 1.3em; }
+.message-content h4 { font-size: 1.1em; }
+
+.message-content p {
+  margin-top: 0;
+  margin-bottom: 0.8em;
+}
+
+.message-content p:last-child {
+  margin-bottom: 0;
+}
+
+.message-content ul,
+.message-content ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.message-content li {
+  margin-bottom: 0.3em;
+}
+
+.message-content code {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+.message-content pre {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.8em;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 0.5em 0;
+}
+
+.message-content pre code {
+  background: none;
+  padding: 0;
+}
+
+.message-content blockquote {
+  border-left: 3px solid #4f46e5;
+  padding-left: 1em;
+  margin-left: 0;
+  margin-right: 0;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.message-content a {
+  color: #4f46e5;
+  text-decoration: underline;
+}
+
+.message-content a:hover {
+  color: #4338ca;
+}
+
+.message-content strong {
+  font-weight: 600;
+}
+
+.message-content em {
+  font-style: italic;
+}
+
+.message-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.8em 0;
+}
+
+.message-content th,
+.message-content td {
+  border: 1px solid #e5e7eb;
+  padding: 0.5em;
+  text-align: left;
+}
+
+.message-content th {
+  background: #f9fafb;
+  font-weight: 600;
+}
+
+.message-content hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 1em 0;
+}
+
+/* Typing indicator */
+.typing-indicator {
+  display: flex;
+  gap: 6px;
+  padding: 8px 0;
+}
+
+.typing-indicator span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9ca3af;
+  animation: typing 1.4s infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.7;
+  }
+  30% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+}
+
+/* Chat input form */
+.chat-input-form {
+  display: flex;
+  gap: 12px;
+  padding: 20px 10%; /* Reduced from 15% to 10% to match messages container */
+  border-top: 2px solid #e5e7eb;
+  background: white;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+  resize: none;
+  max-height: 120px;
+  transition: border-color 0.2s;
+}
+
+.chat-input:focus {
+  outline: none;
+  border-color: #4f46e5;
+}
+
+.chat-input:disabled {
+  background: #f9fafb;
+  cursor: not-allowed;
+}
+
+.chat-send-btn {
+  padding: 12px 24px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.chat-send-btn:hover:not(:disabled) {
+  background: #4338ca;
+  transform: translateY(-1px);
+}
+
+.chat-send-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.chat-send-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Responsive design for chat page */
+@media (max-width: 768px) {
+  .chat-page {
+    height: calc(100vh - 100px);
+  }
+
+  .chat-page-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 16px;
+  }
+
+  .chat-messages-container {
+    padding: 0 5%; /* Reduce padding on mobile */
+  }
+
+  .chat-messages {
+    padding: 16px 0;
+  }
+
+  .chat-message {
+    max-width: 90%;
+  }
+
+  .chat-input-form {
+    padding: 16px 5%; /* Reduce padding on mobile */
+    gap: 8px;
+  }
+
+  .chat-send-btn {
+    padding: 12px 16px;
+  }
+}
+/* Manage Data: action buttons */
+.data-actions {
+  display: flex;
+  justify-content: center; /* centrează pe orizontală */
+  align-items: center;
+  gap: 12px;               /* spațiu între butoane */
+  margin-top: 32px;        /* distanță față de tabel */
+}
+
+.upload-data-btn {
+  padding: 12px 28px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+  min-width: 180px; /* menține butoane egale */
+  text-align: center;
+}
+
+.upload-data-btn:hover:not(:disabled) {
+  background: #4338ca;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
+}
+
+.upload-data-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.upload-data-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .data-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .upload-data-btn {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+/* --- Dark Mode Toggle positioning next to logo --- */
+.top-right-controls {
+  position: fixed;
+  top: 0px;
+  right: 82px; /* 40px logo + ~12px gap + puțin spațiu */
+  z-index: 2500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.top-right-controls { top: 31px; }
+
+/* Theme Toggle Slider */
+.theme-toggle-slider {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  width: 90px;
+  margin: 0 auto;
+}
+
+.theme-toggle-track {
+  position: relative;
+  width: 100%;
+  height: 24px;
+  background: linear-gradient(to right, #fbbf24, #f59e0b, #8b5cf6, #6366f1, #312e81);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.theme-toggle-icons {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 6px;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.theme-icon {
+  color: white;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  flex-shrink: 0;
+}
+
+.theme-toggle-thumb {
+  position: absolute;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+.theme-toggle-thumb.light {
+  left: 2px;
+}
+
+.theme-toggle-thumb.dark {
+  left: calc(100% - 22px);
+}
+
+.theme-toggle-slider:hover .theme-toggle-track {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 0 2px rgba(79, 70, 229, 0.3);
+}
+
+.theme-toggle-slider:active .theme-toggle-thumb {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  width: 22px;
+  height: 22px;
+  left: calc(var(--thumb-position) - 1px);
+}
+
+.theme-toggle-slider:active .theme-toggle-thumb.light {
+  left: 1px;
+}
+
+.theme-toggle-slider:active .theme-toggle-thumb.dark {
+  left: calc(100% - 23px);
+}
+
+/* View Transitions API - Circle reveal from bottom-left */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.6s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
+  animation-name: reveal-circle;
+}
+
+@keyframes reveal-circle {
+  from {
+    clip-path: circle(0% at 0% 100%);
+  }
+  to {
+    clip-path: circle(150% at 0% 100%);
+  }
+}
+
+/* Dacă vrei ca butonul să dispară pe ecrane foarte mici, poți ascunde sau repoziționa */
+@media (max-width: 480px) {
+  .top-right-controls {
+    right: 100px;
+  }
+}
+/* =======================
+   Dark Mode (root: .dark)
+   ======================= */
+.dark body {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+.dark section {
+  background: #0b1220;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  border-color: #1f2937;
+}
+
+.dark .manage-data-container h2 {
+  color: #e5e7eb;
+}
+
+.dark .search-bar,
+.dark .filter-dropdown,
+.dark .items-per-page-select,
+.dark .chat-input {
+  background: #0b1220;
+  color: #e5e7eb;
+  border-color: #1f2937;
+}
+
+.dark .search-bar:focus,
+.dark .filter-dropdown:focus,
+.dark .items-per-page-select:focus,
+.dark .chat-input:focus {
+  background: #111827;
+  border-color: #6366f1;
+}
+
+/* transactions list */
+.dark .transactions-list {
+  background: #0b1220;
+  border-color: #1f2937;
+}
+
+.dark .transaction-header {
+  background: #111827;
+  color: #cbd5e1;
+  border-bottom-color: #1f2937;
+}
+
+.dark .transaction-row {
+  color: #e5e7eb;
+  border-bottom-color: #1f2937;
+}
+
+.dark .transaction-row:hover {
+  background: #111827;
+}
+
+/* badges */
+.dark .status-badge.fraud {
+  background: #2b1a1a;
+  color: #fca5a5;
+}
+.dark .status-badge.legitimate {
+  background: #0f2316;
+  color: #86efac;
+}
+
+/* pagination */
+.dark .pagination-controls {
+  background: #0b1220;
+}
+.dark .pagination-btn {
+  background: #0b1220;
+  color: #cbd5e1;
+  border-color: #1f2937;
+}
+.dark .pagination-btn:hover:not(:disabled) {
+  background: #111827;
+  border-color: #6366f1;
+  color: #e5e7eb;
+}
+.dark .pagination-btn.active {
+  background: #4f46e5;
+  color: white;
+  border-color: #4f46e5;
+}
+.dark .pagination-btn:disabled {
+  background: #0b1220;
+}
+
+/* summary + controls */
+.dark .data-summary {
+  background: #0b1220;
+  color: #94a3b8;
+}
+
+/* buttons (upload/remove/toggle reuse culorile brand) */
+.dark .upload-data-btn,
+.dark .clear-chat-btn,
+.dark .chat-send-btn {
+  /* păstrează culorile brand pentru consistență */
+  background: #4f46e5;
+  color: #fff;
+}
+.dark .upload-data-btn:hover,
+.dark .clear-chat-btn:hover,
+.dark .chat-send-btn:hover {
+  background: #4338ca;
+}
+
+/* Dark mode theme toggle slider */
+.dark .theme-toggle-track {
+  background: linear-gradient(to right, #f59e0b, #d97706, #7c3aed, #5b21b6, #1e1b4b);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ==== Dark Mode overrides for Chat page ==== */
+.dark .chat-page {
+  background: #0b1220;
+}
+
+.dark .chat-page-header {
+  background: #111827;
+  border-bottom-color: #1f2937;
+}
+
+.dark .chat-subtitle {
+  color: #94a3b8;
+}
+
+.dark .chat-messages-container {
+  background: #0f172a;
+}
+
+.dark .chat-messages {
+  /* păstrezi layoutul, doar culori mai “dark” */
+}
+
+.dark .chat-message.assistant {
+  background: #0b1220;
+  border: 1px solid #1f2937;
+  color: #e5e7eb;
+}
+
+.dark .chat-message.user {
+  /* păstrăm bula brand albastră, doar text clar */
+  background: #4f46e5;
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.dark .message-role { color: #cbd5e1; }
+.dark .message-time { color: #94a3b8; }
+
+.dark .chat-message.error {
+  background: #2b1a1a;
+  border-color: #7f1d1d;
+  color: #fecaca;
+}
+
+.dark .typing-indicator span {
+  background: #9ca3af;
+}
+
+.dark .chat-input-form {
+  background: #0b1220;
+  border-top-color: #1f2937;
+}
+
+.dark .chat-input {
+  background: #111827;
+  color: #e5e7eb;
+  border-color: #1f2937;
+}
+
+.dark .chat-input:focus {
+  border-color: #6366f1;
+}
+
+.dark .chat-send-btn {
+  /* același buton brand în dark */
+  background: #4f46e5;
+  color: #fff;
+}
+
+.dark .chat-send-btn:hover:not(:disabled) {
+  background: #4338ca;
+}
+
+.dark .clear-chat-btn {
+  background: #ef4444;
+  color: #fff;
+}
+
+.dark .clear-chat-btn:hover {
+  background: #dc2626;
+}
+
+/* (opțional) scroll bar discret în dark */
+.dark .chat-messages-container::-webkit-scrollbar {
+  width: 10px;
+}
+.dark .chat-messages-container::-webkit-scrollbar-thumb {
+  background: #1f2937;
+  border-radius: 8px;
+}
+
+/* ==== Dark Mode: Verify Transaction ==== */
+.dark .verify-transaction {
+  background: #0b1220;               /* card/section mai închis */
+  box-shadow: 0 1px 2px rgba(0,0,0,.4);
+  border-color: #1f2937;
+}
+
+.dark .verify-transaction h2 { color: #e5e7eb; }
+.dark .verify-transaction p  { color: #94a3b8; }
+
+/* Labels */
+.dark .verify-transaction .form-field label {
+  color: #cbd5e1;
+}
+
+/* Inputs + Selects */
+.dark .verify-transaction .form-field input[type="text"],
+.dark .verify-transaction .form-field input[type="number"],
+.dark .verify-transaction .form-field input[type="date"],
+.dark .verify-transaction .form-field input[type="datetime-local"],
+.dark .verify-transaction .form-field input[type="month"],
+.dark .verify-transaction .form-field input[type="time"],
+.dark .verify-transaction .form-field select {
+  background: #111827;
+  color: #e5e7eb;
+  border: 1px solid #1f2937;
+}
+
+.dark .verify-transaction .form-field input::placeholder {
+  color: #94a3b8; opacity: 1;
+}
+
+/* Focus state */
+.dark .verify-transaction .form-field input[type="text"]:focus,
+.dark .verify-transaction .form-field input[type="number"]:focus,
+.dark .verify-transaction .form-field input[type="date"]:focus,
+.dark .verify-transaction .form-field input[type="datetime-local"]:focus,
+.dark .verify-transaction .form-field input[type="month"]:focus,
+.dark .verify-transaction .form-field input[type="time"]:focus,
+.dark .verify-transaction .form-field select:focus {
+  background: #0b1220;
+  border-color: #6366f1;
+}
+
+/* Dropdown arrow mai deschis în dark */
+.dark .verify-transaction .form-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23cbd5e1' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+}
+
+/* Checkbox */
+.dark .verify-transaction .form-field input[type="checkbox"] {
+  accent-color: #4f46e5;   /* suportat modern browsers */
+}
+
+/* Erori */
+.dark .verify-transaction .form-field input.error,
+.dark .verify-transaction .form-field select.error {
+  border-color: #dc2626;
+  background: #2b1a1a;
+}
+.dark .verify-transaction .error-message { color: #fca5a5; }
+
+/* Footer acțiuni + buton */
+.dark .verify-transaction .form-actions {
+  border-top-color: #1f2937;
+}
+.dark .verify-transaction .check-btn {
+  background: #4f46e5;
+  color: #fff;
+}
+.dark .verify-transaction .check-btn:hover { background: #4338ca; }
+.dark .verify-transaction .check-btn:disabled {
+  background: #9ca3af; opacity: .6; cursor: not-allowed;
+}
+/* Fix select arrows in Dark Mode (Verify Transaction) */
+.dark .verify-transaction .form-field select {
+  /* deja ai culorile; adaugăm controlul pentru background svg */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23cbd5e1' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 12px !important;
+  padding-right: 40px;
+
+  /* ascunde săgeata nativă, ca să nu apară dublă */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* (opțional, pentru vechiul Edge/IE) */
+.verify-transaction .form-field select::-ms-expand { display: none; }
+/* Chat text visibility in Dark Mode */
+.dark .chat-message.assistant .message-content {
+  color: #e5e7eb;   /* text deschis pentru bula asistentului */
+}
+
+.dark .chat-message.user .message-content {
+  color: #ffffff;   /* text alb în bula utilizatorului */
+}
+
+.dark .chat-message.assistant .message-header,
+.dark .chat-message.assistant .message-role,
+.dark .chat-message.assistant .message-time {
+  color: #cbd5e1;   /* antet/rol/oră mai vizibile */
+}
+
+/* mesaj de eroare în dark */
+.dark .chat-message.error .message-content {
+  color: #fecaca;
+}
+
+/* (opțional) crește puțin contrastul bulei asistentului */
+.dark .chat-message.assistant {
+  background: #0f172a;
+  border: 1px solid #1f2937;
+}
+/* ==== Dark Mode: Left Menu / Sidebar ==== */
+.dark .left-menu {
+  background: #0b1220;
+  box-shadow: 2px 0 20px rgba(0,0,0,0.35);
+  border-right: 1px solid #1f2937;
+}
+
+.dark .left-menu .menu-header {
+  color: #e5e7eb;
+}
+
+.dark .left-menu .menu-toggle {
+  color: #cbd5e1;
+}
+
+.dark .left-menu .menu-items {
+  /* nothing special; keep layout */
+}
+
+.dark .left-menu .menu-item {
+  color: #e5e7eb;
+  background: #111827;
+  border: 1px solid #1f2937;
+}
+
+.dark .left-menu .menu-item:hover {
+  background: #0f172a;
+  border-color: #6366f1;
+}
+
+.dark .left-menu .menu-item:active {
+  background: #0c1324;
+}
+
+/* dacă ai un "active" pe item-ul din meniu */
+.dark .left-menu .menu-item.active {
+  background: #1f2233;
+  border-color: #6366f1;
+  color: #ffffff;
+}
+
+/* butonul violet rămâne în brand, dar cu hover adaptat */
+.dark .left-menu .chat-btn {
+  background: #4f46e5;
+  color: #fff;
+}
+.dark .left-menu .chat-btn:hover {
+  background: #4338ca;
+}
+
+/* footer text */
+.dark .left-menu .menu-footer {
+  color: #94a3b8;
+}
+
+/* când sidebar-ul e în modul "closed" păstrăm contrast bun pentru fundal */
+.dark .left-menu-col.closed .left-menu {
+  background: #0b1220;
+  border-right-color: #1f2937;
+}
+
+.top-right-controls { top: 31px; transform: translateY(8px); } /* coboară cu 8px */
+
+

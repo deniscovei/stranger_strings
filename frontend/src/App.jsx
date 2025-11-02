@@ -4,9 +4,11 @@ import Predictions from './components/Predictions'
 import RightMenu from './components/RightMenu'
 import ChatModal from './components/ChatModal'
 import DataPage from './components/DataPage'
+import ManageData from './components/ManageData'
+import ChatPage from './components/ChatPage'
 import VerifyTransaction from './components/VerifyTransaction'
 import TransactionResult from './components/TransactionResult'
-import strangerLogo from './assets/stranger-logo.svg'
+import strangerLogo from './assets/stranger-logo.png'
 import { fetchData, fetchPredictions } from './api'
 
 export default function App() {
@@ -40,9 +42,15 @@ export default function App() {
 
   const handleNavigate = (page, data) => {
     setCurrentPage(page)
+    setChatOpen(false) // Close chat modal when navigating
     if (page === 'result' && data) {
       setVerificationResult(data)
     }
+  }
+
+  const handleOpenChat = () => {
+    setCurrentPage('chat')
+    setChatOpen(false)
   }
 
   const handleBackToVerify = () => {
@@ -63,40 +71,50 @@ export default function App() {
       
       <div className={`container layout ${menuOpen ? '' : 'menu-closed'}`}>
         <aside className={`left-menu-col ${menuOpen ? 'open' : 'closed'}`}>
-          <RightMenu onToggle={() => setMenuOpen((s) => !s)} onOpenChat={() => setChatOpen(true)} onNavigate={handleNavigate} />
+          <RightMenu 
+            onToggle={() => setMenuOpen((s) => !s)} 
+            onOpenChat={handleOpenChat} 
+            onNavigate={handleNavigate}
+            isOpen={menuOpen}
+          />
         </aside>
 
-      <main className="main-col">
-        <header>
-          <h1>Stranger Strings — Data & Predictions</h1>
-        </header>
+        <main className="main-col">
+          {/* Only show header on home page */}
+          {currentPage === 'home' && (
+            <header>
+              <h1>Stranger Strings — Data & Predictions</h1>
+            </header>
+          )}
 
-        {loading && <p>Loading...</p>}
+          {loading && <p>Loading...</p>}
 
-        {!loading && (
-          <>
-            {currentPage === 'data' ? (
-              <DataPage />
-            ) : currentPage === 'verify' ? (
-              <VerifyTransaction onNavigate={handleNavigate} />
-            ) : currentPage === 'result' ? (
-              <TransactionResult result={verificationResult} onBack={handleBackToVerify} />
-            ) : (
-              <>
-                <DataSummary data={data} />
-                <Predictions predictions={predictions} />
-              </>
-            )}
-          </>
+          {!loading && (
+            <>
+              {currentPage === 'data' ? (
+                <ManageData />
+              ) : currentPage === 'chat' ? (
+                <ChatPage />
+              ) : currentPage === 'verify' ? (
+                <VerifyTransaction onNavigate={handleNavigate} />
+              ) : currentPage === 'result' ? (
+                <TransactionResult result={verificationResult} onBack={handleBackToVerify} />
+              ) : (
+                <>
+                  <DataSummary data={data} />
+                  <Predictions predictions={predictions} />
+                </>
+              )}
+            </>
+          )}
+        </main>
+
+        {/* right menu removed; left menu is rendered above */}
+
+        {chatOpen && (
+          <ChatModal onClose={() => setChatOpen(false)} userName={process.env.REACT_APP_USER || 'User'} />
         )}
-      </main>
-
-      {/* right menu removed; left menu is rendered above */}
-
-      {chatOpen && (
-        <ChatModal onClose={() => setChatOpen(false)} userName={process.env.REACT_APP_USER || 'User'} />
-      )}
-    </div>
+      </div>
     </>
   )
 }
