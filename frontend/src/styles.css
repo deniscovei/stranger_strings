@@ -141,7 +141,7 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   padding: 12px 14px; 
   border-radius: 10px; 
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: #0f172a; 
+  color: #ffffff; 
   border: none; 
   cursor: pointer; 
   white-space: nowrap;
@@ -1071,7 +1071,7 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   flex-shrink: 0; 
   width: 32px; 
   height: 32px;
-  transition: all 0.3s ease;
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .left-menu .menu-toggle:hover {
@@ -1119,7 +1119,7 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   padding: 12px 14px; 
   border-radius: 10px; 
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: #0f172a; 
+  color: #ffffff; 
   border: none; 
   cursor: pointer; 
   white-space: nowrap;
@@ -1152,7 +1152,7 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 .left-menu .menu-footer small { font-weight: 500; }
 
 /* When closed, fade out content but keep same internal structure */
-.left-menu-col.closed .left-menu { padding: 16px 12px }
+.left-menu-col.closed .left-menu { padding: 20px 16px; } /* Keep same padding as open state */
 .left-menu-col.closed .menu-header h3 { opacity: 0; pointer-events: none }
 .left-menu-col.closed .menu-items { opacity: 0; pointer-events: none }
 .left-menu-col.closed .menu-footer { opacity: 0; pointer-events: none }
@@ -1280,7 +1280,7 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   border-radius: 10px; 
   border: 1px solid rgba(148, 163, 184, 0.2);
   background: rgba(248, 250, 252, 0.5);
-  color: #1e293b;
+  color: #0f172a;
   font-size: 15px;
   transition: all 0.3s ease;
 }
@@ -1324,15 +1324,15 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   z-index: 2500;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 } */
- .top-right-logo {
+/* .top-right-logo {
   position: fixed;
   top: 0px;
-  right: 0;        /* mai la dreapta decât 10px */
-  width: 120px;    /* mai mare */
+  right: 0;
+  width: 120px;
   height: 150px;
   z-index: 2500;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-}
+} */
 
 
 /* Verify Transaction Form */
@@ -2342,7 +2342,7 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 80px 24px 40px; /* Default when open */
+  padding: 24px 80px 24px 60px; /* Increased left padding from 40px to 60px when open */
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(12px);
@@ -2379,6 +2379,7 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  margin-right: 40px;
 }
 
 .clear-chat-btn:hover {
@@ -2435,15 +2436,15 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 
 .chat-message.user {
   align-self: flex-end;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.12) 100%);
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(124, 58, 237, 0.15) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.3);
   color: #0f172a;
   border-bottom-right-radius: 4px;
 }
 
 .chat-message.user:hover {
-  border-color: rgba(99, 102, 241, 0.5);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.15);
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.15);
 }
 
 .chat-message.assistant {
@@ -2486,7 +2487,7 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 }
 
 .chat-message.user .message-role {
-  color: #6366f1;
+  color: #8b5cf6;
 }
 
 .chat-message.assistant .message-role {
@@ -2504,7 +2505,7 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   line-height: 1.7;
   white-space: pre-wrap;
   word-wrap: break-word;
-  color: #0f172a;
+  color: #1e293b;
 }
 
 /* Markdown styling in chat messages */
@@ -2683,7 +2684,7 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 
 .chat-input:focus {
   outline: none;
-  border-color: #4f46e5;
+  border-color: #10b981;
 }
 
 .chat-input:disabled {
@@ -2693,8 +2694,8 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 
 .chat-send-btn {
   padding: 12px 24px;
-  background: #4f46e5;
-  color: white;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #0f172a;
   border: none;
   border-radius: 8px;
   font-size: 15px;
@@ -2705,7 +2706,7 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 }
 
 .chat-send-btn:hover:not(:disabled) {
-  background: #4338ca;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
   transform: translateY(-1px);
 }
 
@@ -3584,13 +3585,13 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 }
 
 .dark .chat-footer input {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #f3f4f6;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e5e7eb;
 }
 
 .dark .chat-footer input:focus {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.15);
   border-color: rgba(63, 255, 168, 0.4);
   box-shadow: 0 0 0 3px rgba(63, 255, 168, 0.1);
 }
@@ -4295,13 +4296,6 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   color: #334155;
 }
 
-.dark .chat-message.user {
-  /* păstrăm bula brand albastră, doar text clar */
-  background: #4f46e5;
-  color: #fff;
-  border-bottom-right-radius: 4px;
-}
-
 .dark .message-role { color: #cbd5e1; }
 .dark .message-time { color: #94a3b8; }
 
@@ -4321,23 +4315,23 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 }
 
 .dark .chat-input {
-  background: #111827;
-  color: #334155;
-  border-color: #1f2937;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .dark .chat-input:focus {
-  border-color: #6366f1;
+  border-color: #3fffa8;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .dark .chat-send-btn {
-  /* același buton brand în dark */
-  background: #4f46e5;
-  color: #fff;
+  background: linear-gradient(135deg, #3fffa8 0%, #00e396 100%);
+  color: #0f172a;
 }
 
 .dark .chat-send-btn:hover:not(:disabled) {
-  background: #4338ca;
+  background: linear-gradient(135deg, #00e396 0%, #00c97c 100%);
 }
 
 .dark .clear-chat-btn {
@@ -4452,11 +4446,11 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 .verify-transaction .form-field select::-ms-expand { display: none; }
 /* Chat text visibility in Dark Mode */
 .dark .chat-message.assistant .message-content {
-  color: #334155;   /* text deschis pentru bula asistentului */
+  color: #cbd5e1;   /* lighter text for assistant bubble */
 }
 
 .dark .chat-message.user .message-content {
-  color: #0f172a;   /* text alb în bula utilizatorului */
+  color: #f0fdf4;   /* very light green-tinted white for user bubble */
 }
 
 .dark .chat-message.assistant .message-header,
@@ -5256,8 +5250,3 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 .dark .sql-null {
   color: #6b7280;
 }
-
-
-
-
-
