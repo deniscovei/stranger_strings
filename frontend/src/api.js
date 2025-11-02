@@ -38,6 +38,18 @@ export async function verifyTransaction(transactionData) {
 	return res.data
 }
 
+export async function fetchChartData() {
+	// Expected backend endpoint: GET /charts/data
+	const res = await axios.get('/charts/data')
+	return res.data
+}
+
+export async function fetchChartSummary() {
+	// Expected backend endpoint: GET /charts/summary
+	const res = await axios.get('/charts/summary')
+	return res.data
+}
+
 export async function fetchTransactions() {
 	// Expected backend endpoint: GET /api/transactions
 	const res = await axios.get('/api/transactions')

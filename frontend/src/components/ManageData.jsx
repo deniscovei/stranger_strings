@@ -4,6 +4,7 @@ import { fetchData, uploadDataFile } from '../api'
 export default function ManageData() {
   const [transactions, setTransactions] = useState([])
   const [filteredTransactions, setFilteredTransactions] = useState([])
+  const [selectedTransaction, setSelectedTransaction] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterBy, setFilterBy] = useState('all')
   const [loading, setLoading] = useState(true)
@@ -26,7 +27,6 @@ export default function ManageData() {
       setTransactions(data)
       setFilteredTransactions(data)
     } catch (err) {
-      // Use mock data for development
       const mockData = generateMockData()
       setTransactions(mockData)
       setFilteredTransactions(mockData)
@@ -55,10 +55,10 @@ export default function ManageData() {
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
       filtered = filtered.filter(t =>
-          t.accountNumber?.toString().toLowerCase().includes(term) ||
-          t.merchantName?.toLowerCase().includes(term) ||
-          t.transactionType?.toLowerCase().includes(term) ||
-          t.merchantCategoryCode?.toLowerCase().includes(term)
+        t.accountNumber?.toString().toLowerCase().includes(term) ||
+        t.merchantName?.toLowerCase().includes(term) ||
+        t.transactionType?.toLowerCase().includes(term) ||
+        t.merchantCategoryCode?.toLowerCase().includes(term)
       )
     }
 
@@ -103,19 +103,27 @@ export default function ManageData() {
 
   const generateMockData = () => {
     const mockTransactions = []
-    const merchantNames = ['Amazon', 'Walmart', 'Target', 'Best Buy', 'Home Depot', 'Starbucks', 'McDonald\'s', 'Shell', 'Costco', 'Apple Store']
+    const merchantNames = ['Amazon', 'Walmart', 'Target', 'Best Buy', 'Home Depot', 'Starbucks', "McDonald's", 'Shell', 'Costco', 'Apple Store']
     const transactionTypes = ['PURCHASE', 'REVERSAL', 'ADDRESS VERIFICATION']
     const merchantCategories = ['5411', '5812', '5541', '5999', '5732', '5814', '5912']
 
     for (let i = 0; i < 50; i++) {
-      const date = new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1, Math.floor(Math.random() * 24), Math.floor(Math.random() * 60))
+      const date = new Date(
+        2024,
+        Math.floor(Math.random() * 12),
+        Math.floor(Math.random() * 28) + 1,
+        Math.floor(Math.random() * 24),
+        Math.floor(Math.random() * 60)
+      )
       mockTransactions.push({
+        id: `TX${i + 1}`, // useful for keys
         accountNumber: `ACC${100000 + i}`,
         transactionDateTime: date.toISOString(),
         transactionAmount: (Math.random() * 1000).toFixed(2),
         merchantName: merchantNames[Math.floor(Math.random() * merchantNames.length)],
         transactionType: transactionTypes[Math.floor(Math.random() * transactionTypes.length)],
         merchantCategoryCode: merchantCategories[Math.floor(Math.random() * merchantCategories.length)],
+        merchantCountryCode: ['US', 'CA', 'MX', 'PR'][Math.floor(Math.random() * 4)],
         isFraud: Math.random() > 0.85 ? 1 : 0
       })
     }
@@ -139,19 +147,12 @@ export default function ManageData() {
   const endIndex = startIndex + itemsPerPage
   const currentTransactions = filteredTransactions.slice(startIndex, endIndex)
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page)
-  }
-
-  const handleItemsPerPageChange = (e) => {
-    setItemsPerPage(Number(e.target.value))
-    setCurrentPage(1)
-  }
+  const handlePageChange = (page) => setCurrentPage(page)
+  const handleItemsPerPageChange = (e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1) }
 
   const getPageNumbers = () => {
     const pages = []
     const maxPagesToShow = 5
-
     if (totalPages <= maxPagesToShow) {
       for (let i = 1; i <= totalPages; i++) pages.push(i)
     } else {
@@ -171,18 +172,25 @@ export default function ManageData() {
         pages.push(totalPages)
       }
     }
-
     return pages
   }
 
-  // 🗑️ Remove Data
+  // Remove Data
   const handleRemoveData = () => {
     const confirmDelete = window.confirm('Are you sure you want to remove all data? This action cannot be undone.')
     if (!confirmDelete) return
-
     setTransactions([])
     setFilteredTransactions([])
     alert('All data has been removed successfully.')
+  }
+
+  // Row click handlers (mouse + keyboard)
+  const handleRowClick = (tx) => setSelectedTransaction(tx)
+  const handleRowKeyDown = (e, tx) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      setSelectedTransaction(tx)
+    }
   }
 
   return (
@@ -199,7 +207,7 @@ export default function ManageData() {
         />
 
         <select
-          className="filter-dropdown"
+          className={`filter-dropdown ${filterBy === 'fraud' ? 'fraud-filter' : ''}`}
           value={filterBy}
           onChange={(e) => setFilterBy(e.target.value)}
         >
@@ -229,8 +237,17 @@ export default function ManageData() {
             {filteredTransactions.length === 0 ? (
               <div className="no-results">No transactions found</div>
             ) : (
-              currentTransactions.map((transaction, index) => (
-                <div key={index} className={`transaction-row ${transaction.isFraud ? 'fraud-row' : 'legitimate-row'}`}>
+              currentTransactions.map((transaction) => (
+                <div
+                  key={transaction.id || transaction.accountNumber}
+                  className={`transaction-row ${transaction.isFraud ? 'fraud-row' : 'legitimate-row'}`}
+                  onClick={() => handleRowClick(transaction)}
+                  onKeyDown={(e) => handleRowKeyDown(e, transaction)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Open details for ${transaction.accountNumber}`}
+                  style={{ cursor: 'pointer' }}
+                >
                   <div>{transaction.accountNumber}</div>
                   <div>{formatDateTime(transaction.transactionDateTime)}</div>
                   <div>${transaction.transactionAmount}</div>
@@ -321,13 +338,19 @@ export default function ManageData() {
             </button>
 
             <button
-              className="upload-data-btn"  // same class → same style
+              className="upload-data-btn"
               onClick={handleRemoveData}
               disabled={transactions.length === 0}
             >
               Remove Data
             </button>
           </div>
+
+          {/* Modal with details */}
+          <TransactionModal
+            transaction={selectedTransaction}
+            onClose={() => setSelectedTransaction(null)}
+          />
         </>
       )}
     </div>

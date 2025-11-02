@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import Dashboard from './components/Dashboard'
 import DataSummary from './components/DataSummary'
 import Predictions from './components/Predictions'
 import RightMenu from './components/RightMenu'
@@ -8,6 +9,8 @@ import ManageData from './components/ManageData'
 import ChatPage from './components/ChatPage'
 import VerifyTransaction from './components/VerifyTransaction'
 import TransactionResult from './components/TransactionResult'
+import Charts from './components/Charts'
+import SqlQuery from './components/SqlQuery'
 import strangerLogo from './assets/stranger-logo.png'
 import { fetchData, fetchPredictions } from './api'
 
@@ -82,7 +85,7 @@ export default function App() {
         <main className="main-col">
           {/* Only show header on home page */}
           {currentPage === 'home' && (
-            <header>
+            <header style={{ display: 'none' }}>
               <h1>Stranger Strings — Data & Predictions</h1>
             </header>
           )}
@@ -99,11 +102,12 @@ export default function App() {
                 <VerifyTransaction onNavigate={handleNavigate} />
               ) : currentPage === 'result' ? (
                 <TransactionResult result={verificationResult} onBack={handleBackToVerify} />
+              ) : currentPage === 'charts' ? (
+                <Charts />
+              ) : currentPage === 'sql' ? (
+                <SqlQuery />
               ) : (
-                <>
-                  <DataSummary data={data} />
-                  <Predictions predictions={predictions} />
-                </>
+                <Dashboard onNavigate={handleNavigate} />
               )}
             </>
           )}
