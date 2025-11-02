@@ -13,6 +13,8 @@ const SqlQuery = () => {
   const [prompt, setPrompt] = useState('');
   const [generatingQuery, setGeneratingQuery] = useState(false);
   const [queryAnimating, setQueryAnimating] = useState(false);
+  const [explanation, setExplanation] = useState(null);
+  const [generatingExplanation, setGeneratingExplanation] = useState(false);
 
   useEffect(() => {
     // Watch for theme changes
@@ -91,14 +93,40 @@ const SqlQuery = () => {
     setLoading(true);
     setError(null);
     setResult(null);
+    setExplanation(null);
 
     try {
       const res = await axios.post('/sql/execute', { query: sqlQuery });
       setResult(res.data);
+      
+      // Generate explanation for the results
+      if (res.data && res.data.rows && res.data.rows.length > 0) {
+        generateExplanation(sqlQuery, res.data);
+      }
     } catch (err) {
       setError(err.response?.data?.error || err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const generateExplanation = async (sqlQuery, resultData) => {
+    setGeneratingExplanation(true);
+    try {
+      const res = await axios.post('/sql/explain', {
+        query: sqlQuery,
+        result: {
+          columns: resultData.columns,
+          rowCount: resultData.rowCount,
+          sampleRows: resultData.rows.slice(0, 5) // Send only first 5 rows for context
+        }
+      });
+      setExplanation(res.data.explanation);
+    } catch (err) {
+      console.error('Failed to generate explanation:', err);
+      // Don't set error - explanation is optional
+    } finally {
+      setGeneratingExplanation(false);
     }
   };
 
@@ -227,6 +255,21 @@ const SqlQuery = () => {
         {error && (
           <div className="sql-error">
             <strong>Error:</strong> {error}
+          </div>
+        )}
+
+        {/* AI Explanation - Show before results */}
+        {result && (generatingExplanation || explanation) && (
+          <div className="sql-card sql-ai-explanation">
+            <div className="sql-ai-icon">🤖</div>
+            <div className="sql-ai-content">
+              <div className="sql-ai-title">AI Analysis</div>
+              {generatingExplanation ? (
+                <div className="sql-ai-loading">⏳ Analyzing results...</div>
+              ) : (
+                <div className="sql-ai-text">{explanation}</div>
+              )}
+            </div>
           </div>
         )}
 

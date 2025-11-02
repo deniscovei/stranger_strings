@@ -254,3 +254,77 @@ Rules:
             'errorType': type(e).__name__,
             'traceback': traceback.format_exc()
         }), 500
+
+@sql_query_bp.route('/sql/explain', methods=['POST'])
+def explain_results():
+    """
+    Generate explanation for SQL query results using LLM
+    
+    Request body:
+    {
+        "query": "SELECT * FROM transactions WHERE isfraud = true LIMIT 10",
+        "result": {
+            "columns": ["id", "amount", "merchantname"],
+            "rowCount": 10,
+            "sampleRows": [[1, 100, "merchant1"], ...]
+        }
+    }
+    
+    Returns:
+    {
+        "explanation": "The query retrieved 10 fraudulent transactions..."
+    }
+    """
+    try:
+        data = request.get_json()
+        query = data.get('query', '').strip()
+        result = data.get('result', {})
+        
+        if not query:
+            return jsonify({'error': 'Query cannot be empty'}), 400
+        
+        # Import AWS client
+        from .aws_client import query_claude
+        
+        # Build prompt for explanation
+        columns = result.get('columns', [])
+        row_count = result.get('rowCount', 0)
+        sample_rows = result.get('sampleRows', [])
+        
+        # Format sample data
+        sample_text = ""
+        if sample_rows and columns:
+            sample_text = "\n".join([
+                str(dict(zip(columns, row))) for row in sample_rows[:3]
+            ])
+        
+        system_prompt = """You are a data analyst assistant. Explain SQL query results in a clear, concise way.
+Focus on what the data shows and any interesting patterns or insights."""
+
+        user_prompt = f"""Analyze this SQL query and its results:
+
+Query:
+{query}
+
+Results Summary:
+- Total rows returned: {row_count}
+- Columns: {', '.join(columns)}
+
+Sample data (first few rows):
+{sample_text}
+
+Provide a brief, insightful explanation of what this query shows. Be concise (2-3 sentences)."""
+
+        # Call LLM
+        explanation = query_claude(user_prompt, system_prompt)
+        
+        return jsonify({
+            'explanation': explanation.strip()
+        }), 200
+        
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'errorType': type(e).__name__,
+            'traceback': traceback.format_exc()
+        }), 500
