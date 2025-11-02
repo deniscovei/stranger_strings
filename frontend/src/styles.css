@@ -141,7 +141,7 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   padding: 12px 14px; 
   border-radius: 10px; 
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: #0f172a; 
+  color: #ffffff; 
   border: none; 
   cursor: pointer; 
   white-space: nowrap;
@@ -1119,7 +1119,7 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   padding: 12px 14px; 
   border-radius: 10px; 
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: #0f172a; 
+  color: #ffffff; 
   border: none; 
   cursor: pointer; 
   white-space: nowrap;
