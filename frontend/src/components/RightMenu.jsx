@@ -29,7 +29,7 @@ export default function RightMenu({ onToggle, onOpenChat, onNavigate, isOpen = t
           Manage Data
         </button>
         <button className="menu-item" onClick={() => onNavigate?.('verify')}>
-          Verify Transaction
+          Verify Transactions
         </button>
         <div className="menu-sep" />
         <button className="chat-btn" onClick={onOpenChat}>

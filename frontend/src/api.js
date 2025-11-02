@@ -6,7 +6,7 @@ export async function fetchData(page = 1, pageSize = 100, search = '', filter = 
 		const params = { page, pageSize }
 		if (search) params.search = search
 		if (filter && filter !== 'all') params.filter = filter
-		
+
 		const res = await axios.get('/api/data', { params })
 		return res.data // Returns { data: [...], pagination: {...} }
 	} catch (err) {
@@ -42,6 +42,19 @@ export async function verifyTransaction(transactionData) {
 	return res.data
 }
 
+export async function verifyMultipleTransactions(file) {
+	// Backend endpoint: POST /api/predict (proxied to
+	// http://localhost:5000/predict)
+
+	const form = new FormData()
+	form.append('file', file)
+
+	const res =
+		await axios.post('/api/predict_multiple', form,
+			{ headers: { 'Content-Type': 'multipart/form-data' } })
+	return res.data
+}
+
 export async function fetchChartData() {
 	// Expected backend endpoint: GET /charts/data
 	const res = await axios.get('/charts/data')
@@ -71,7 +84,7 @@ export async function fetchMerchants(page = 1, pageSize = 100, search = '', filt
 		const params = { page, pageSize }
 		if (search) params.search = search
 		if (filter && filter !== 'all') params.filter = filter
-		
+
 		const res = await axios.get('/api/merchants', { params })
 		return res.data // Returns { data: [...], pagination: {...} }
 	} catch (err) {
