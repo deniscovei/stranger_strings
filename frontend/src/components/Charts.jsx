@@ -16,7 +16,14 @@ const Charts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isDark, setIsDark] = useState(document.documentElement.classList.contains('dark'));
-  const [view, setView] = useState('analytics'); // 'analytics' or 'ai-generator'
+  const [view, setView] = useState(() => {
+    return localStorage.getItem('charts_view') || 'analytics'
+  });
+
+  // Save view preference to localStorage
+  useEffect(() => {
+    localStorage.setItem('charts_view', view);
+  }, [view]);
 
   useEffect(() => {
     loadChartData();

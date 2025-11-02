@@ -2,19 +2,52 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const SqlQuery = () => {
-  const [query, setQuery] = useState('SELECT * FROM transactions LIMIT 10;');
-  const [result, setResult] = useState(null);
+  const [query, setQuery] = useState(() => {
+    return localStorage.getItem('sqlQuery_query') || 'SELECT * FROM transactions LIMIT 10;'
+  });
+  const [result, setResult] = useState(() => {
+    const saved = localStorage.getItem('sqlQuery_result')
+    return saved ? JSON.parse(saved) : null
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tables, setTables] = useState([]);
-  const [selectedTable, setSelectedTable] = useState(null);
+  const [selectedTable, setSelectedTable] = useState(() => {
+    return localStorage.getItem('sqlQuery_selectedTable') || null
+  });
   const [schema, setSchema] = useState([]);
   const [isDark, setIsDark] = useState(document.documentElement.classList.contains('dark'));
   const [prompt, setPrompt] = useState('');
   const [generatingQuery, setGeneratingQuery] = useState(false);
   const [queryAnimating, setQueryAnimating] = useState(false);
-  const [explanation, setExplanation] = useState(null);
+  const [explanation, setExplanation] = useState(() => {
+    const saved = localStorage.getItem('sqlQuery_explanation')
+    return saved ? JSON.parse(saved) : null
+  });
   const [generatingExplanation, setGeneratingExplanation] = useState(false);
+
+  // Save state to localStorage
+  useEffect(() => {
+    localStorage.setItem('sqlQuery_query', query);
+  }, [query]);
+
+  useEffect(() => {
+    if (result) {
+      localStorage.setItem('sqlQuery_result', JSON.stringify(result));
+    }
+  }, [result]);
+
+  useEffect(() => {
+    if (selectedTable) {
+      localStorage.setItem('sqlQuery_selectedTable', selectedTable);
+    }
+  }, [selectedTable]);
+
+  useEffect(() => {
+    if (explanation) {
+      localStorage.setItem('sqlQuery_explanation', JSON.stringify(explanation));
+    }
+  }, [explanation]);
 
   useEffect(() => {
     // Watch for theme changes

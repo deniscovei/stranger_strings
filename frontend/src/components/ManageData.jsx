@@ -4,21 +4,55 @@ import TransactionModal from './TransactionModels' // Import TransactionModal
 import MerchantModal from './MerchantModal' // Import MerchantModal
 
 export default function ManageData() {
-  const [viewMode, setViewMode] = useState('transactions') // 'transactions' or 'merchants'
+  // Initialize state from localStorage or use defaults
+  const [viewMode, setViewMode] = useState(() => {
+    return localStorage.getItem('manageData_viewMode') || 'transactions'
+  })
   const [transactions, setTransactions] = useState([])
   const [merchants, setMerchants] = useState([])
   const [filteredTransactions, setFilteredTransactions] = useState([])
   const [selectedTransaction, setSelectedTransaction] = useState(null)
   const [selectedMerchant, setSelectedMerchant] = useState(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [filterBy, setFilterBy] = useState('all')
+  const [searchTerm, setSearchTerm] = useState(() => {
+    return localStorage.getItem('manageData_searchTerm') || ''
+  })
+  const [filterBy, setFilterBy] = useState(() => {
+    return localStorage.getItem('manageData_filterBy') || 'all'
+  })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [uploading, setUploading] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(100)
-  const [pagination, setPagination] = useState(null) // Store pagination metadata
+  const [currentPage, setCurrentPage] = useState(() => {
+    const saved = localStorage.getItem('manageData_currentPage')
+    return saved ? parseInt(saved, 10) : 1
+  })
+  const [itemsPerPage, setItemsPerPage] = useState(() => {
+    const saved = localStorage.getItem('manageData_itemsPerPage')
+    return saved ? parseInt(saved, 10) : 100
+  })
+  const [pagination, setPagination] = useState(null)
   const fileInputRef = useRef(null)
+
+  // Save state to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('manageData_viewMode', viewMode)
+  }, [viewMode])
+
+  useEffect(() => {
+    localStorage.setItem('manageData_searchTerm', searchTerm)
+  }, [searchTerm])
+
+  useEffect(() => {
+    localStorage.setItem('manageData_filterBy', filterBy)
+  }, [filterBy])
+
+  useEffect(() => {
+    localStorage.setItem('manageData_currentPage', currentPage.toString())
+  }, [currentPage])
+
+  useEffect(() => {
+    localStorage.setItem('manageData_itemsPerPage', itemsPerPage.toString())
+  }, [itemsPerPage])
 
   useEffect(() => {
     if (viewMode === 'transactions') {
