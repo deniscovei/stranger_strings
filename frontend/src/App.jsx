@@ -63,14 +63,14 @@ export default function App() {
 
   return (
     <>
-      <img
+      {/* <img
         src={strangerLogo}
         alt="Stranger Strings Logo"
         className="top-right-logo"
         onClick={() => setCurrentPage('home')}
         role="button"
         aria-label="Go to main menu"
-      />
+      /> */}
       
       <div className={`container layout ${menuOpen ? '' : 'menu-closed'}`}>
         <aside className={`left-menu-col ${menuOpen ? 'open' : 'closed'}`}>

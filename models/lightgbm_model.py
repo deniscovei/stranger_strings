@@ -29,20 +29,21 @@ def train_lightgbm(X_train, y_train, verbose=True):
     
     lgb_model = lgb.LGBMClassifier(
         objective='binary',
-        metric='binary_logloss',
+        metric='f1',
         boosting_type='gbdt',
-        n_estimators=400,
-        learning_rate=0.1,
-        max_depth=12,
-        subsample=0.8,
+        n_estimators=800,
+        learning_rate=0.05,
+        max_depth=8,
+        subsample=0.6,
         subsample_freq=1,
         colsample_bytree=0.8,
-        reg_alpha=0.1,
-        reg_lambda=0.1,
+        reg_alpha=0.5,
+        reg_lambda=0.5,
         # scale_pos_weight=scale_pos_weight_lgb,
         random_state=42,
         n_jobs=-1,
-        verbose=-1
+        verbose=-1,
+        is_unbalance=True
     )
     
     if verbose:
