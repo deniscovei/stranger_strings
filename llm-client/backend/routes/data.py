@@ -45,16 +45,20 @@ def upload_data():
     if not file.filename.endswith('.csv'):
         return jsonify({'error': 'File must be CSV format'}), 400
 
+    print("Request received at /upload endpoint")
+
     try:
-        # Read CSV file
+
         csv_data = StringIO(file.stream.read().decode("UTF-8"))
         df = pd.read_csv(csv_data)
 
         # Insert data
-        rows_inserted = db.bulk_insert_transactions(df)
-
-        if rows_inserted == 0:
-            return jsonify({'error': 'No records were inserted'}), 500
+        try:
+            rows_inserted = db.bulk_insert_transactions(df)
+            if rows_inserted == 0:
+                return jsonify({'error': 'No records were inserted'}), 500
+        except Exception as e:
+            return jsonify({'error': f"No records were inserted: {e}"}), 500
 
         return jsonify({
             'message': f'Successfully uploaded {rows_inserted} records',
