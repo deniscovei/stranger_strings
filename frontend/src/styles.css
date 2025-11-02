@@ -4509,23 +4509,23 @@ th {
 }
 
 .view-toggle-btn:hover {
-  background: rgba(99, 102, 241, 0.05);
-  border-color: rgba(99, 102, 241, 0.3);
-  color: #6366f1;
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.3);
+  color: #8b5cf6;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
 }
 
 .view-toggle-btn.active {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  border-color: #6366f1;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  border-color: #8b5cf6;
   color: white;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
 }
 
 .view-toggle-btn.active:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
 }
 
 /* Charts Loading Animation */
@@ -4646,20 +4646,20 @@ th {
 }
 
 .dark .view-toggle-btn:hover {
-  background: rgba(99, 102, 241, 0.15);
-  border-color: rgba(99, 102, 241, 0.4);
-  color: #a78bfa;
+  background: rgba(63, 255, 168, 0.15);
+  border-color: rgba(63, 255, 168, 0.4);
+  color: #3fffa8;
 }
 
 .dark .view-toggle-btn.active {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  border-color: #8b5cf6;
-  color: white;
-  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4);
+  background: linear-gradient(135deg, #3fffa8 0%, #00e396 100%);
+  border-color: #3fffa8;
+  color: #0f172a;
+  box-shadow: 0 4px 16px rgba(63, 255, 168, 0.4);
 }
 
 .dark .view-toggle-btn.active:hover {
-  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+  box-shadow: 0 6px 20px rgba(63, 255, 168, 0.5);
 }
 
 /* Dark mode for loading animation */

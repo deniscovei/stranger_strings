@@ -80,29 +80,58 @@ export default function VerifyTransactionsPage({ onNavigate }) {
             {batchResults.length > 0 && (
               <div className="transactions-list">
                 <div className="transaction-header">
-                  <div>Transaction ID</div>
-                  <div>Prediction</div>
-                  <div>Status</div>
+                  <div>Account Number</div>
+                  <div>Date & Time</div>
+                  <div>Amount</div>
+                  <div>Merchant</div>
+                  <div>Type</div>
                   <div>Fraud Probability</div>
-                  <div>Non-Fraud Probability</div>
+                  <div>Status</div>
                 </div>
 
-                {batchResults.map((result, index) => (
-                  <div
-                    key={index}
-                    className={`transaction-row ${result.is_fraud ? 'fraud-row' : 'legitimate-row'}`}
-                  >
-                    <div>{result.transaction_id || 'N/A'}</div>
-                    <div>{String(result.prediction ?? 'N/A')}</div>
-                    <div>
-                      <span className={`status-badge ${result.is_fraud ? 'fraud' : 'legitimate'}`}>
-                        {result.is_fraud ? 'Fraud' : 'Legitimate'}
-                      </span>
+                {batchResults.map((result, index) => {
+                  // Format date and time
+                  const formatDateTime = (dateTimeStr) => {
+                    if (!dateTimeStr) return 'N/A'
+                    try {
+                      const date = new Date(dateTimeStr)
+                      return date.toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: false
+                      })
+                    } catch (e) {
+                      return dateTimeStr
+                    }
+                  }
+
+                  return (
+                    <div
+                      key={index}
+                      className={`transaction-row ${result.isFraud ? 'fraud-row' : 'legitimate-row'}`}
+                    >
+                      <div>{result.accountNumber || 'N/A'}</div>
+                      <div>{formatDateTime(result.transactionDateTime)}</div>
+                      <div>${result.transactionAmount || 'N/A'}</div>
+                      <div>{result.merchantName || 'N/A'}</div>
+                      <div>{result.transactionType || 'N/A'}</div>
+                      <div>
+                        <span className={`status-badge ${result.isFraud ? 'fraud' : 'legitimate'}`}>
+                          {typeof result.probabilityFraud === 'number' ? (result.probabilityFraud * 100).toFixed(2) + '%' : 'N/A'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className={`status-badge ${result.isFraud ? 'fraud' : 'legitimate'}`}>
+                          {result.isFraud ? 'Fraud' : 'Legitimate'}
+                        </span>
+                      </div>
                     </div>
-                    <div>{typeof result.probability_fraud === 'number' ? (result.probability_fraud * 100).toFixed(2) + '%' : 'N/A'}</div>
-                    <div>{typeof result.probability_non_fraud === 'number' ? (result.probability_non_fraud * 100).toFixed(2) + '%' : 'N/A'}</div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>
