@@ -1,10 +1,14 @@
 import axios from 'axios'
 
-export async function fetchData() {
-	// Expected backend endpoint: GET /api/data
+export async function fetchData(page = 1, pageSize = 100, search = '', filter = 'all') {
+	// Expected backend endpoint: GET /api/data?page=1&pageSize=100&search=...&filter=...
 	try{
-		const res = await axios.get('/api/data')
-		return res.data
+		const params = { page, pageSize }
+		if (search) params.search = search
+		if (filter && filter !== 'all') params.filter = filter
+		
+		const res = await axios.get('/api/data', { params })
+		return res.data // Returns { data: [...], pagination: {...} }
 	} catch (err) {
 		console.error('Error in fetchData:', err.response || err.message || err);
 		throw err;
@@ -59,6 +63,34 @@ export async function fetchTransactions() {
 export async function clearData() {
 	const res = await axios.post('/api/clear')
 	return res
+}
+
+export async function fetchMerchants(page = 1, pageSize = 100, search = '', filter = 'all') {
+	// Expected backend endpoint: GET /api/merchants?page=1&pageSize=100&search=...&filter=...
+	try {
+		const params = { page, pageSize }
+		if (search) params.search = search
+		if (filter && filter !== 'all') params.filter = filter
+		
+		const res = await axios.get('/api/merchants', { params })
+		return res.data // Returns { data: [...], pagination: {...} }
+	} catch (err) {
+		console.error('Error in fetchMerchants:', err.response || err.message || err);
+		throw err;
+	}
+}
+
+export async function fetchMerchantTransactions(merchantName, page = 1, pageSize = 20) {
+	// Expected backend endpoint: GET /api/merchants/:merchantName/transactions
+	try {
+		const params = { page, pageSize }
+		const encodedName = encodeURIComponent(merchantName)
+		const res = await axios.get(`/api/merchants/${encodedName}/transactions`, { params })
+		return res.data // Returns { data: [...], pagination: {...} }
+	} catch (err) {
+		console.error('Error in fetchMerchantTransactions:', err.response || err.message || err);
+		throw err;
+	}
 }
 
 export async function sendChatMessage(message) {

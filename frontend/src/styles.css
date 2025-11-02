@@ -1944,11 +1944,46 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 }
 
 .manage-data-container h2 {
-  margin: 0 0 32px 0;
+  margin: 0 0 20px 0;
   font-size: 32px;
   font-weight: 800;
   color: #0f172a;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.view-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  width: fit-content;
+}
+
+.toggle-btn {
+  padding: 10px 24px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.toggle-btn:hover {
+  background: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
+}
+
+.toggle-btn.active {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
 }
 
 .data-controls {
@@ -2979,6 +3014,363 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   }
 }
 
+/* Merchant Modal Styles */
+.merchant-modal {
+  width: 1000px;
+  max-width: calc(100% - 32px);
+  max-height: 90vh;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(139, 92, 246, 0.15), 0 0 1px rgba(139, 92, 246, 0.3);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease;
+}
+
+.merchant-modal.fraud-modal {
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  box-shadow: 0 20px 60px rgba(239, 68, 68, 0.2), 0 0 1px rgba(239, 68, 68, 0.4);
+}
+
+.merchant-modal .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px 28px;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.15);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(124, 58, 237, 0.03) 100%);
+  border-radius: 20px 20px 0 0;
+}
+
+.merchant-modal .modal-header h3 {
+  margin: 0 0 8px 0;
+  padding-right: 12px;
+  word-break: break-word;
+  color: #8b5cf6;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.merchant-modal .modal-close-btn {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  color: #8b5cf6;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.merchant-modal .modal-close-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  transform: rotate(90deg);
+}
+
+.merchant-header-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.info-badge {
+  padding: 6px 14px;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #8b5cf6;
+}
+
+.merchant-modal .modal-body {
+  padding: 24px 32px;
+  overflow-y: auto;
+  max-height: calc(90vh - 180px);
+  display: flex;
+  flex-direction: column;
+}
+
+.merchant-stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.6) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  border-radius: 14px;
+  transition: all 0.3s ease;
+  min-width: 0;
+}
+
+.stat-card:hover {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(124, 58, 237, 0.05) 100%);
+  border-color: rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+  transform: translateY(-2px);
+}
+
+.stat-card:hover {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+}
+
+.stat-card.fraud-card {
+  border-left: 4px solid #ef4444;
+}
+
+.stat-card.legitimate-card {
+  border-left: 4px solid #10b981;
+}
+
+.stat-icon {
+  font-size: 28px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  word-break: break-word;
+}
+
+.stat-value.fraud-text {
+  color: #ef4444;
+}
+
+.stat-value.legitimate-text {
+  color: #10b981;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(139, 92, 246, 0.25);
+  flex-shrink: 0;
+}
+
+.section-header h4 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #8b5cf6;
+}
+
+.transaction-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.merchant-transactions-section {
+  margin-top: 8px;
+  padding: 0 8px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.merchant-transactions-list-container {
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.6) 100%);
+  border-radius: 14px;
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  overflow-y: auto;
+  margin-bottom: 16px;
+  flex: 1;
+  max-height: 400px;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.05);
+}
+
+.merchant-transaction-header {
+  display: grid;
+  grid-template-columns: 1.2fr 1.5fr 1fr 1fr 0.9fr;
+  gap: 12px;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(124, 58, 237, 0.12) 100%);
+  font-weight: 700;
+  font-size: 12px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  border-bottom: 2px solid rgba(139, 92, 246, 0.2);
+  border-radius: 12px 12px 0 0;
+}
+
+.merchant-transaction-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1.5fr 1fr 1fr 0.9fr;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  transition: all 0.2s ease;
+  font-size: 14px;
+  color: #1e293b;
+  align-items: center;
+}
+
+.merchant-transaction-row:last-child {
+  border-bottom: none;
+}
+
+.merchant-transaction-row:hover {
+  background: rgba(139, 92, 246, 0.06);
+  transform: translateX(2px);
+  border-left: 3px solid rgba(139, 92, 246, 0.4);
+  padding-left: 17px;
+}
+
+.merchant-transaction-row.fraud-row {
+  background: rgba(254, 242, 242, 0.4);
+}
+
+.merchant-transaction-row.fraud-row:hover {
+  background: rgba(254, 226, 226, 0.6);
+}
+
+.merchant-transaction-row.legitimate-row {
+  background: rgba(240, 253, 244, 0.4);
+}
+
+.merchant-transaction-row.legitimate-row:hover {
+  background: rgba(220, 252, 231, 0.6);
+}
+
+.merchant-pagination-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(124, 58, 237, 0.03) 100%);
+  border-radius: 12px;
+  margin-top: 16px;
+  border: 1px solid rgba(139, 92, 246, 0.15);
+}
+
+.loading-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(99, 102, 241, 0.1);
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-state p,
+.empty-state p {
+  margin: 0;
+  color: #64748b;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+  .merchant-modal {
+    width: calc(100% - 24px);
+  }
+
+  .merchant-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stat-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .section-header {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .merchant-transaction-header {
+    display: none;
+  }
+
+  .merchant-transaction-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 12px 16px;
+  }
+
+  .merchant-transaction-row > div {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .merchant-transaction-row > div::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #64748b;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+}
+
 /* --- Dark Mode Toggle positioning next to logo --- */
 .top-right-controls {
   position: fixed;
@@ -3473,6 +3865,26 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 
 .dark .manage-data-container h2 {
   color: #ffffff;
+}
+
+.dark .view-toggle {
+  background: rgba(17, 24, 39, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .toggle-btn {
+  color: #94a3b8;
+}
+
+.dark .toggle-btn:hover {
+  background: rgba(63, 255, 168, 0.15);
+  color: #3fffa8;
+}
+
+.dark .toggle-btn.active {
+  background: linear-gradient(135deg, #3fffa8 0%, #00e396 100%);
+  color: #0f172a;
+  box-shadow: 0 2px 8px rgba(63, 255, 168, 0.4);
 }
 
 /* Left Menu Dark Mode */
@@ -4263,6 +4675,148 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 
 .dark .transaction-modal.fraud-modal .detail-value {
   color: #fca5a5;
+}
+
+/* Dark mode merchant modal */
+.dark .merchant-modal {
+  background: rgba(17, 24, 39, 0.95);
+  border: 1px solid rgba(63, 255, 168, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 1px rgba(63, 255, 168, 0.3);
+  backdrop-filter: blur(20px);
+}
+
+.dark .merchant-modal.fraud-modal {
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 1px rgba(239, 68, 68, 0.4);
+}
+
+.dark .merchant-modal .modal-header {
+  border-bottom: 1px solid rgba(63, 255, 168, 0.2);
+  background: linear-gradient(135deg, rgba(63, 255, 168, 0.08) 0%, rgba(0, 227, 150, 0.05) 100%);
+}
+
+.dark .merchant-modal .modal-header h3 {
+  color: #3fffa8;
+}
+
+.dark .merchant-modal .modal-close-btn {
+  background: rgba(63, 255, 168, 0.1);
+  border-color: rgba(63, 255, 168, 0.2);
+  color: #3fffa8;
+}
+
+.dark .merchant-modal .modal-close-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.dark .info-badge {
+  background: rgba(63, 255, 168, 0.15);
+  border-color: rgba(63, 255, 168, 0.3);
+  color: #3fffa8;
+}
+
+.dark .stat-card {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.8) 0%, rgba(17, 24, 39, 0.6) 100%);
+  border: 1px solid rgba(63, 255, 168, 0.15);
+}
+
+.dark .stat-card:hover {
+  background: linear-gradient(135deg, rgba(63, 255, 168, 0.1) 0%, rgba(0, 227, 150, 0.08) 100%);
+  border-color: rgba(63, 255, 168, 0.3);
+  box-shadow: 0 4px 12px rgba(63, 255, 168, 0.2);
+  transform: translateY(-2px);
+}
+
+.dark .stat-card.fraud-card {
+  border-left-color: #fca5a5;
+}
+
+.dark .stat-card.legitimate-card {
+  border-left-color: #6ee7b7;
+}
+
+.dark .stat-label {
+  color: #9ca3af;
+}
+
+.dark .stat-value {
+  color: #e5e7eb;
+}
+
+.dark .stat-value.fraud-text {
+  color: #fca5a5;
+}
+
+.dark .stat-value.legitimate-text {
+  color: #6ee7b7;
+}
+
+.dark .section-header {
+  border-bottom-color: rgba(63, 255, 168, 0.3);
+}
+
+.dark .section-header h4 {
+  color: #3fffa8;
+}
+
+.dark .transaction-count {
+  color: #9ca3af;
+}
+
+.dark .merchant-transactions-list-container {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.8) 0%, rgba(17, 24, 39, 0.6) 100%);
+  border: 1px solid rgba(63, 255, 168, 0.15);
+  box-shadow: 0 2px 8px rgba(63, 255, 168, 0.05);
+}
+
+.dark .merchant-pagination-controls {
+  background: linear-gradient(135deg, rgba(63, 255, 168, 0.08) 0%, rgba(0, 227, 150, 0.05) 100%);
+  border: 1px solid rgba(63, 255, 168, 0.15);
+}
+
+.dark .merchant-transaction-header {
+  background: linear-gradient(135deg, rgba(63, 255, 168, 0.12) 0%, rgba(0, 227, 150, 0.12) 100%);
+  color: #d1d5db;
+  border-bottom-color: rgba(63, 255, 168, 0.25);
+}
+
+.dark .merchant-transaction-row {
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+  color: #e5e7eb;
+}
+
+.dark .merchant-transaction-row:hover {
+  background: rgba(63, 255, 168, 0.08);
+  border-left: 3px solid rgba(63, 255, 168, 0.5);
+  padding-left: 17px;
+}
+
+.dark .merchant-transaction-row.fraud-row {
+  background: rgba(127, 29, 29, 0.3);
+}
+
+.dark .merchant-transaction-row.fraud-row:hover {
+  background: rgba(127, 29, 29, 0.5);
+}
+
+.dark .merchant-transaction-row.legitimate-row {
+  background: rgba(6, 78, 59, 0.3);
+}
+
+.dark .merchant-transaction-row.legitimate-row:hover {
+  background: rgba(6, 78, 59, 0.5);
+}
+
+.dark .spinner {
+  border-color: rgba(63, 255, 168, 0.2);
+  border-top-color: #3fffa8;
+}
+
+.dark .loading-state p,
+.dark .empty-state p {
+  color: #9ca3af;
 }
 
 /* Dark mode theme toggle slider */

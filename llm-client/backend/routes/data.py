@@ -43,11 +43,15 @@ def get_data():
         # Get paginated data with filters
         rows = db.get_data_filtered(offset, page_size, search_term, filter_by)
         
-        # Ensure the data is returned as a list of dictionaries
+        # Ensure the data is returned as a list of dictionaries with ALL columns
         columns = [
-            "accountNumber", "transactionDateTime", "transactionAmount",
-            "merchantName", "transactionType", "merchantCategoryCode",
-            "merchantCountryCode", "isFraud"
+            "row_id", "accountNumber", "customerId", "creditLimit", "availableMoney",
+            "transactionDateTime", "transactionAmount", "merchantName", "acqCountry",
+            "merchantCountryCode", "posEntryMode", "posConditionCode", "merchantCategoryCode",
+            "currentExpDate", "accountOpenDate", "dateOfLastAddressChange", "cardCVV",
+            "enteredCVV", "cardLast4Digits", "transactionType", "echoBuffer", "currentBalance",
+            "merchantCity", "merchantState", "merchantZip", "cardPresent", "posOnPremises",
+            "recurringAuthInd", "expirationDateKeyInMatch", "isFraud"
         ]
         data = [dict(zip(columns, row)) for row in rows]
         
@@ -116,4 +120,111 @@ def clear_data():
 
         return jsonify({'message': f"Successfully cleared all transaction data: {rows_affected}"}), 200
     except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@data_bp.route('/merchants', methods=['GET'])
+def get_merchants():
+    """Get merchant statistics with optional search and filter"""
+    try:
+        print("Request received at /merchants endpoint")
+        
+        # Get pagination parameters from query string
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('pageSize', 100, type=int)
+        search_term = request.args.get('search', '', type=str)
+        filter_by = request.args.get('filter', 'all', type=str)  # 'all', 'fraud', 'legitimate'
+        
+        # Validate parameters
+        if page < 1:
+            page = 1
+        if page_size < 1 or page_size > 1000:
+            page_size = 100
+        
+        # Calculate offset
+        offset = (page - 1) * page_size
+        
+        # Get total count with filters
+        total_rows = db.get_merchants_count(search_term, filter_by)
+        
+        # Get paginated merchant data with filters
+        rows = db.get_merchants_filtered(offset, page_size, search_term, filter_by)
+        
+        # Column mapping
+        columns = [
+            "merchantName", "totalTransactions", "fraudCount", "legitimateCount", 
+            "fraudPercentage", "totalAmount", "avgAmount"
+        ]
+        data = [dict(zip(columns, row)) for row in rows]
+        
+        # Calculate pagination metadata
+        total_pages = (total_rows + page_size - 1) // page_size if total_rows > 0 else 1
+        
+        return jsonify({
+            'data': data,
+            'pagination': {
+                'page': page,
+                'pageSize': page_size,
+                'totalRows': total_rows,
+                'totalPages': total_pages,
+                'hasNext': page < total_pages,
+                'hasPrev': page > 1
+            }
+        }), 200
+    except Exception as e:
+        print(f"Error in /merchants endpoint: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@data_bp.route('/merchants/<merchant_name>/transactions', methods=['GET'])
+def get_merchant_transactions(merchant_name):
+    """Get transactions for a specific merchant with pagination"""
+    try:
+        print(f"Request received at /merchants/{merchant_name}/transactions endpoint")
+        
+        # Get pagination parameters from query string
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('pageSize', 20, type=int)
+        
+        # Validate parameters
+        if page < 1:
+            page = 1
+        if page_size < 1 or page_size > 100:
+            page_size = 20
+        
+        # Calculate offset
+        offset = (page - 1) * page_size
+        
+        # Get total count for this merchant
+        total_rows = db.get_merchant_transactions_count(merchant_name)
+        
+        # Get paginated transactions for this merchant
+        rows = db.get_merchant_transactions(merchant_name, offset, page_size)
+        
+        # Column mapping
+        columns = [
+            "row_id", "accountNumber", "customerId", "creditLimit", "availableMoney",
+            "transactionDateTime", "transactionAmount", "merchantName", "acqCountry",
+            "merchantCountryCode", "posEntryMode", "posConditionCode", "merchantCategoryCode",
+            "currentExpDate", "accountOpenDate", "dateOfLastAddressChange", "cardCVV",
+            "enteredCVV", "cardLast4Digits", "transactionType", "echoBuffer", "currentBalance",
+            "merchantCity", "merchantState", "merchantZip", "cardPresent", "posOnPremises",
+            "recurringAuthInd", "expirationDateKeyInMatch", "isFraud"
+        ]
+        data = [dict(zip(columns, row)) for row in rows]
+        
+        # Calculate pagination metadata
+        total_pages = (total_rows + page_size - 1) // page_size if total_rows > 0 else 1
+        
+        return jsonify({
+            'data': data,
+            'pagination': {
+                'page': page,
+                'pageSize': page_size,
+                'totalRows': total_rows,
+                'totalPages': total_pages,
+                'hasNext': page < total_pages,
+                'hasPrev': page > 1
+            }
+        }), 200
+    except Exception as e:
+        print(f"Error in /merchants/{merchant_name}/transactions endpoint: {e}")
         return jsonify({'error': str(e)}), 500
