@@ -100,7 +100,7 @@ export default function App() {
               ) : currentPage === 'chat' ? (
                 <ChatPage />
               ) : currentPage === 'verify' ? (
-                <VerifyTransactionsPage /> // Ensure this line is correct
+                <VerifyTransactionsPage onNavigate={handleNavigate} />
               ) : currentPage === 'result' ? (
                 <TransactionResult result={verificationResult} onBack={handleBackToVerify} />
               ) : currentPage === 'charts' ? (

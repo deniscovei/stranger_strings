@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react'
 import VerifyTransaction from './VerifyTransaction'
 import { verifyMultipleTransactions } from '../api'
 
-export default function VerifyTransactionsPage() {
+export default function VerifyTransactionsPage({ onNavigate }) {
   const [activeTab, setActiveTab] = useState('verify') // 'verify' or 'batch'
   const [batchResults, setBatchResults] = useState([])
   const [uploading, setUploading] = useState(false)
@@ -56,11 +56,10 @@ export default function VerifyTransactionsPage() {
       <div className="tab-content">
         {activeTab === 'verify' ? (
           <div className="tab-panel">
-            <VerifyTransaction />
+            <VerifyTransaction onNavigate={onNavigate} />
           </div>
         ) : (
           <div className="tab-panel">
-            <h3>Batch Verification</h3>
             <input
               type="file"
               ref={fileInputRef}
@@ -68,35 +67,40 @@ export default function VerifyTransactionsPage() {
               accept=".csv"
               style={{ display: 'none' }}
             />
-            <button
-              className={`view-toggle-btn ${uploading ? 'disabled' : ''}`}
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-            >
-              {uploading ? 'Uploading...' : 'Upload CSV File'}
-            </button>
+            <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0' }}>
+              <button
+                className={`view-toggle-btn ${uploading ? 'disabled' : ''}`}
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+              >
+                {uploading ? 'Uploading...' : 'Upload CSV File'}
+              </button>
+            </div>
 
             {batchResults.length > 0 && (
-              <div className="batch-results">
+              <div className="transactions-list">
                 <div className="transaction-header">
                   <div>Transaction ID</div>
                   <div>Prediction</div>
-                  <div>Is Fraud</div>
-                  <div>Probability (Fraud)</div>
-                  <div>Probability (Non-Fraud)</div>
+                  <div>Status</div>
+                  <div>Fraud Probability</div>
+                  <div>Non-Fraud Probability</div>
                 </div>
 
                 {batchResults.map((result, index) => (
                   <div
                     key={index}
                     className={`transaction-row ${result.is_fraud ? 'fraud-row' : 'legitimate-row'}`}
-                    style={{ cursor: 'default' }}
                   >
                     <div>{result.transaction_id || 'N/A'}</div>
                     <div>{String(result.prediction ?? 'N/A')}</div>
-                    <div>{result.is_fraud ? 'Yes' : 'No'}</div>
-                    <div>{typeof result.probability_fraud === 'number' ? result.probability_fraud.toFixed(2) : 'N/A'}</div>
-                    <div>{typeof result.probability_non_fraud === 'number' ? result.probability_non_fraud.toFixed(2) : 'N/A'}</div>
+                    <div>
+                      <span className={`status-badge ${result.is_fraud ? 'fraud' : 'legitimate'}`}>
+                        {result.is_fraud ? 'Fraud' : 'Legitimate'}
+                      </span>
+                    </div>
+                    <div>{typeof result.probability_fraud === 'number' ? (result.probability_fraud * 100).toFixed(2) + '%' : 'N/A'}</div>
+                    <div>{typeof result.probability_non_fraud === 'number' ? (result.probability_non_fraud * 100).toFixed(2) + '%' : 'N/A'}</div>
                   </div>
                 ))}
               </div>
