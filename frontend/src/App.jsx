@@ -13,6 +13,7 @@ import Charts from './components/Charts'
 import SqlQuery from './components/SqlQuery'
 import strangerLogo from './assets/stranger-logo.png'
 import { fetchData, fetchPredictions } from './api'
+import VerifyTransactionsPage from './components/VerifyTransactionsPage'
 
 export default function App() {
   const [data, setData] = useState(null)
@@ -71,12 +72,12 @@ export default function App() {
         role="button"
         aria-label="Go to main menu"
       /> */}
-      
+
       <div className={`container layout ${menuOpen ? '' : 'menu-closed'}`}>
         <aside className={`left-menu-col ${menuOpen ? 'open' : 'closed'}`}>
-          <RightMenu 
-            onToggle={() => setMenuOpen((s) => !s)} 
-            onOpenChat={handleOpenChat} 
+          <RightMenu
+            onToggle={() => setMenuOpen((s) => !s)}
+            onOpenChat={handleOpenChat}
             onNavigate={handleNavigate}
             isOpen={menuOpen}
           />
@@ -99,7 +100,7 @@ export default function App() {
               ) : currentPage === 'chat' ? (
                 <ChatPage />
               ) : currentPage === 'verify' ? (
-                <VerifyTransaction onNavigate={handleNavigate} />
+                <VerifyTransactionsPage /> // Ensure this line is correct
               ) : currentPage === 'result' ? (
                 <TransactionResult result={verificationResult} onBack={handleBackToVerify} />
               ) : currentPage === 'charts' ? (
