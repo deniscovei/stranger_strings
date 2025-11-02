@@ -65,8 +65,12 @@ const Charts = () => {
   return (
     <div className="charts-page">
       <div className="charts-header">
-        <h1>Transaction Analytics Dashboard</h1>
-        <p>Comprehensive analysis of transaction patterns and fraud detection metrics</p>
+        <h1 style={view === 'ai-generator' ? { color: '#8b5cf6' } : {}}>
+          {view === 'ai-generator' ? 'AI Chart Generator' : 'Transaction Analytics Dashboard'}
+        </h1>
+        <p>{view === 'ai-generator' 
+          ? 'Ask AI to create visualizations from your transaction data' 
+          : 'Comprehensive analysis of transaction patterns and fraud detection metrics'}</p>
         
         {/* View Toggle Buttons - Always visible */}
         <div className="chart-view-toggle">

@@ -125,13 +125,6 @@ export default function AICharts() {
 
   return (
     <div className="ai-charts-container">
-      <div className="ai-charts-header">
-        <h2>AI Chart Generator</h2>
-        <p className="ai-charts-subtitle">
-          Ask AI to create visualizations from your transaction data
-        </p>
-      </div>
-
       <div className="chart-prompt-section">
         <div className="prompt-input-wrapper">
           <textarea
