@@ -1,32 +1,43 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { fetchData, uploadDataFile, clearData } from '../api'
+import { fetchData, uploadDataFile, clearData, fetchMerchants } from '../api'
 import TransactionModal from './TransactionModels' // Import TransactionModal
+import MerchantModal from './MerchantModal' // Import MerchantModal
 
 export default function ManageData() {
+  const [viewMode, setViewMode] = useState('transactions') // 'transactions' or 'merchants'
   const [transactions, setTransactions] = useState([])
+  const [merchants, setMerchants] = useState([])
   const [filteredTransactions, setFilteredTransactions] = useState([])
   const [selectedTransaction, setSelectedTransaction] = useState(null)
+  const [selectedMerchant, setSelectedMerchant] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterBy, setFilterBy] = useState('all')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [uploading, setUploading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(25)
+  const [itemsPerPage, setItemsPerPage] = useState(100)
+  const [pagination, setPagination] = useState(null) // Store pagination metadata
   const fileInputRef = useRef(null)
 
   useEffect(() => {
-    loadTransactions()
-  }, [])
+    if (viewMode === 'transactions') {
+      loadTransactions()
+    } else {
+      loadMerchants()
+    }
+  }, [viewMode])
 
-  const loadTransactions = async () => {
+  const loadTransactions = async (page = 1, pageSize = 100, search = '', filter = 'all') => {
     try {
-      console.log('Fetching transactions...')
+      console.log('Fetching transactions with filters:', { page, pageSize, search, filter })
       setLoading(true)
-      const data = await fetchData()
-      console.log('Transactions fetched:', data)
-      setTransactions(data)
-      setFilteredTransactions(data)
+      const response = await fetchData(page, pageSize, search, filter)
+      console.log('Transactions fetched:', response)
+      setTransactions(response.data) // Extract data from paginated response
+      setFilteredTransactions(response.data)
+      setPagination(response.pagination) // Store pagination info
+      setCurrentPage(page) // Update current page
     } catch (err) {
       const mockData = generateMockData()
       setTransactions(mockData)
@@ -37,33 +48,40 @@ export default function ManageData() {
     }
   }
 
-  useEffect(() => {
-    filterTransactions()
-  }, [searchTerm, filterBy, transactions])
+  const loadMerchants = async (page = 1, pageSize = 100, search = '', filter = 'all') => {
+    try {
+      console.log('Fetching merchants with filters:', { page, pageSize, search, filter })
+      setLoading(true)
+      const response = await fetchMerchants(page, pageSize, search, filter)
+      console.log('Merchants fetched:', response)
+      setMerchants(response.data)
+      setPagination(response.pagination)
+      setCurrentPage(page)
+    } catch (err) {
+      console.error('Failed to fetch merchants:', err.response || err.message || err)
+      setMerchants([])
+    } finally {
+      setLoading(false)
+    }
+  }
 
+  // Reload data whenever search, filter, page, itemsPerPage, or viewMode changes
+  useEffect(() => {
+    if (viewMode === 'transactions') {
+      loadTransactions(currentPage, itemsPerPage, searchTerm, filterBy)
+    } else {
+      loadMerchants(currentPage, itemsPerPage, searchTerm, filterBy)
+    }
+  }, [searchTerm, filterBy, currentPage, itemsPerPage, viewMode])
+
+  // Reset to page 1 when search, filter, itemsPerPage, or viewMode changes
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchTerm, filterBy, itemsPerPage])
+  }, [searchTerm, filterBy, itemsPerPage, viewMode])
 
-  const filterTransactions = () => {
-    let filtered = [...transactions]
-
-    if (filterBy !== 'all') {
-      const isFraudFilter = filterBy === 'fraud' ? 1 : 0
-      filtered = filtered.filter(t => t.isFraud === isFraudFilter)
-    }
-
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase()
-      filtered = filtered.filter(t =>
-        t.accountNumber?.toString().toLowerCase().includes(term) ||
-        t.merchantName?.toLowerCase().includes(term) ||
-        t.transactionType?.toLowerCase().includes(term) ||
-        t.merchantCategoryCode?.toLowerCase().includes(term)
-      )
-    }
-
-    setFilteredTransactions(filtered)
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleUploadData = () => {
@@ -143,13 +161,16 @@ export default function ManageData() {
   }
 
   // Pagination
-  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
-  const currentTransactions = filteredTransactions.slice(startIndex, endIndex)
+  // Use pagination from backend instead of local filtering
+  const totalPages = pagination?.totalPages || 1
+  const totalRows = pagination?.totalRows || 0
+  const currentTransactions = filteredTransactions // Already paginated from backend
+  const currentMerchants = merchants // Already paginated from backend
 
-  const handlePageChange = (page) => setCurrentPage(page)
-  const handleItemsPerPageChange = (e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1) }
+  const handleItemsPerPageChange = (e) => { 
+    setItemsPerPage(Number(e.target.value))
+    setCurrentPage(1)
+  }
 
   const getPageNumbers = () => {
     const pages = []
@@ -209,11 +230,26 @@ export default function ManageData() {
     <div className="manage-data-container">
       <h2>My Data</h2>
 
+      <div className="view-toggle">
+        <button 
+          className={`toggle-btn ${viewMode === 'transactions' ? 'active' : ''}`}
+          onClick={() => setViewMode('transactions')}
+        >
+          Transactions
+        </button>
+        <button 
+          className={`toggle-btn ${viewMode === 'merchants' ? 'active' : ''}`}
+          onClick={() => setViewMode('merchants')}
+        >
+          Merchants
+        </button>
+      </div>
+
       <div className="data-controls">
         <input
           type="text"
           className="search-bar"
-          placeholder="Search transactions..."
+          placeholder={viewMode === 'transactions' ? 'Search transactions...' : 'Search merchants...'}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -223,64 +259,102 @@ export default function ManageData() {
           value={filterBy}
           onChange={(e) => setFilterBy(e.target.value)}
         >
-          <option value="all">All Transactions</option>
+          <option value="all">{viewMode === 'transactions' ? 'All Transactions' : 'All Merchants'}</option>
           <option value="fraud">Fraudulent</option>
           <option value="legitimate">Legitimate</option>
         </select>
       </div>
 
       {loading ? (
-        <p>Loading transactions...</p>
+        <p>Loading {viewMode}...</p>
       ) : error ? (
         <p className="error-message">{error}</p>
       ) : (
         <>
-          <div className="transactions-list">
-            <div className="transaction-header">
-              <div>Account Number</div>
-              <div>Date & Time</div>
-              <div>Amount</div>
-              <div>Merchant</div>
-              <div>Type</div>
-              <div>Category</div>
-              <div>Status</div>
-            </div>
+          {viewMode === 'transactions' ? (
+            <div className="transactions-list">
+              <div className="transaction-header">
+                <div>Account Number</div>
+                <div>Date & Time</div>
+                <div>Amount</div>
+                <div>Merchant</div>
+                <div>Type</div>
+                <div>Category</div>
+                <div>Status</div>
+              </div>
 
-            {filteredTransactions.length === 0 ? (
-              <div className="no-results">No transactions found</div>
-            ) : (
-              currentTransactions.map((transaction) => (
-                <div
-                  key={transaction.id || transaction.accountNumber}
-                  className={`transaction-row ${transaction.isFraud ? 'fraud-row' : 'legitimate-row'}`}
-                  onClick={() => handleRowClick(transaction)}
-                  onKeyDown={(e) => handleRowKeyDown(e, transaction)}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`Open details for ${transaction.accountNumber}`}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div>{transaction.accountNumber}</div>
-                  <div>{formatDateTime(transaction.transactionDateTime)}</div>
-                  <div>${transaction.transactionAmount}</div>
-                  <div>{transaction.merchantName}</div>
-                  <div>{transaction.transactionType}</div>
-                  <div>{transaction.merchantCategoryCode}</div>
-                  <div>
-                    <span className={`status-badge ${transaction.isFraud ? 'fraud' : 'legitimate'}`}>
-                      {transaction.isFraud ? 'Fraud' : 'Legitimate'}
-                    </span>
+              {filteredTransactions.length === 0 ? (
+                <div className="no-results">No transactions found</div>
+              ) : (
+                currentTransactions.map((transaction) => (
+                  <div
+                    key={transaction.id || transaction.accountNumber}
+                    className={`transaction-row ${transaction.isFraud ? 'fraud-row' : 'legitimate-row'}`}
+                    onClick={() => handleRowClick(transaction)}
+                    onKeyDown={(e) => handleRowKeyDown(e, transaction)}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Open details for ${transaction.accountNumber}`}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div>{transaction.accountNumber}</div>
+                    <div>{formatDateTime(transaction.transactionDateTime)}</div>
+                    <div>${transaction.transactionAmount}</div>
+                    <div>{transaction.merchantName}</div>
+                    <div>{transaction.transactionType}</div>
+                    <div>{transaction.merchantCategoryCode}</div>
+                    <div>
+                      <span className={`status-badge ${transaction.isFraud ? 'fraud' : 'legitimate'}`}>
+                        {transaction.isFraud ? 'Fraud' : 'Legitimate'}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))
-            )}
-          </div>
+                ))
+              )}
+            </div>
+          ) : (
+            <div className="transactions-list">
+              <div className="transaction-header">
+                <div>Merchant Name</div>
+                <div>Total Transactions</div>
+                <div>Fraud Count</div>
+                <div>Legitimate Count</div>
+                <div>Fraud %</div>
+                <div>Total Amount</div>
+                <div>Avg Amount</div>
+              </div>
 
-          {filteredTransactions.length > 0 && (
+              {merchants.length === 0 ? (
+                <div className="no-results">No merchants found</div>
+              ) : (
+                currentMerchants.map((merchant, index) => (
+                  <div
+                    key={merchant.merchantName || index}
+                    className={`transaction-row ${merchant.fraudPercentage > 50 ? 'fraud-row' : 'legitimate-row'}`}
+                    onClick={() => setSelectedMerchant(merchant)}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Open details for ${merchant.merchantName}`}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div>{merchant.merchantName}</div>
+                    <div>{merchant.totalTransactions}</div>
+                    <div>{merchant.fraudCount}</div>
+                    <div>{merchant.legitimateCount}</div>
+                    <div>{merchant.fraudPercentage}%</div>
+                    <div>${parseFloat(merchant.totalAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                    <div>${parseFloat(merchant.avgAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {pagination && totalRows > 0 && (
             <div className="pagination-controls">
               <div className="pagination-info">
                 <span>
-                  Showing {startIndex + 1} to {Math.min(endIndex, filteredTransactions.length)} of {filteredTransactions.length} transactions
+                  Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalRows)} of {totalRows.toLocaleString()} transactions
                 </span>
                 <div className="items-per-page">
                   <label htmlFor="itemsPerPage">Items per page:</label>
@@ -292,8 +366,9 @@ export default function ManageData() {
                   >
                     <option value={25}>25</option>
                     <option value={50}>50</option>
-                    <option value={75}>75</option>
                     <option value={100}>100</option>
+                    <option value={200}>200</option>
+                    <option value={500}>500</option>
                   </select>
                 </div>
               </div>
@@ -330,7 +405,7 @@ export default function ManageData() {
             </div>
           )}
 
-          <div className="data-summary">Total: {transactions.length} transactions</div>
+          <div className="data-summary">Total: {totalRows.toLocaleString()} {viewMode}</div>
 
           <input
             type="file"
@@ -358,10 +433,14 @@ export default function ManageData() {
             </button>
           </div>
 
-          {/* Modal with details */}
+          {/* Modals with details */}
           <TransactionModal
             transaction={selectedTransaction}
             onClose={() => setSelectedTransaction(null)}
+          />
+          <MerchantModal
+            merchant={selectedMerchant}
+            onClose={() => setSelectedMerchant(null)}
           />
         </>
       )}

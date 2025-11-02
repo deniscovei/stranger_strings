@@ -22,8 +22,8 @@ export default function App() {
   useEffect(() => {
     async function load() {
       try {
-        const d = await fetchData()
-        setData(d)
+        const response = await fetchData(1, 100) // Get first page with 100 items
+        setData(response.data) // Now response has { data, pagination }
       } catch (e) {
         console.warn('Could not fetch data', e)
       }
