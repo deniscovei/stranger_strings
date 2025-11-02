@@ -9,6 +9,7 @@ import ChatPage from './components/ChatPage'
 import VerifyTransaction from './components/VerifyTransaction'
 import TransactionResult from './components/TransactionResult'
 import Charts from './components/Charts'
+import SqlQuery from './components/SqlQuery'
 import strangerLogo from './assets/stranger-logo.png'
 import { fetchData, fetchPredictions } from './api'
 
@@ -102,6 +103,8 @@ export default function App() {
                 <TransactionResult result={verificationResult} onBack={handleBackToVerify} />
               ) : currentPage === 'charts' ? (
                 <Charts />
+              ) : currentPage === 'sql' ? (
+                <SqlQuery />
               ) : (
                 <>
                   <DataSummary data={data} />
