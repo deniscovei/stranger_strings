@@ -49,6 +49,132 @@ class Database:
             db_context = "Database connection failed. Unable to access transaction data."
             print(f"⚠ Warning: Could not connect to database - {e}\n")
 
+    def get_total_count(self):
+        """Get total number of rows in transactions table"""
+        try:
+            conn = psycopg2.connect(os.environ.get('DATABASE_URI'))
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM transactions;")
+            count = cursor.fetchone()[0]
+            cursor.close()
+            conn.close()
+            return count
+        except Exception as e:
+            print(f"⚠ Warning: Could not get row count - {e}\n")
+            return 0
+
+    def get_data_paginated(self, offset, limit):
+        """Return paginated data from transactions table"""
+        try:
+            conn = psycopg2.connect(os.environ.get('DATABASE_URI'))
+            cursor = conn.cursor()
+
+            cursor.execute("""
+                SELECT accountNumber, transactionDateTime, transactionAmount,
+                merchantName, transactionType, merchantCategoryCode,
+                merchantCountryCode, isFraud
+                FROM transactions
+                ORDER BY transactionDateTime DESC
+                LIMIT %s OFFSET %s;
+            """, (limit, offset))
+            
+            rows = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            return rows
+        except Exception as e:
+            print(f"⚠ Warning: Could not get paginated data - {e}\n")
+            return []
+
+    def get_filtered_count(self, search_term, filter_by):
+        """Get count of filtered transactions"""
+        try:
+            conn = psycopg2.connect(os.environ.get('DATABASE_URI'))
+            cursor = conn.cursor()
+            
+            # Build WHERE clause
+            where_clauses = []
+            params = []
+            
+            # Filter by fraud status
+            if filter_by == 'fraud':
+                where_clauses.append("isFraud = true")
+            elif filter_by == 'legitimate':
+                where_clauses.append("isFraud = false")
+            
+            # Search term
+            if search_term:
+                search_pattern = f"%{search_term}%"
+                where_clauses.append("""
+                    (CAST(accountNumber AS TEXT) ILIKE %s OR
+                     merchantName ILIKE %s OR
+                     transactionType ILIKE %s OR
+                     merchantCategoryCode ILIKE %s)
+                """)
+                params.extend([search_pattern, search_pattern, search_pattern, search_pattern])
+            
+            where_sql = " AND ".join(where_clauses) if where_clauses else "1=1"
+            query = f"SELECT COUNT(*) FROM transactions WHERE {where_sql};"
+            
+            cursor.execute(query, params)
+            count = cursor.fetchone()[0]
+            cursor.close()
+            conn.close()
+            return count
+        except Exception as e:
+            print(f"⚠ Warning: Could not get filtered count - {e}\n")
+            return 0
+
+    def get_data_filtered(self, offset, limit, search_term, filter_by):
+        """Return filtered and paginated data from transactions table"""
+        try:
+            conn = psycopg2.connect(os.environ.get('DATABASE_URI'))
+            cursor = conn.cursor()
+            
+            # Build WHERE clause
+            where_clauses = []
+            params = []
+            
+            # Filter by fraud status
+            if filter_by == 'fraud':
+                where_clauses.append("isFraud = true")
+            elif filter_by == 'legitimate':
+                where_clauses.append("isFraud = false")
+            
+            # Search term
+            if search_term:
+                search_pattern = f"%{search_term}%"
+                where_clauses.append("""
+                    (CAST(accountNumber AS TEXT) ILIKE %s OR
+                     merchantName ILIKE %s OR
+                     transactionType ILIKE %s OR
+                     merchantCategoryCode ILIKE %s)
+                """)
+                params.extend([search_pattern, search_pattern, search_pattern, search_pattern])
+            
+            where_sql = " AND ".join(where_clauses) if where_clauses else "1=1"
+            
+            # Add limit and offset params
+            params.extend([limit, offset])
+            
+            query = f"""
+                SELECT accountNumber, transactionDateTime, transactionAmount,
+                merchantName, transactionType, merchantCategoryCode,
+                merchantCountryCode, isFraud
+                FROM transactions
+                WHERE {where_sql}
+                ORDER BY transactionDateTime DESC
+                LIMIT %s OFFSET %s;
+            """
+            
+            cursor.execute(query, params)
+            rows = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            return rows
+        except Exception as e:
+            print(f"⚠ Warning: Could not get filtered data - {e}\n")
+            return []
 
     def insert_transaction(self, transaction: Dict[str, Any]) -> int:
         """Insert a single transaction"""
