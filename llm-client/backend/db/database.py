@@ -89,6 +89,28 @@ class Database:
 
     def bulk_insert_transactions(self, df: pd.DataFrame) -> int:
         """Insert multiple transactions from a DataFrame"""
+        # PostgreSQL BIGINT limits
+        BIGINT_MIN = -(2**63)
+        BIGINT_MAX = 2**63 - 1
+
+        # Columns that should be within BIGINT range
+        bigint_columns = ['row_id', 'accountNumber', 'customerId', 'posEntryMode', 'posConditionCode']
+
+        # Filter out rows with out-of-range values
+        valid_mask = pd.Series(True, index=df.index)
+        for col in bigint_columns:
+            if col in df.columns:
+                series = pd.to_numeric(df[col], errors='coerce')
+                valid_mask &= series.between(BIGINT_MIN, BIGINT_MAX, inclusive="both")
+
+        df_valid = df[valid_mask]
+
+        if len(df_valid) == 0:
+            raise ValueError("No valid rows to insert after filtering out-of-range values")
+
+        print(f"Filtered out {len(df) - len(df_valid)} rows with out-of-range BIGINT values")
+
+        # Ensure all required columns exist
         required_columns = [
             'row_id', 'accountNumber', 'customerId', 'creditLimit', 'availableMoney',
             'transactionDateTime', 'transactionAmount', 'merchantName', 'acqCountry',
@@ -99,15 +121,14 @@ class Database:
             'cardPresent', 'posOnPremises', 'recurringAuthInd', 'expirationDateKeyInMatch', 'isFraud'
         ]
 
-        # Ensure all required columns exist
         for col in required_columns:
-            if col not in df.columns:
-                df[col] = None
+            if col not in df_valid.columns:
+                df_valid[col] = None
 
         conn = self.get_connection()
         cursor = conn.cursor()
 
-        values = df[required_columns].values.tolist()
+        values = df_valid[required_columns].values.tolist()
 
         execute_batch(cursor, """
         INSERT INTO transactions (
@@ -125,7 +146,10 @@ class Database:
         )
         """, values)
 
-        return len(values)
+        conn.commit()
+        cursor.close()
+
+        return len(df_valid)
 
     def clear_transactions(self):
         """Clear all transactions"""
