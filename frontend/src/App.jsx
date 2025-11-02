@@ -38,10 +38,45 @@ export default function App() {
     load()
   }, [])
 
-  const [menuOpen, setMenuOpen] = useState(true)
+  // Initialize state from localStorage or use defaults
+  const [menuOpen, setMenuOpen] = useState(() => {
+    const saved = localStorage.getItem('menuOpen')
+    return saved !== null ? JSON.parse(saved) : true
+  })
   const [chatOpen, setChatOpen] = useState(false)
-  const [currentPage, setCurrentPage] = useState('home')
-  const [verificationResult, setVerificationResult] = useState(null)
+  const [currentPage, setCurrentPage] = useState(() => {
+    return localStorage.getItem('currentPage') || 'home'
+  })
+  const [verificationResult, setVerificationResult] = useState(() => {
+    const saved = localStorage.getItem('verificationResult')
+    if (saved) {
+      try {
+        return JSON.parse(saved)
+      } catch (e) {
+        console.error('Failed to parse saved verification result:', e)
+      }
+    }
+    return null
+  })
+
+  // Save currentPage to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('currentPage', currentPage)
+  }, [currentPage])
+
+  // Save menuOpen to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('menuOpen', JSON.stringify(menuOpen))
+  }, [menuOpen])
+
+  // Save verificationResult to localStorage whenever it changes
+  useEffect(() => {
+    if (verificationResult) {
+      localStorage.setItem('verificationResult', JSON.stringify(verificationResult))
+    } else {
+      localStorage.removeItem('verificationResult')
+    }
+  }, [verificationResult])
 
   const handleNavigate = (page, data) => {
     setCurrentPage(page)

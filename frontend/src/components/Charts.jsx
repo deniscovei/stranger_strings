@@ -16,7 +16,14 @@ const Charts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isDark, setIsDark] = useState(document.documentElement.classList.contains('dark'));
-  const [view, setView] = useState('analytics'); // 'analytics' or 'ai-generator'
+  const [view, setView] = useState(() => {
+    return localStorage.getItem('charts_view') || 'analytics'
+  });
+
+  // Save view preference to localStorage
+  useEffect(() => {
+    localStorage.setItem('charts_view', view);
+  }, [view]);
 
   useEffect(() => {
     loadChartData();
@@ -58,8 +65,12 @@ const Charts = () => {
   return (
     <div className="charts-page">
       <div className="charts-header">
-        <h1>Transaction Analytics Dashboard</h1>
-        <p>Comprehensive analysis of transaction patterns and fraud detection metrics</p>
+        <h1 style={view === 'ai-generator' ? { color: '#8b5cf6' } : {}}>
+          {view === 'ai-generator' ? 'AI Chart Generator' : 'Transaction Analytics Dashboard'}
+        </h1>
+        <p>{view === 'ai-generator' 
+          ? 'Ask AI to create visualizations from your transaction data' 
+          : 'Comprehensive analysis of transaction patterns and fraud detection metrics'}</p>
         
         {/* View Toggle Buttons - Always visible */}
         <div className="chart-view-toggle">

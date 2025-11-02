@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { generateAIChart } from '../api'
 import {
   Chart as ChartJS,
@@ -28,11 +28,42 @@ ChartJS.register(
 )
 
 export default function AICharts() {
-  const [prompt, setPrompt] = useState('')
+  const [prompt, setPrompt] = useState(() => {
+    return localStorage.getItem('aiCharts_prompt') || ''
+  })
   const [loading, setLoading] = useState(false)
-  const [chartData, setChartData] = useState(null)
-  const [chartType, setChartType] = useState('bar')
+  const [chartData, setChartData] = useState(() => {
+    const saved = localStorage.getItem('aiCharts_chartData')
+    if (saved) {
+      try {
+        return JSON.parse(saved)
+      } catch (e) {
+        console.error('Failed to parse saved chart data:', e)
+      }
+    }
+    return null
+  })
+  const [chartType, setChartType] = useState(() => {
+    return localStorage.getItem('aiCharts_chartType') || 'bar'
+  })
   const [error, setError] = useState(null)
+
+  // Save state to localStorage
+  useEffect(() => {
+    localStorage.setItem('aiCharts_prompt', prompt)
+  }, [prompt])
+
+  useEffect(() => {
+    if (chartData) {
+      localStorage.setItem('aiCharts_chartData', JSON.stringify(chartData))
+    } else {
+      localStorage.removeItem('aiCharts_chartData')
+    }
+  }, [chartData])
+
+  useEffect(() => {
+    localStorage.setItem('aiCharts_chartType', chartType)
+  }, [chartType])
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -94,13 +125,6 @@ export default function AICharts() {
 
   return (
     <div className="ai-charts-container">
-      <div className="ai-charts-header">
-        <h2>AI Chart Generator</h2>
-        <p className="ai-charts-subtitle">
-          Ask AI to create visualizations from your transaction data
-        </p>
-      </div>
-
       <div className="chart-prompt-section">
         <div className="prompt-input-wrapper">
           <textarea

@@ -1,36 +1,58 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { verifyTransaction } from '../api'
 
 
 export default function VerifyTransaction({ onNavigate }) {
-  const [formData, setFormData] = useState({
-    accountNumber: '',
-    availableMoney: '',
-    transactionDate: '',
-    transactionTime: '',
-    transactionAmount: '',
-    merchantName: '',
-    merchantCountryCode: '',
-    posEntryMode: '',
-    posConditionCode: '',
-    merchantCategoryCode: '',
-    currentExpDate: '',
-    accountOpenDate: '',
-    dateOfLastAddressChange: '',
-    cardCVV: '',
-    cardLast4Digits: '',
-    transactionType: '',
-    currentBalance: '',
-    cardPresent: false,
-    expirationDateKeyInMatch: false,
+  const [formData, setFormData] = useState(() => {
+    const saved = localStorage.getItem('verifyTransaction_formData')
+    if (saved) {
+      try {
+        return JSON.parse(saved)
+      } catch (e) {
+        console.error('Failed to parse saved form data:', e)
+      }
+    }
+    return {
+      accountNumber: '',
+      availableMoney: '',
+      transactionDate: '',
+      transactionTime: '',
+      transactionAmount: '',
+      merchantName: '',
+      merchantCountryCode: '',
+      posEntryMode: '',
+      posConditionCode: '',
+      merchantCategoryCode: '',
+      currentExpDate: '',
+      accountOpenDate: '',
+      dateOfLastAddressChange: '',
+      cardCVV: '',
+      cardLast4Digits: '',
+      transactionType: '',
+      currentBalance: '',
+      cardPresent: false,
+      expirationDateKeyInMatch: false,
+    }
   })
 
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showJsonModal, setShowJsonModal] = useState(false)
-  const [jsonText, setJsonText] = useState('')
+  const [jsonText, setJsonText] = useState(() => {
+    return localStorage.getItem('verifyTransaction_jsonText') || ''
+  })
   const [jsonError, setJsonError] = useState('')
   const [isJsonSubmitting, setIsJsonSubmitting] = useState(false)
+
+  // Save form data to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('verifyTransaction_formData', JSON.stringify(formData))
+  }, [formData])
+
+  // Save JSON text to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('verifyTransaction_jsonText', jsonText)
+  }, [jsonText])
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target

@@ -4,17 +4,38 @@ import remarkGfm from 'remark-gfm'
 import { sendChatMessage } from '../api'
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      content: 'Hello, I am ClaudIA, your AI assistant. How can I be of use today?',
-      timestamp: new Date()
+  // Initialize messages from localStorage or use default
+  const [messages, setMessages] = useState(() => {
+    const saved = localStorage.getItem('chatPage_messages')
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved)
+        // Convert timestamp strings back to Date objects
+        return parsed.map(msg => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }))
+      } catch (e) {
+        console.error('Failed to parse saved messages:', e)
+      }
     }
-  ])
+    return [
+      {
+        role: 'assistant',
+        content: 'Hello, I am ClaudIA, your AI assistant. How can I be of use today?',
+        timestamp: new Date()
+      }
+    ]
+  })
   const [inputMessage, setInputMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('chatPage_messages', JSON.stringify(messages))
+  }, [messages])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
