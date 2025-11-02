@@ -1,8 +1,9 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 import psycopg2
 import os
 import sys
 import traceback
+import boto3
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -283,4 +284,122 @@ def get_summary():
         return jsonify({
             'error': str(e),
             'traceback': traceback.format_exc()
+        }), 500
+
+@charts_bp.route('/generate-chart', methods=['POST'])
+def generate_chart():
+    """Generate chart data using AI based on user prompt"""
+    import json
+    import re
+    
+    try:
+        data = request.json
+        prompt = data.get('prompt', '')
+        
+        if not prompt:
+            return jsonify({'error': 'Prompt is required'}), 400
+        
+        # Get AWS bearer token
+        bearer_token = os.environ.get('AWS_BEARER_TOKEN_BEDROCK')
+        if not bearer_token:
+            print("ERROR: AWS_BEARER_TOKEN_BEDROCK not configured")
+            return jsonify({'error': 'AWS credentials not configured'}), 500
+        
+        print(f"Generating chart for prompt: {prompt}")
+        
+        # Create system prompt for AI
+        system_prompt = """You are a data visualization expert. Based on the user's request, generate chart data in JSON format.
+
+Your response MUST be ONLY valid JSON in this exact format:
+{
+  "type": "bar" | "line" | "pie",
+  "data": {
+    "labels": ["Label1", "Label2", ...],
+    "datasets": [{
+      "label": "Dataset Name",
+      "data": [value1, value2, ...],
+      "backgroundColor": ["color1", "color2", ...],
+      "borderColor": "color",
+      "fill": false
+    }]
+  },
+  "title": "Chart Title"
+}
+
+Guidelines:
+- Use realistic transaction data patterns
+- Keep labels concise (max 20 chars)
+- Limit to 12 data points maximum
+- Use colors: #6366f1 (blue), #8b5cf6 (purple), #ef4444 (red), #10b981 (green), #f59e0b (amber)
+- For fraud detection: use red for fraud, green for legitimate
+- For pie charts: backgroundColor should be an array of colors
+- For bar/line charts: backgroundColor and borderColor should be a single color
+- Return ONLY the JSON object, no markdown, no explanation
+"""
+
+        user_message = f"""Generate chart data for: {prompt}
+
+Context: This is for a fraud detection system with transaction data including:
+- Merchants, transaction amounts, dates
+- Fraud indicators (fraudulent vs legitimate)
+- Transaction types, categories
+- Geographic data
+
+Return ONLY the JSON object."""
+
+        # Create Bedrock client
+        client = boto3.client(
+            service_name="bedrock-runtime",
+            region_name="us-west-2",
+            aws_session_token=bearer_token
+        )
+        
+        # Call LLM
+        model_id = "us.anthropic.claude-sonnet-4-20250514-v1:0"
+        
+        response = client.converse(
+            modelId=model_id,
+            messages=[{
+                "role": "user",
+                "content": [{"text": user_message}]
+            }],
+            system=[{"text": system_prompt}],
+            inferenceConfig={
+                "maxTokens": 2000,
+                "temperature": 0.7
+            }
+        )
+        
+        # Extract response
+        ai_response = response['output']['message']['content'][0]['text']
+        print(f"AI Response: {ai_response[:500]}...")
+        
+        # Clean and parse JSON
+        ai_response = re.sub(r'```json\s*', '', ai_response)
+        ai_response = re.sub(r'```\s*', '', ai_response)
+        ai_response = ai_response.strip()
+        
+        # Parse JSON
+        chart_config = json.loads(ai_response)
+        
+        # Validate structure
+        if 'type' not in chart_config or 'data' not in chart_config:
+            raise ValueError("Invalid chart configuration from AI")
+        
+        print(f"Successfully generated {chart_config.get('type')} chart")
+        
+        return jsonify(chart_config), 200
+        
+    except json.JSONDecodeError as e:
+        print(f"JSON parsing error: {e}")
+        return jsonify({
+            'error': 'Failed to parse AI response',
+            'details': str(e)
+        }), 500
+    except Exception as e:
+        print(f"Error generating chart: {e}")
+        print(f"Traceback: {traceback.format_exc()}")
+        return jsonify({
+            'error': 'Failed to generate chart',
+            'details': str(e)
         }), 500
