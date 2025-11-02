@@ -20,7 +20,7 @@ Afișează 7 grafice interactive:
 
 ### 1. Instalează dependențele backend:
 ```bash
-cd llm-client
+cd backend
 pip install flask-cors
 # sau rebuild docker:
 docker compose build backend-api

@@ -191,16 +191,16 @@ export default function VerifyTransaction({ onNavigate }) {
       const result = await verifyTransaction(submitData)
       
       // Transform API response to match expected format for TransactionResult
-      // Include full submitData to show all transaction details (matching JSON verbosity)
+      // Backend now returns camelCase (isFraud, probabilityFraud, etc.)
       const transformedResult = {
-        isFraud: result.is_fraud,
-        confidence: result.is_fraud ? result.probability_fraud : result.probability_non_fraud,
+        isFraud: result.isFraud,
+        confidence: result.isFraud ? result.probabilityFraud : result.probabilityNonFraud,
         prediction: result.prediction,
-        modelType: result.model_type,
-        probabilityFraud: result.probability_fraud,
-        probabilityNonFraud: result.probability_non_fraud,
-        transactionId: result.transaction_id,
-        shapExplanation: result.shap_explanation,
+        modelType: result.modelType,
+        probabilityFraud: result.probabilityFraud,
+        probabilityNonFraud: result.probabilityNonFraud,
+        transactionId: result.transactionId,
+        shapExplanation: result.shapExplanation,
         details: submitData
       }
       
@@ -270,14 +270,14 @@ export default function VerifyTransaction({ onNavigate }) {
       const result = await verifyTransaction(parsed)
 
       const transformedResult = {
-        isFraud: result.is_fraud,
-        confidence: result.is_fraud ? result.probability_fraud : result.probability_non_fraud,
+        isFraud: result.isFraud,
+        confidence: result.isFraud ? result.probabilityFraud : result.probabilityNonFraud,
         prediction: result.prediction,
-        modelType: result.model_type,
-        probabilityFraud: result.probability_fraud,
-        probabilityNonFraud: result.probability_non_fraud,
-        transactionId: result.transaction_id,
-        shapExplanation: result.shap_explanation,
+        modelType: result.modelType,
+        probabilityFraud: result.probabilityFraud,
+        probabilityNonFraud: result.probabilityNonFraud,
+        transactionId: result.transactionId,
+        shapExplanation: result.shapExplanation,
         details: parsed
       }
 

@@ -14,7 +14,7 @@ Stefanescu Anastasia
 
 ## How to run LLM Client
 
-Go to the correct folder: `cd /llm-client` 
+Go to the correct folder: `cd /backend` 
 
 Install requirements: `pip install -r requirements.txt`
 
@@ -28,4 +28,4 @@ Run file: `python aws_client.py`
 
 `docker compose up -d postgres backend-api  `
 
-`docker compose run --rm llm-client`
+`docker compose run --rm backend-api`

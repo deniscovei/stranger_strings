@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function TransactionResult({ result, onBack }) {
+export default function TransactionResult({ result, onBack, hideBackButton = false }) {
   if (!result) {
     return (
       <section>
@@ -14,8 +14,16 @@ export default function TransactionResult({ result, onBack }) {
   const formatFeatureName = (name) => {
     if (!name || typeof name !== 'string') return String(name)
     
+    // Handle special prefixes
+    let displayName = name
+    
+    // Handle "no" prefix (e.g., notransactionType -> No Transaction Type)
+    if (name.startsWith('no') && name.length > 2 && name[2] === name[2].toLowerCase()) {
+      displayName = 'No ' + name.substring(2)
+    }
+    
     // Remove underscores and convert to title case
-    return name
+    return displayName
       .replace(/_/g, ' ')
       .replace(/([A-Z])/g, ' $1')
       .trim()
@@ -148,6 +156,8 @@ export default function TransactionResult({ result, onBack }) {
           <div className="transaction-details-grid">
             {Object.entries(result.details)
               .filter(([key, value]) => {
+                // Filter out isFraud field (already shown in main result card)
+                if (key === 'isFraud') return false
                 // Filter out empty, null, undefined values
                 if (value === null || value === undefined || value === '') return false
                 // Filter out 'N/A', 'null', 'undefined' strings
@@ -223,11 +233,13 @@ export default function TransactionResult({ result, onBack }) {
         </div>
       )}
 
-      <div className="result-actions">
-        <button className="chat-btn check-btn" onClick={onBack}>
-          Check Another Transaction
-        </button>
-      </div>
+      {!hideBackButton && (
+        <div className="result-actions">
+          <button className="chat-btn check-btn" onClick={onBack}>
+            ← Back to Verification
+          </button>
+        </div>
+      )}
     </section>
   )
 }

@@ -3382,6 +3382,12 @@ th {
   animation: slideUp 0.3s ease;
 }
 
+/* Larger modal for batch detail view */
+.transaction-modal.batch-detail-modal {
+  width: 1200px;
+  max-width: calc(100% - 40px);
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -3416,6 +3422,9 @@ th {
 }
 
 .transaction-modal .modal-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
   background: rgba(148, 163, 184, 0.1);
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 8px;
@@ -3428,6 +3437,7 @@ th {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 10;
 }
 
 .transaction-modal .modal-close-btn:hover {
