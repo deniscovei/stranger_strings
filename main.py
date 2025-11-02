@@ -19,11 +19,7 @@ from models import (
 )
 from models.lightgbm_model import train_lightgbm_with_random_search, evaluate_lightgbm
 
-csv_path = "\\\\wsl.localhost\\Ubuntu\\home\\marina\\Hackaton\\stranger_strings\\dataset\\transactions.csv"
-
-print(csv_path)
-
-def main(csv_path=csv_path, run_viz=False, run_random_search=False):
+def main(csv_path='dataset/transactions.csv', run_viz=False, run_random_search=False):
     """
     Main fraud detection pipeline
     
