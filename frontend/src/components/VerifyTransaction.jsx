@@ -439,9 +439,8 @@ export default function VerifyTransaction({ onNavigate }) {
               <textarea
                 value={jsonText}
                 onChange={e => setJsonText(e.target.value)}
-                style={{ width: '100%', height: 260, fontFamily: 'monospace', fontSize: 13, padding: 8, borderRadius: 8, border: '1px solid #e6eef8' }}
               />
-              {jsonError && <div style={{ color: '#dc2626', marginTop: 8 }}>{jsonError}</div>}
+              {jsonError && <div className="json-error">{jsonError}</div>}
             </div>
 
             <div className="chat-footer">

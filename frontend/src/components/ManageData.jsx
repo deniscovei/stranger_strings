@@ -206,7 +206,7 @@ export default function ManageData() {
         />
 
         <select
-          className="filter-dropdown"
+          className={`filter-dropdown ${filterBy === 'fraud' ? 'fraud-filter' : ''}`}
           value={filterBy}
           onChange={(e) => setFilterBy(e.target.value)}
         >
@@ -239,7 +239,7 @@ export default function ManageData() {
               currentTransactions.map((transaction) => (
                 <div
                   key={transaction.id || transaction.accountNumber}
-                  className="transaction-row"
+                  className={`transaction-row ${transaction.isFraud ? 'fraud-row' : 'legitimate-row'}`}
                   onClick={() => handleRowClick(transaction)}
                   onKeyDown={(e) => handleRowKeyDown(e, transaction)}
                   role="button"

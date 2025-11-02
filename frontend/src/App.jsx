@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import Dashboard from './components/Dashboard'
 import DataSummary from './components/DataSummary'
 import Predictions from './components/Predictions'
 import RightMenu from './components/RightMenu'
@@ -84,7 +85,7 @@ export default function App() {
         <main className="main-col">
           {/* Only show header on home page */}
           {currentPage === 'home' && (
-            <header>
+            <header style={{ display: 'none' }}>
               <h1>Stranger Strings — Data & Predictions</h1>
             </header>
           )}
@@ -106,10 +107,7 @@ export default function App() {
               ) : currentPage === 'sql' ? (
                 <SqlQuery />
               ) : (
-                <>
-                  <DataSummary data={data} />
-                  <Predictions predictions={predictions} />
-                </>
+                <Dashboard onNavigate={handleNavigate} />
               )}
             </>
           )}
