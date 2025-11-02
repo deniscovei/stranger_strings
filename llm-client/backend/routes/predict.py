@@ -8,7 +8,8 @@ import os
 # Add parent directory to path to import config
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import get_model
-from utils.preprocessing import preprocess_single_transaction
+from utils.preprocessing import json_prediction
+
 
 predict_bp = Blueprint('predict', __name__)
 
@@ -55,49 +56,7 @@ def predict():
                 'error': 'No transaction data provided'
             }), 400
 
-        # Preprocess the transaction
-        features = preprocess_single_transaction(transaction)
-
-        # Make prediction (handle Isolation Forest differently)
-        if hasattr(model, 'decision_function') and type(model).__name__ == 'IsolationForest':
-            # Isolation Forest returns -1 for anomalies, 1 for normal
-            prediction_raw = model.predict(features)[0]
-            prediction = 1 if prediction_raw == -1 else 0  # Convert -1 -> 1 (fraud), 1 -> 0 (normal)
-
-            # Get anomaly score
-            anomaly_score = None
-            if hasattr(model, 'decision_function'):
-                scores = model.decision_function(features)
-                anomaly_score = float(scores[0])
-
-            result = {
-                'prediction': int(prediction),
-                'is_fraud': bool(prediction),
-                'anomaly_score': anomaly_score,
-                'model_type': 'IsolationForest',
-                'transaction_id': transaction.get('row_id', None)
-            }
-        else:
-            # Standard classification model (LightGBM, XGBoost, etc.)
-            prediction = model.predict(features)[0]
-
-            # Get probability if the model supports it
-            probability_non_fraud = None
-            probability_fraud = None
-
-            if hasattr(model, 'predict_proba'):
-                probabilities = model.predict_proba(features)[0]
-                probability_non_fraud = float(probabilities[0])
-                probability_fraud = float(probabilities[1])
-
-            result = {
-                'prediction': int(prediction),
-                'is_fraud': bool(prediction),
-                'probability_non_fraud': probability_non_fraud,
-                'probability_fraud': probability_fraud,
-                'model_type': type(model).__name__,
-                'transaction_id': transaction.get('row_id', None)
-            }
+        result = json_prediction(transaction)
 
         return jsonify(result), 200
 
@@ -169,51 +128,7 @@ def predict_multiple():
 
         for transaction in transactions:
             try:
-                # Preprocess the transaction
-                features = preprocess_single_transaction(transaction)
-
-                # Make prediction (handle Isolation Forest differently)
-                if hasattr(model, 'decision_function') and type(model).__name__ == 'IsolationForest':
-                    # Isolation Forest returns -1 for anomalies, 1 for normal
-                    prediction_raw = model.predict(features)[0]
-                    prediction = 1 if prediction_raw == -1 else 0  # Convert -1 -> 1 (fraud), 1 -> 0 (normal)
-
-                    # Get anomaly score
-                    anomaly_score = None
-                    if hasattr(model, 'decision_function'):
-                        scores = model.decision_function(features)
-                        anomaly_score = float(scores[0])
-
-                    result = {
-                        'input': transaction,
-                        'prediction': int(prediction),
-                        'is_fraud': bool(prediction),
-                        'anomaly_score': anomaly_score,
-                        'model_type': 'IsolationForest',
-                        'transaction_id': transaction.get('row_id', None)
-                    }
-                else:
-                    # Standard classification model (LightGBM, XGBoost, etc.)
-                    prediction = model.predict(features)[0]
-
-                    # Get probability if the model supports it
-                    probability_non_fraud = None
-                    probability_fraud = None
-
-                    if hasattr(model, 'predict_proba'):
-                        probabilities = model.predict_proba(features)[0]
-                        probability_non_fraud = float(probabilities[0])
-                        probability_fraud = float(probabilities[1])
-
-                    result = {
-                        'input': transaction,
-                        'prediction': int(prediction),
-                        'is_fraud': bool(prediction),
-                        'probability_non_fraud': probability_non_fraud,
-                        'probability_fraud': probability_fraud,
-                        'model_type': type(model).__name__,
-                        'transaction_id': transaction.get('row_id', None)
-                    }
+                result = json_prediction(transaction)
 
                 predictions.append(result)
             except Exception as e:
