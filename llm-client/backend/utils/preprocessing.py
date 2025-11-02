@@ -149,27 +149,28 @@ def json_prediction(transaction: Dict[str, Any]):
     model = get_model() # Model should be okay
     model_type = type(model).__name__
 
+    result = {
+            'accountNumber': transaction["accountNumber"],
+            'transactionDateTime': transaction["transactionDateTime"],
+            'transactionAmount': transaction["transactionAmount"],
+            'merchantName': transaction["merchantName"],
+            'transactionType': transaction["transactionType"],
+    }
+
     # Make prediction (handle Isolation Forest differently)
     if hasattr(model, 'decision_function') and type(model).__name__ == 'IsolationForest':
         prediction, anomaly_score, model_type = inference(transaction)
 
-        result = {
-            'prediction': int(prediction),
-            'is_fraud': bool(prediction),
-            'anomaly_score': anomaly_score,
-            'model_type': model_type,
-            'transaction_id': transaction.get('row_id', None)
-        }
+        result["prediction"]= int(prediction)
+        result["isFraud"]= bool(prediction)
+        result["anomalyScore"]= anomaly_score
+        result["modelType"]= model_type
     else:
         prediction, probability_non_fraud, probability_fraud, model_type = inference(transaction)
 
-        result = {
-            'prediction': int(prediction),
-            'is_fraud': bool(prediction),
-            'probability_non_fraud': probability_non_fraud,
-            'probability_fraud': probability_fraud,
-            'model_type': model_type,
-            'transaction_id': transaction.get('row_id', None)
-        }
+        result["prediction"]= int(prediction)
+        result["isFraud"]= bool(prediction)
+        result["probabilityFraud"]= probability_fraud
+        result["modelType"]= model_type
 
     return result

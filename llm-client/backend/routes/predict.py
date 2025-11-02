@@ -51,6 +51,8 @@ def predict():
         # Get transaction data from request
         transaction = request.get_json()
 
+        print("TRansaction", transaction)
+
         if not transaction:
             return jsonify({
                 'error': 'No transaction data provided'
