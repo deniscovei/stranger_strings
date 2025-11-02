@@ -182,6 +182,11 @@ class Database:
             cursor.execute(query)
             deleted_count = cursor.rowcount
             conn.commit()
+
+            query2 = "SELECT COUNT(*) FROM transactions;"
+            cursor.execute(query2)
+            result = cursor.fetchone()[0]
+            print(f"{result} rows left in the database")
             cursor.close()
             return deleted_count
         except Exception as e:

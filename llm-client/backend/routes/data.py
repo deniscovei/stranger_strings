@@ -71,6 +71,9 @@ def upload_data():
 @data_bp.route('/clear', methods=['POST'])
 def clear_data():
     """Clear all data from the transactions table"""
+
+    print("Request received at /clear endpoint")
+    
     try:
         rows_affected = db.clear_transactions()
         if rows_affected == 0:

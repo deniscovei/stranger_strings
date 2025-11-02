@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { fetchData, uploadDataFile } from '../api'
+import { fetchData, uploadDataFile, clearData } from '../api'
 import TransactionModal from './TransactionModels' // Import TransactionModal
 
 export default function ManageData() {
@@ -177,12 +177,23 @@ export default function ManageData() {
   }
 
   // Remove Data
-  const handleRemoveData = () => {
+  const handleRemoveData = async () => {
     const confirmDelete = window.confirm('Are you sure you want to remove all data? This action cannot be undone.')
     if (!confirmDelete) return
-    setTransactions([])
-    setFilteredTransactions([])
-    alert('All data has been removed successfully.')
+
+    try {
+      const response = await clearData() // Call the /clear endpoint
+      if (response.status === 200) {
+        setTransactions([])
+        setFilteredTransactions([])
+        alert('All data has been removed successfully.')
+      } else {
+        alert('Failed to clear data. Please try again.')
+      }
+    } catch (err) {
+      console.error('Failed to clear data:', err)
+      alert('An error occurred while clearing data.')
+    }
   }
 
   // Row click handlers (mouse + keyboard)
