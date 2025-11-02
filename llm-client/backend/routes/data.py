@@ -3,7 +3,18 @@ import pandas as pd
 from db.database import db
 from io import StringIO
 
+INT64_MIN, INT64_MAX = -(2**63), 2**63-1
+
 data_bp = Blueprint('data', __name__)
+
+def out_of_range_cols(df, cols):
+    bad = {}
+    for c in cols:
+        s = pd.to_numeric(df[c], errors="coerce")
+        oob = s[(s < INT64_MIN) | (s > INT64_MAX)]
+        if len(oob):
+            bad[c] = oob.index.tolist()[:10]  # first few rows
+    return bad
 
 @data_bp.route('/upload', methods=['POST'])
 def upload_data():
@@ -22,6 +33,9 @@ def upload_data():
 
         # Insert data
         rows_inserted = db.bulk_insert_transactions(df)
+
+        if rows_inserted == 0:
+            return jsonify({'error': 'No records were inserted'}), 500
 
         return jsonify({
             'message': f'Successfully uploaded {rows_inserted} records',

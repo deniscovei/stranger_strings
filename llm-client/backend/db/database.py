@@ -31,56 +31,61 @@ class Database:
 
     def insert_transaction(self, transaction: Dict[str, Any]) -> int:
         """Insert a single transaction"""
-        with self.get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute("""
-                INSERT INTO transactions (
-                    row_id, accountNumber, customerId, creditLimit, availableMoney,
-                    transactionDateTime, transactionAmount, merchantName, acqCountry,
-                    merchantCountryCode, posEntryMode, posConditionCode, merchantCategoryCode,
-                    currentExpDate, accountOpenDate, dateOfLastAddressChange, cardCVV,
-                    enteredCVV, cardLast4Digits, transactionType, echoBuffer,
-                    currentBalance, merchantCity, merchantState, merchantZip,
-                    cardPresent, posOnPremises, recurringAuthInd,
-                    expirationDateKeyInMatch, isFraud
-                ) VALUES (
-                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
-                )
-                RETURNING row_id
-                """, (
-                    transaction.get('row_id'),
-                    transaction.get('accountNumber'),
-                    transaction.get('customerId'),
-                    transaction.get('creditLimit'),
-                    transaction.get('availableMoney'),
-                    transaction.get('transactionDateTime'),
-                    transaction.get('transactionAmount'),
-                    transaction.get('merchantName'),
-                    transaction.get('acqCountry'),
-                    transaction.get('merchantCountryCode'),
-                    transaction.get('posEntryMode'),
-                    transaction.get('posConditionCode'),
-                    transaction.get('merchantCategoryCode'),
-                    transaction.get('currentExpDate'),
-                    transaction.get('accountOpenDate'),
-                    transaction.get('dateOfLastAddressChange'),
-                    transaction.get('cardCVV'),
-                    transaction.get('enteredCVV'),
-                    transaction.get('cardLast4Digits'),
-                    transaction.get('transactionType'),
-                    transaction.get('echoBuffer'),
-                    transaction.get('currentBalance'),
-                    transaction.get('merchantCity'),
-                    transaction.get('merchantState'),
-                    transaction.get('merchantZip'),
-                    transaction.get('cardPresent'),
-                    transaction.get('posOnPremises'),
-                    transaction.get('recurringAuthInd'),
-                    transaction.get('expirationDateKeyInMatch'),
-                    transaction.get('isFraud', False)
-                ))
-                return cur.fetchone()[0]
+
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+        INSERT INTO transactions (
+            row_id, accountNumber, customerId, creditLimit, availableMoney,
+            transactionDateTime, transactionAmount, merchantName, acqCountry,
+            merchantCountryCode, posEntryMode, posConditionCode, merchantCategoryCode,
+            currentExpDate, accountOpenDate, dateOfLastAddressChange, cardCVV,
+            enteredCVV, cardLast4Digits, transactionType, echoBuffer,
+            currentBalance, merchantCity, merchantState, merchantZip,
+            cardPresent, posOnPremises, recurringAuthInd,
+            expirationDateKeyInMatch, isFraud
+        ) VALUES (
+            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+        )
+        RETURNING row_id
+        """, (
+            transaction.get('row_id'),
+            transaction.get('accountNumber'),
+            transaction.get('customerId'),
+            transaction.get('creditLimit'),
+            transaction.get('availableMoney'),
+            transaction.get('transactionDateTime'),
+            transaction.get('transactionAmount'),
+            transaction.get('merchantName'),
+            transaction.get('acqCountry'),
+            transaction.get('merchantCountryCode'),
+            transaction.get('posEntryMode'),
+            transaction.get('posConditionCode'),
+            transaction.get('merchantCategoryCode'),
+            transaction.get('currentExpDate'),
+            transaction.get('accountOpenDate'),
+            transaction.get('dateOfLastAddressChange'),
+            transaction.get('cardCVV'),
+            transaction.get('enteredCVV'),
+            transaction.get('cardLast4Digits'),
+            transaction.get('transactionType'),
+            transaction.get('echoBuffer'),
+            transaction.get('currentBalance'),
+            transaction.get('merchantCity'),
+            transaction.get('merchantState'),
+            transaction.get('merchantZip'),
+            transaction.get('cardPresent'),
+            transaction.get('posOnPremises'),
+            transaction.get('recurringAuthInd'),
+            transaction.get('expirationDateKeyInMatch'),
+            transaction.get('isFraud', False)
+        ))
+        result = cursor.fetchone()[0]
+        conn.commit()
+        cursor.close()
+        return result
 
     def bulk_insert_transactions(self, df: pd.DataFrame) -> int:
         """Insert multiple transactions from a DataFrame"""
@@ -91,7 +96,7 @@ class Database:
             'currentExpDate', 'accountOpenDate', 'dateOfLastAddressChange', 'cardCVV',
             'enteredCVV', 'cardLast4Digits', 'transactionType', 'echoBuffer',
             'currentBalance', 'merchantCity', 'merchantState', 'merchantZip',
-            'cardPresent', 'posOnPremises', 'recurringAuthInd', 'expirationDateKeyInMatch'
+            'cardPresent', 'posOnPremises', 'recurringAuthInd', 'expirationDateKeyInMatch', 'isFraud'
         ]
 
         # Ensure all required columns exist
@@ -99,26 +104,28 @@ class Database:
             if col not in df.columns:
                 df[col] = None
 
-        with self.get_connection() as conn:
-            with conn.cursor() as cur:
-                values = df[required_columns].values.tolist()
-                execute_batch(cur, """
-                INSERT INTO transactions (
-                    row_id, accountNumber, customerId, creditLimit, availableMoney,
-                    transactionDateTime, transactionAmount, merchantName, acqCountry,
-                    merchantCountryCode, posEntryMode, posConditionCode, merchantCategoryCode,
-                    currentExpDate, accountOpenDate, dateOfLastAddressChange, cardCVV,
-                    enteredCVV, cardLast4Digits, transactionType, echoBuffer,
-                    currentBalance, merchantCity, merchantState, merchantZip,
-                    cardPresent, posOnPremises, recurringAuthInd,
-                    expirationDateKeyInMatch, isFraud
-                ) VALUES (
-                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, False
-                )
-                """, values)
+        conn = self.get_connection()
+        cursor = conn.cursor()
 
-                return len(values)
+        values = df[required_columns].values.tolist()
+
+        execute_batch(cursor, """
+        INSERT INTO transactions (
+            row_id, accountNumber, customerId, creditLimit, availableMoney,
+            transactionDateTime, transactionAmount, merchantName, acqCountry,
+            merchantCountryCode, posEntryMode, posConditionCode, merchantCategoryCode,
+            currentExpDate, accountOpenDate, dateOfLastAddressChange, cardCVV,
+            enteredCVV, cardLast4Digits, transactionType, echoBuffer,
+            currentBalance, merchantCity, merchantState, merchantZip,
+            cardPresent, posOnPremises, recurringAuthInd,
+            expirationDateKeyInMatch, isFraud
+        ) VALUES (
+            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+        )
+        """, values)
+
+        return len(values)
 
     def clear_transactions(self):
         """Clear all transactions"""
