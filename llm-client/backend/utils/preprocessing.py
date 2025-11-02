@@ -8,10 +8,11 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import ALL_MERCHANT_COUNTRY_CODES, ALL_TRANSACTION_TYPES, ALL_MERCHANT_CATEGORY_CODES
 
-def preprocess_single_transaction(transaction: Dict[str, Any]) -> np.ndarray:
+def preprocess_single_transaction(transaction: Dict[str, Any]) -> pd.DataFrame:
     """
     Preprocess a single transaction matching EXACT training pipeline.
     Must produce exactly 43 features (excluding isFraud target).
+    Returns DataFrame to preserve column names for SHAP explanations.
     """
     # Convert to DataFrame
     df = pd.DataFrame([transaction])
@@ -100,7 +101,23 @@ def preprocess_single_transaction(transaction: Dict[str, Any]) -> np.ndarray:
     # Fill any remaining NaN values
     df = df.fillna(0)
     
+    # Convert object columns to numeric (for SHAP compatibility)
+    # These should be numeric but might be strings
+    numeric_cols = ['accountNumber', 'posEntryMode', 'posConditionCode', 'cardCVV', 'cardLast4Digits']
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).astype(int)
+    
+    # Convert any remaining object columns to numeric
+    object_cols = df.select_dtypes(include=['object']).columns
+    for col in object_cols:
+        try:
+            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+        except Exception as e:
+            print(f"Warning: Could not convert {col} to numeric: {e}")
+    
     print(f"✓ Preprocessed features: {len(df.columns)} columns")
     print(f"  Columns: {list(df.columns)}")
     
-    return df.values
+    # Return DataFrame to preserve column names for SHAP
+    return df

@@ -200,6 +200,7 @@ export default function VerifyTransaction({ onNavigate }) {
         probabilityFraud: result.probability_fraud,
         probabilityNonFraud: result.probability_non_fraud,
         transactionId: result.transaction_id,
+        shapExplanation: result.shap_explanation,
         details: submitData
       }
       
@@ -276,6 +277,7 @@ export default function VerifyTransaction({ onNavigate }) {
         probabilityFraud: result.probability_fraud,
         probabilityNonFraud: result.probability_non_fraud,
         transactionId: result.transaction_id,
+        shapExplanation: result.shap_explanation,
         details: parsed
       }
 

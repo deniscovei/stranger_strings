@@ -20,7 +20,7 @@ export default function RightMenu({ onToggle, onOpenChat, onNavigate, isOpen = t
           Dashboard
         </button>
         <button className="menu-item" onClick={() => onNavigate?.('charts')}>
-          Analytics Charts
+          Analytics
         </button>
         <button className="menu-item" onClick={() => onNavigate?.('sql')}>
           SQL Query
