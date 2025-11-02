@@ -5,6 +5,7 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import { fetchChartData } from '../api';
+import AICharts from './AICharts';
 
 // Modern vibrant color palette
 const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'];
@@ -15,6 +16,7 @@ const Charts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isDark, setIsDark] = useState(document.documentElement.classList.contains('dark'));
+  const [view, setView] = useState('analytics'); // 'analytics' or 'ai-generator'
 
   useEffect(() => {
     loadChartData();
@@ -51,35 +53,6 @@ const Charts = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div style={{ padding: '40px', textAlign: 'center' }}>
-        <h2>Loading charts...</h2>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div style={{ padding: '40px', textAlign: 'center', color: '#e74c3c' }}>
-        <h2>Error loading data: {error}</h2>
-        <p>Check browser console for details</p>
-        <button onClick={loadChartData} style={{ marginTop: '20px', padding: '10px 20px' }}>
-          Retry
-        </button>
-      </div>
-    );
-  }
-
-  if (!data) {
-    return (
-      <div style={{ padding: '40px', textAlign: 'center' }}>
-        <h2>No data available</h2>
-        <p>Check console: {JSON.stringify(data)}</p>
-      </div>
-    );
-  }
-
   const chartColors = isDark ? DARK_COLORS : COLORS;
 
   return (
@@ -87,7 +60,55 @@ const Charts = () => {
       <div className="charts-header">
         <h1>Transaction Analytics Dashboard</h1>
         <p>Comprehensive analysis of transaction patterns and fraud detection metrics</p>
+        
+        {/* View Toggle Buttons - Always visible */}
+        <div className="chart-view-toggle">
+          <button 
+            className={`view-toggle-btn ${view === 'analytics' ? 'active' : ''}`}
+            onClick={() => setView('analytics')}
+          >
+            📊 Analytics Charts
+          </button>
+          <button 
+            className={`view-toggle-btn ${view === 'ai-generator' ? 'active' : ''}`}
+            onClick={() => setView('ai-generator')}
+          >
+            🤖 AI Chart Generator
+          </button>
+        </div>
       </div>
+
+      {view === 'ai-generator' ? (
+        <AICharts />
+      ) : loading ? (
+        <div className="charts-loading-container">
+          <div className="charts-loader-wrapper">
+            <div className="charts-loader">
+              <div className="loader-bar"></div>
+              <div className="loader-bar"></div>
+              <div className="loader-bar"></div>
+              <div className="loader-bar"></div>
+              <div className="loader-bar"></div>
+            </div>
+            <h2>Loading Analytics...</h2>
+            <p>Fetching transaction data and generating visualizations</p>
+          </div>
+        </div>
+      ) : error ? (
+        <div style={{ padding: '40px', textAlign: 'center', color: '#e74c3c' }}>
+          <h2>Error loading data: {error}</h2>
+          <p>Check browser console for details</p>
+          <button onClick={loadChartData} style={{ marginTop: '20px', padding: '10px 20px' }}>
+            Retry
+          </button>
+        </div>
+      ) : !data ? (
+        <div style={{ padding: '40px', textAlign: 'center' }}>
+          <h2>No data available</h2>
+          <p>Check console: {JSON.stringify(data)}</p>
+        </div>
+      ) : (
+        <div className="analytics-charts-container">
 
       {/* 1. Fraud Distribution */}
       <div className="chart-card">
@@ -294,6 +315,8 @@ const Charts = () => {
           </BarChart>
         </ResponsiveContainer>
       </div>
+        </div>
+      )}
     </div>
   );
 };

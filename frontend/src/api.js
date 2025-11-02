@@ -105,3 +105,14 @@ export async function sendChatMessage(message) {
 	// Backend returns a plain string, so res.data is the AI response
 	return res.data
 }
+
+export async function generateAIChart(prompt) {
+	// Backend endpoint: POST /api/generate-chart
+	// Sends: {"prompt": "..."}
+	// Returns: { data: {...}, type: 'bar'|'line'|'pie' }
+	const res = await axios.post('/api/generate-chart', { prompt }, {
+		headers: { 'Content-Type': 'application/json' },
+		timeout: 60000 // 60 seconds for AI to generate chart
+	})
+	return res.data
+}
