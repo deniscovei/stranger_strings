@@ -288,7 +288,7 @@ def get_summary():
 
 @charts_bp.route('/generate-chart', methods=['POST'])
 def generate_chart():
-    """Generate chart data using AI based on user prompt"""
+    """Generate chart data using AI based on user prompt with REAL database data"""
     import json
     import re
     
@@ -307,8 +307,106 @@ def generate_chart():
         
         print(f"Generating chart for prompt: {prompt}")
         
+        # FETCH REAL DATA FROM DATABASE
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Get comprehensive statistics from the database
+        real_data = {}
+        
+        # Fraud distribution
+        cursor.execute("""
+            SELECT 
+                CASE WHEN isfraud = true THEN 'Fraudulent' ELSE 'Legitimate' END as type,
+                COUNT(*) as count
+            FROM transactions
+            GROUP BY isfraud
+        """)
+        real_data['fraud_distribution'] = [{'type': row[0], 'count': row[1]} for row in cursor.fetchall()]
+        
+        # Top merchants
+        cursor.execute("""
+            SELECT merchantname, COUNT(*) as count,
+                   SUM(CASE WHEN isfraud = true THEN 1 ELSE 0 END) as fraud_count
+            FROM transactions
+            GROUP BY merchantname
+            ORDER BY count DESC
+            LIMIT 15
+        """)
+        real_data['top_merchants'] = [{'name': row[0], 'total': row[1], 'frauds': row[2]} for row in cursor.fetchall()]
+        
+        # Transaction types
+        cursor.execute("""
+            SELECT transactiontype, COUNT(*) as count
+            FROM transactions
+            GROUP BY transactiontype
+        """)
+        real_data['transaction_types'] = [{'type': row[0], 'count': row[1]} for row in cursor.fetchall()]
+        
+        # Fraud by category
+        cursor.execute("""
+            SELECT merchantcategorycode,
+                   COUNT(*) as total,
+                   SUM(CASE WHEN isfraud = true THEN 1 ELSE 0 END) as frauds,
+                   ROUND(AVG(CASE WHEN isfraud = true THEN 100.0 ELSE 0.0 END), 2) as fraud_rate
+            FROM transactions
+            GROUP BY merchantcategorycode
+            HAVING COUNT(*) > 100
+            ORDER BY fraud_rate DESC
+            LIMIT 15
+        """)
+        real_data['fraud_by_category'] = [
+            {'category': row[0], 'total': row[1], 'frauds': row[2], 'fraud_rate': float(row[3])} 
+            for row in cursor.fetchall()
+        ]
+        
+        # Amount statistics
+        cursor.execute("""
+            SELECT 
+                CASE WHEN isfraud = true THEN 'Fraudulent' ELSE 'Legitimate' END as type,
+                ROUND(AVG(transactionamount)::numeric, 2) as avg_amount,
+                ROUND(MIN(transactionamount)::numeric, 2) as min_amount,
+                ROUND(MAX(transactionamount)::numeric, 2) as max_amount,
+                COUNT(*) as count
+            FROM transactions
+            GROUP BY isfraud
+        """)
+        real_data['amount_stats'] = [
+            {'type': row[0], 'avg': float(row[1]), 'min': float(row[2]), 'max': float(row[3]), 'count': row[4]} 
+            for row in cursor.fetchall()
+        ]
+        
+        # Fraud by hour
+        cursor.execute("""
+            SELECT EXTRACT(HOUR FROM transactiondatetime) as hour,
+                   COUNT(*) as total,
+                   SUM(CASE WHEN isfraud = true THEN 1 ELSE 0 END) as frauds
+            FROM transactions
+            WHERE transactiondatetime IS NOT NULL
+            GROUP BY EXTRACT(HOUR FROM transactiondatetime)
+            ORDER BY hour
+        """)
+        real_data['fraud_by_hour'] = [
+            {'hour': int(row[0]), 'total': row[1], 'frauds': row[2]} 
+            for row in cursor.fetchall()
+        ]
+        
+        # Countries
+        cursor.execute("""
+            SELECT merchantcountrycode, COUNT(*) as count
+            FROM transactions
+            GROUP BY merchantcountrycode
+            ORDER BY count DESC
+            LIMIT 10
+        """)
+        real_data['top_countries'] = [{'country': row[0], 'count': row[1]} for row in cursor.fetchall()]
+        
+        cursor.close()
+        conn.close()
+        
         # Create system prompt for AI
-        system_prompt = """You are a data visualization expert. Based on the user's request, generate chart data in JSON format.
+        system_prompt = """You are a data visualization expert. You will receive REAL data from our database and a user request.
+Your job is to select the most relevant data and format it for Chart.js visualization.
 
 Your response MUST be ONLY valid JSON in this exact format:
 {
@@ -327,25 +425,22 @@ Your response MUST be ONLY valid JSON in this exact format:
 }
 
 Guidelines:
-- Use realistic transaction data patterns
+- USE ONLY THE REAL DATA PROVIDED - DO NOT MAKE UP NUMBERS
+- Select the most relevant data for the user's request
 - Keep labels concise (max 20 chars)
-- Limit to 12 data points maximum
-- Use colors: #6366f1 (blue), #8b5cf6 (purple), #ef4444 (red), #10b981 (green), #f59e0b (amber)
-- For fraud detection: use red for fraud, green for legitimate
-- For pie charts: backgroundColor should be an array of colors
-- For bar/line charts: backgroundColor and borderColor should be a single color
+- Limit to 12 data points maximum (pick top 12 if more)
+- Use colors: #ef4444 (red) for fraud, #10b981 (green) for legitimate, #6366f1 (blue), #8b5cf6 (purple), #f59e0b (amber)
+- For pie charts: backgroundColor should be an array of colors (one per data point)
+- For bar/line charts: backgroundColor can be single color or array
 - Return ONLY the JSON object, no markdown, no explanation
 """
 
-        user_message = f"""Generate chart data for: {prompt}
+        user_message = f"""User request: {prompt}
 
-Context: This is for a fraud detection system with transaction data including:
-- Merchants, transaction amounts, dates
-- Fraud indicators (fraudulent vs legitimate)
-- Transaction types, categories
-- Geographic data
+REAL DATA FROM DATABASE:
+{json.dumps(real_data, indent=2)}
 
-Return ONLY the JSON object."""
+Based on this REAL data, create the appropriate chart. Use the actual numbers from the data above."""
 
         # Create Bedrock client
         client = boto3.client(

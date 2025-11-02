@@ -11,7 +11,6 @@ import VerifyTransaction from './components/VerifyTransaction'
 import TransactionResult from './components/TransactionResult'
 import Charts from './components/Charts'
 import SqlQuery from './components/SqlQuery'
-import AICharts from './components/AICharts'
 import strangerLogo from './assets/stranger-logo.png'
 import { fetchData, fetchPredictions } from './api'
 
@@ -107,8 +106,6 @@ export default function App() {
                 <Charts />
               ) : currentPage === 'sql' ? (
                 <SqlQuery />
-              ) : currentPage === 'ai-charts' ? (
-                <AICharts />
               ) : (
                 <Dashboard onNavigate={handleNavigate} />
               )}
