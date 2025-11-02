@@ -16,10 +16,22 @@ export default function RightMenu({ onToggle, onOpenChat, onNavigate, isOpen = t
       </div>
 
       <nav className="menu-items">
-        <button className="menu-item" onClick={() => onNavigate?.('data')}>Manage Data</button>
-        <button className="menu-item" onClick={() => onNavigate?.('verify')}>Verify Transaction</button>
+        <button className="menu-item" onClick={() => onNavigate?.('home')}>
+          📊 Dashboard
+        </button>
+        <button className="menu-item" onClick={() => onNavigate?.('charts')}>
+          📈 Analytics Charts
+        </button>
+        <button className="menu-item" onClick={() => onNavigate?.('data')}>
+          💾 Manage Data
+        </button>
+        <button className="menu-item" onClick={() => onNavigate?.('verify')}>
+          ✓ Verify Transaction
+        </button>
         <div className="menu-sep" />
-        <button className="chat-btn" onClick={onOpenChat}>Open Chat</button>
+        <button className="chat-btn" onClick={onOpenChat}>
+          💬 Open Chat
+        </button>
       </nav>
 
       <footer className="menu-footer">

@@ -38,23 +38,23 @@ def get_chart_data():
         # 1. Fraud Distribution
         cursor.execute("""
             SELECT 
-                CASE WHEN "isFraud" = true THEN 'Fraud' ELSE 'Non-Fraud' END as name,
+                CASE WHEN isfraud = true THEN 'Fraud' ELSE 'Non-Fraud' END as name,
                 COUNT(*) as count
             FROM transactions
-            GROUP BY "isFraud"
+            GROUP BY isfraud
         """)
         result['fraudDistribution'] = [
             {'name': row[0], 'count': row[1]} 
             for row in cursor.fetchall()
         ]
         
-        # 2. Top 10 Merchants
+        # 2. Top 15 Merchants
         cursor.execute("""
-            SELECT "merchantName" as name, COUNT(*) as count
+            SELECT merchantname as name, COUNT(*) as count
             FROM transactions
-            GROUP BY "merchantName"
+            GROUP BY merchantname
             ORDER BY count DESC
-            LIMIT 10
+            LIMIT 15
         """)
         result['topMerchants'] = [
             {'name': row[0], 'count': row[1]} 
@@ -63,9 +63,9 @@ def get_chart_data():
         
         # 3. Transaction Types
         cursor.execute("""
-            SELECT "transactionType" as name, COUNT(*) as value
+            SELECT transactiontype as name, COUNT(*) as value
             FROM transactions
-            GROUP BY "transactionType"
+            GROUP BY transactiontype
         """)
         result['transactionTypes'] = [
             {'name': row[0], 'value': row[1]} 
@@ -75,13 +75,13 @@ def get_chart_data():
         # 4. Fraud Rate by Category
         cursor.execute("""
             SELECT 
-                "merchantCategoryCode" as category,
-                ROUND(AVG(CASE WHEN "isFraud" = true THEN 100.0 ELSE 0.0 END), 2) as "fraudRate",
+                merchantcategorycode as category,
+                ROUND(AVG(CASE WHEN isfraud = true THEN 100.0 ELSE 0.0 END), 2) as fraudrate,
                 COUNT(*) as total
             FROM transactions
-            GROUP BY "merchantCategoryCode"
+            GROUP BY merchantcategorycode
             HAVING COUNT(*) > 100
-            ORDER BY "fraudRate" DESC
+            ORDER BY fraudrate DESC
             LIMIT 15
         """)
         result['fraudByCategory'] = [
@@ -91,9 +91,9 @@ def get_chart_data():
         
         # 5. Top Countries
         cursor.execute("""
-            SELECT "merchantCountryCode" as country, COUNT(*) as count
+            SELECT merchantcountrycode as country, COUNT(*) as count
             FROM transactions
-            GROUP BY "merchantCountryCode"
+            GROUP BY merchantcountrycode
             ORDER BY count DESC
             LIMIT 10
         """)
@@ -105,11 +105,11 @@ def get_chart_data():
         # 6. Card Present Analysis
         cursor.execute("""
             SELECT 
-                CASE WHEN "cardPresent" = true THEN 'Present' ELSE 'Not Present' END as status,
-                ROUND(AVG(CASE WHEN "isFraud" = true THEN 100.0 ELSE 0.0 END), 2) as "fraudRate",
+                CASE WHEN cardpresent = true THEN 'Present' ELSE 'Not Present' END as status,
+                ROUND(AVG(CASE WHEN isfraud = true THEN 100.0 ELSE 0.0 END), 2) as fraudrate,
                 COUNT(*) as total
             FROM transactions
-            GROUP BY "cardPresent"
+            GROUP BY cardpresent
         """)
         result['cardPresent'] = [
             {'status': row[0], 'fraudRate': float(row[1]), 'total': row[2]} 
@@ -119,14 +119,120 @@ def get_chart_data():
         # 7. Amount Statistics
         cursor.execute("""
             SELECT 
-                CASE WHEN "isFraud" = true THEN 'Fraud' ELSE 'Non-Fraud' END as type,
-                ROUND(AVG("transactionAmount")::numeric, 2) as mean,
-                ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY "transactionAmount")::numeric, 2) as median
+                CASE WHEN isfraud = true THEN 'Fraud' ELSE 'Non-Fraud' END as type,
+                ROUND(AVG(transactionamount)::numeric, 2) as mean,
+                ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY transactionamount)::numeric, 2) as median
             FROM transactions
-            GROUP BY "isFraud"
+            GROUP BY isfraud
         """)
         result['amountStats'] = [
             {'type': row[0], 'mean': float(row[1]), 'median': float(row[2])} 
+            for row in cursor.fetchall()
+        ]
+        
+        # 8. Fraud Trend Over Time (by month)
+        cursor.execute("""
+            SELECT 
+                TO_CHAR(transactiondatetime, 'YYYY-MM') as month,
+                COUNT(*) as total,
+                SUM(CASE WHEN isfraud = true THEN 1 ELSE 0 END) as frauds,
+                ROUND(AVG(CASE WHEN isfraud = true THEN 100.0 ELSE 0.0 END), 2) as fraudrate
+            FROM transactions
+            WHERE transactiondatetime IS NOT NULL
+            GROUP BY TO_CHAR(transactiondatetime, 'YYYY-MM')
+            ORDER BY month
+            LIMIT 24
+        """)
+        result['fraudTrend'] = [
+            {'month': row[0], 'total': row[1], 'frauds': row[2], 'fraudRate': float(row[3])} 
+            for row in cursor.fetchall()
+        ]
+        
+        # 9. Transaction Amount Distribution (bins)
+        cursor.execute("""
+            WITH binned_data AS (
+                SELECT 
+                    CASE 
+                        WHEN transactionamount < 50 THEN '0-50'
+                        WHEN transactionamount < 100 THEN '50-100'
+                        WHEN transactionamount < 200 THEN '100-200'
+                        WHEN transactionamount < 500 THEN '200-500'
+                        WHEN transactionamount < 1000 THEN '500-1000'
+                        ELSE '1000+'
+                    END as range,
+                    CASE 
+                        WHEN transactionamount < 50 THEN 1
+                        WHEN transactionamount < 100 THEN 2
+                        WHEN transactionamount < 200 THEN 3
+                        WHEN transactionamount < 500 THEN 4
+                        WHEN transactionamount < 1000 THEN 5
+                        ELSE 6
+                    END as range_order,
+                    isfraud
+                FROM transactions
+            )
+            SELECT 
+                range,
+                COUNT(*) as count,
+                SUM(CASE WHEN isfraud = true THEN 1 ELSE 0 END) as frauds
+            FROM binned_data
+            GROUP BY range, range_order
+            ORDER BY range_order
+        """)
+        result['amountDistribution'] = [
+            {'range': row[0], 'count': row[1], 'frauds': row[2]} 
+            for row in cursor.fetchall()
+        ]
+        
+        # 10. Fraud by Hour of Day
+        cursor.execute("""
+            SELECT 
+                EXTRACT(HOUR FROM transactiondatetime) as hour,
+                COUNT(*) as total,
+                SUM(CASE WHEN isfraud = true THEN 1 ELSE 0 END) as frauds,
+                ROUND(AVG(CASE WHEN isfraud = true THEN 100.0 ELSE 0.0 END), 2) as fraudrate
+            FROM transactions
+            WHERE transactiondatetime IS NOT NULL
+            GROUP BY EXTRACT(HOUR FROM transactiondatetime)
+            ORDER BY hour
+        """)
+        result['fraudByHour'] = [
+            {'hour': int(row[0]) if row[0] is not None else 0, 'total': row[1], 'frauds': row[2], 'fraudRate': float(row[3])} 
+            for row in cursor.fetchall()
+        ]
+        
+        # 11. Top Merchants by Fraud Count
+        cursor.execute("""
+            SELECT 
+                merchantname as name,
+                COUNT(*) as total,
+                SUM(CASE WHEN isfraud = true THEN 1 ELSE 0 END) as frauds,
+                ROUND(AVG(CASE WHEN isfraud = true THEN 100.0 ELSE 0.0 END), 2) as fraudrate
+            FROM transactions
+            GROUP BY merchantname
+            HAVING SUM(CASE WHEN isfraud = true THEN 1 ELSE 0 END) > 0
+            ORDER BY frauds DESC
+            LIMIT 10
+        """)
+        result['topFraudMerchants'] = [
+            {'name': row[0], 'total': row[1], 'frauds': row[2], 'fraudRate': float(row[3])} 
+            for row in cursor.fetchall()
+        ]
+        
+        # 12. Transaction Type vs Fraud
+        cursor.execute("""
+            SELECT 
+                transactiontype as type,
+                COUNT(*) as total,
+                SUM(CASE WHEN isfraud = true THEN 1 ELSE 0 END) as frauds,
+                ROUND(AVG(CASE WHEN isfraud = true THEN 100.0 ELSE 0.0 END), 2) as fraudrate
+            FROM transactions
+            WHERE transactiontype IS NOT NULL
+            GROUP BY transactiontype
+            ORDER BY fraudrate DESC
+        """)
+        result['transactionTypeFraud'] = [
+            {'type': row[0], 'total': row[1], 'frauds': row[2], 'fraudRate': float(row[3])} 
             for row in cursor.fetchall()
         ]
         
@@ -151,10 +257,10 @@ def get_summary():
         cursor.execute("""
             SELECT 
                 COUNT(*) as total,
-                SUM(CASE WHEN "isFraud" = true THEN 1 ELSE 0 END) as fraud_count,
-                ROUND(AVG("transactionAmount")::numeric, 2) as avg_amount,
-                COUNT(DISTINCT "merchantName") as unique_merchants,
-                COUNT(DISTINCT "merchantCountryCode") as unique_countries
+                SUM(CASE WHEN isfraud = true THEN 1 ELSE 0 END) as fraud_count,
+                ROUND(AVG(transactionamount)::numeric, 2) as avg_amount,
+                COUNT(DISTINCT merchantname) as unique_merchants,
+                COUNT(DISTINCT merchantcountrycode) as unique_countries
             FROM transactions
         """)
         

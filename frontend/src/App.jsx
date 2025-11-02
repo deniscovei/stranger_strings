@@ -8,6 +8,7 @@ import ManageData from './components/ManageData'
 import ChatPage from './components/ChatPage'
 import VerifyTransaction from './components/VerifyTransaction'
 import TransactionResult from './components/TransactionResult'
+import Charts from './components/Charts'
 import strangerLogo from './assets/stranger-logo.png'
 import { fetchData, fetchPredictions } from './api'
 
@@ -99,6 +100,8 @@ export default function App() {
                 <VerifyTransaction onNavigate={handleNavigate} />
               ) : currentPage === 'result' ? (
                 <TransactionResult result={verificationResult} onBack={handleBackToVerify} />
+              ) : currentPage === 'charts' ? (
+                <Charts />
               ) : (
                 <>
                   <DataSummary data={data} />

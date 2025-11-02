@@ -1725,4 +1725,65 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eef8 }
 
 .top-right-controls { top: 31px; transform: translateY(8px); } /* coboară cu 8px */
 
+/* ==== Dark Mode: Charts Component ==== */
+.dark .recharts-wrapper {
+  color: #e5e7eb;
+}
+
+/* Chart card backgrounds */
+.dark .recharts-surface {
+  background: transparent;
+}
+
+/* Grid lines more subtle in dark */
+.dark .recharts-cartesian-grid-horizontal line,
+.dark .recharts-cartesian-grid-vertical line {
+  stroke: #1f2937;
+}
+
+/* Axis text */
+.dark .recharts-xAxis .recharts-text,
+.dark .recharts-yAxis .recharts-text {
+  fill: #94a3b8;
+}
+
+/* Legend text */
+.dark .recharts-legend-item-text {
+  color: #cbd5e1 !important;
+}
+
+/* Tooltip in dark mode */
+.dark .recharts-tooltip-wrapper {
+  outline: none;
+}
+
+.dark .recharts-default-tooltip {
+  background: #0b1220 !important;
+  border: 1px solid #1f2937 !important;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.dark .recharts-tooltip-label {
+  color: #e5e7eb !important;
+  font-weight: 600;
+}
+
+.dark .recharts-tooltip-item {
+  color: #cbd5e1 !important;
+}
+
+/* Pie chart labels */
+.dark .recharts-pie-label-text {
+  fill: #e5e7eb;
+  font-weight: 500;
+}
+
+/* Reference lines/areas more visible */
+.dark .recharts-reference-line line {
+  stroke: #6366f1;
+}
+
+
+
 
