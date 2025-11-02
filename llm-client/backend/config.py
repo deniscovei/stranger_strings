@@ -14,24 +14,27 @@ ALL_MERCHANT_CATEGORY_CODES = [
 # Load the LightGBM model
 model = None
 
-def load_model():
+DEFAULT_MODEL_NAME = "lightgbm_model.pkl"
+
+def load_model(model_name: str = DEFAULT_MODEL_NAME):
     """Load the ML model at startup"""
     global model
+
     try:
-        model_path = os.getenv('MODEL_PATH', '/app/models/lightgbm_model.pkl')
+        model_path = os.getenv('MODEL_PATH', f"/app/models/{model_name}")
         if not os.path.exists(model_path):
-            model_path = '../models/lightgbm_model.pkl'
-        
+            model_path = f"../models/{model_name}"
+
         with open(model_path, 'rb') as f:
             model = pickle.load(f)
         print(f"✓ Model loaded successfully from {model_path}: {type(model).__name__}")
         if hasattr(model, 'n_features_in_'):
             print(f"✓ Model expects {model.n_features_in_} features")
-            
+
         print(f"✓ Using {len(ALL_MERCHANT_COUNTRY_CODES)} merchant country codes: {ALL_MERCHANT_COUNTRY_CODES}")
         print(f"✓ Using {len(ALL_TRANSACTION_TYPES)} transaction types: {ALL_TRANSACTION_TYPES}")
         print(f"✓ Using {len(ALL_MERCHANT_CATEGORY_CODES)} merchant category codes")
-        
+
         return model
     except Exception as e:
         print(f"⚠ Warning: Could not load model - {e}")
