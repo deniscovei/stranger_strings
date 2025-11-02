@@ -67,7 +67,7 @@ def predict():
             'message': 'Error processing transaction'
         }), 500
 
-@predict_bp.route('/predict/multiple', methods=['POST'])
+@predict_bp.route('/predict_multiple', methods=['POST'])
 def predict_multiple():
     """
     Predict if multiple transactions are fraudulent from a CSV file.
