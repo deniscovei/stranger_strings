@@ -206,7 +206,7 @@ export default function ManageData() {
         />
 
         <select
-          className="filter-dropdown"
+          className={`filter-dropdown ${filterBy === 'fraud' ? 'fraud-filter' : ''}`}
           value={filterBy}
           onChange={(e) => setFilterBy(e.target.value)}
         >

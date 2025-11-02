@@ -36,7 +36,7 @@ export default function TransactionResult({ result, onBack }) {
         </div>
 
         <h3 className="result-title">
-          {isFraudulent ? '⚠️ Fraudulent Transaction Detected' : '✓ Transaction Appears Legitimate'}
+          {isFraudulent ? 'Fraudulent Transaction Detected' : 'Transaction Appears Legitimate'}
         </h3>
 
         <p className="result-description">
@@ -60,20 +60,6 @@ export default function TransactionResult({ result, onBack }) {
           <div className="result-metric">
             <label>Model Type:</label>
             <span className="metric-value">{result.modelType}</span>
-          </div>
-        )}
-
-        {result.probabilityFraud !== undefined && (
-          <div className="result-metric">
-            <label>Fraud Probability:</label>
-            <span className="metric-value">{(result.probabilityFraud * 100).toFixed(2)}%</span>
-          </div>
-        )}
-
-        {result.probabilityNonFraud !== undefined && (
-          <div className="result-metric">
-            <label>Non-Fraud Probability:</label>
-            <span className="metric-value">{(result.probabilityNonFraud * 100).toFixed(2)}%</span>
           </div>
         )}
       </div>

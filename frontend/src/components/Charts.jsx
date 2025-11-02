@@ -83,31 +83,33 @@ const Charts = () => {
   const chartColors = isDark ? DARK_COLORS : COLORS;
 
   return (
-    <div style={{ padding: '20px', backgroundColor: isDark ? '#0f172a' : '#f5f5f5' }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '40px', color: isDark ? '#e5e7eb' : '#2c3e50' }}>
-        📊 Transaction Analytics Dashboard
-      </h1>
+    <div className="charts-page">
+      <div className="charts-header">
+        <h1>Transaction Analytics Dashboard</h1>
+        <p>Comprehensive analysis of transaction patterns and fraud detection metrics</p>
+      </div>
 
       {/* 1. Fraud Distribution */}
-      <ChartCard title="Fraud Distribution" isDark={isDark}>
+      <div className="chart-card">
+        <h3 className="chart-title">Fraud Distribution</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={data?.fraudDistribution || []}>
             <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1f2937' : '#e0e0e0'} />
             <XAxis dataKey="name" stroke={isDark ? '#94a3b8' : '#666'} tick={{ fontSize: 12 }} />
             <YAxis stroke={isDark ? '#94a3b8' : '#666'} tick={{ fontSize: 11 }} />
             <Tooltip contentStyle={{ backgroundColor: isDark ? '#0b1220' : '#fff', border: `1px solid ${isDark ? '#1f2937' : '#ccc'}`, color: isDark ? '#e5e7eb' : '#000', fontSize: 12 }} />
-            <Legend wrapperStyle={{ color: isDark ? '#cbd5e1' : '#000', fontSize: 12 }} />
-            <Bar dataKey="count" fill="#3b82f6">
+            <Bar dataKey="count" activeBar={false}>
               {(data?.fraudDistribution || []).map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.name === 'Fraud' ? (isDark ? '#f472b6' : '#ec4899') : (isDark ? '#34d399' : '#10b981')} />
               ))}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </div>
 
       {/* 2. Top 15 Merchants */}
-      <ChartCard title="Top 15 Merchants" isDark={isDark}>
+      <div className="chart-card">
+        <h3 className="chart-title">Top 15 Merchants</h3>
         <ResponsiveContainer width="100%" height={450}>
           <BarChart data={data?.topMerchants || []} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1f2937' : '#e0e0e0'} />
@@ -115,36 +117,39 @@ const Charts = () => {
             <YAxis dataKey="name" type="category" width={150} stroke={isDark ? '#94a3b8' : '#666'} />
             <Tooltip contentStyle={{ backgroundColor: isDark ? '#0b1220' : '#fff', border: `1px solid ${isDark ? '#1f2937' : '#ccc'}`, color: isDark ? '#e5e7eb' : '#000' }} />
             <Legend wrapperStyle={{ color: isDark ? '#cbd5e1' : '#000' }} />
-            <Bar dataKey="count" fill={isDark ? '#a78bfa' : '#8b5cf6'} />
+            <Bar dataKey="count" fill={isDark ? '#a78bfa' : '#8b5cf6'} activeBar={false} />
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </div>
 
       {/* 3. Transaction Types */}
-      <ChartCard title="Transaction Types Distribution" isDark={isDark}>
+      <div className="chart-card">
+        <h3 className="chart-title">Transaction Types Distribution</h3>
         <ResponsiveContainer width="100%" height={300}>
           <PieChart>
             <Pie
-              data={data?.transactionTypes || []}
+              data={(data?.transactionTypes || []).sort((a, b) => b.value - a.value)}
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+              label={false}
               outerRadius={100}
               fill="#8884d8"
               dataKey="value"
             >
-              {(data?.transactionTypes || []).map((entry, index) => (
+              {(data?.transactionTypes || []).sort((a, b) => b.value - a.value).map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
               ))}
             </Pie>
             <Tooltip contentStyle={{ backgroundColor: isDark ? '#0b1220' : '#fff', border: `1px solid ${isDark ? '#1f2937' : '#ccc'}`, color: isDark ? '#e5e7eb' : '#000' }} />
+            <Legend wrapperStyle={{ color: isDark ? '#cbd5e1' : '#000' }} />
           </PieChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </div>
 
       {/* 4. Fraud by Category */}
-      <ChartCard title="Fraud Rate by Merchant Category" isDark={isDark}>
+      <div className="chart-card">
+        <h3 className="chart-title">Fraud Rate by Merchant Category</h3>
         <ResponsiveContainer width="100%" height={500}>
           <BarChart data={data?.fraudByCategory || []} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1f2937' : '#e0e0e0'} />
@@ -152,13 +157,14 @@ const Charts = () => {
             <YAxis dataKey="category" type="category" width={150} stroke={isDark ? '#94a3b8' : '#666'} />
             <Tooltip contentStyle={{ backgroundColor: isDark ? '#0b1220' : '#fff', border: `1px solid ${isDark ? '#1f2937' : '#ccc'}`, color: isDark ? '#e5e7eb' : '#000' }} />
             <Legend wrapperStyle={{ color: isDark ? '#cbd5e1' : '#000' }} />
-            <Bar dataKey="fraudRate" fill={isDark ? '#f87171' : '#e74c3c'} name="Fraud Rate (%)" />
+            <Bar dataKey="fraudRate" fill={isDark ? '#f87171' : '#e74c3c'} name="Fraud Rate (%)" activeBar={false} />
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </div>
 
       {/* 5. Countries Distribution */}
-      <ChartCard title="Top Countries by Transaction Count" isDark={isDark}>
+      <div className="chart-card">
+        <h3 className="chart-title">Top Countries by Transaction Count</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={data?.countries || []}>
             <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1f2937' : '#e0e0e0'} />
@@ -166,31 +172,32 @@ const Charts = () => {
             <YAxis stroke={isDark ? '#94a3b8' : '#666'} tick={{ fontSize: 11 }} />
             <Tooltip contentStyle={{ backgroundColor: isDark ? '#0b1220' : '#fff', border: `1px solid ${isDark ? '#1f2937' : '#ccc'}`, color: isDark ? '#e5e7eb' : '#000', fontSize: 12 }} />
             <Legend wrapperStyle={{ color: isDark ? '#cbd5e1' : '#000', fontSize: 12 }} />
-            <Bar dataKey="count" fill={isDark ? '#22d3ee' : '#06b6d4'} />
+            <Bar dataKey="count" fill={isDark ? '#22d3ee' : '#06b6d4'} activeBar={false} />
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </div>
 
       {/* 6. Card Present Analysis */}
-      <ChartCard title="Fraud Rate: Card Present vs Not Present" isDark={isDark}>
+      <div className="chart-card">
+        <h3 className="chart-title">Fraud Rate: Card Present vs Not Present</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={data?.cardPresent || []}>
             <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1f2937' : '#e0e0e0'} />
             <XAxis dataKey="status" stroke={isDark ? '#94a3b8' : '#666'} />
             <YAxis stroke={isDark ? '#94a3b8' : '#666'} />
             <Tooltip contentStyle={{ backgroundColor: isDark ? '#0b1220' : '#fff', border: `1px solid ${isDark ? '#1f2937' : '#ccc'}`, color: isDark ? '#e5e7eb' : '#000' }} />
-            <Legend wrapperStyle={{ color: isDark ? '#cbd5e1' : '#000' }} />
-            <Bar dataKey="fraudRate" fill={isDark ? '#fbbf24' : '#f59e0b'} name="Fraud Rate (%)">
+            <Bar dataKey="fraudRate" name="Fraud Rate (%)" activeBar={false}>
               {(data?.cardPresent || []).map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.status === 'Present' ? (isDark ? '#34d399' : '#10b981') : (isDark ? '#f472b6' : '#ec4899')} />
               ))}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </div>
 
       {/* 7. Amount Distribution */}
-      <ChartCard title="Transaction Amount Comparison" isDark={isDark}>
+      <div className="chart-card">
+        <h3 className="chart-title">Transaction Amount Comparison</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={data?.amountStats || []}>
             <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1f2937' : '#e0e0e0'} />
@@ -198,14 +205,15 @@ const Charts = () => {
             <YAxis stroke={isDark ? '#94a3b8' : '#666'} />
             <Tooltip contentStyle={{ backgroundColor: isDark ? '#0b1220' : '#fff', border: `1px solid ${isDark ? '#1f2937' : '#ccc'}`, color: isDark ? '#e5e7eb' : '#000' }} />
             <Legend wrapperStyle={{ color: isDark ? '#cbd5e1' : '#000' }} />
-            <Bar dataKey="mean" fill={isDark ? '#60a5fa' : '#3b82f6'} name="Mean Amount ($)" />
-            <Bar dataKey="median" fill={isDark ? '#a78bfa' : '#8b5cf6'} name="Median Amount ($)" />
+            <Bar dataKey="mean" fill={isDark ? '#60a5fa' : '#3b82f6'} name="Mean Amount ($)" activeBar={false} />
+            <Bar dataKey="median" fill={isDark ? '#a78bfa' : '#8b5cf6'} name="Median Amount ($)" activeBar={false} />
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </div>
 
       {/* 8. Fraud Trend Over Time */}
-      <ChartCard title="Fraud Trend Over Time (Monthly)" isDark={isDark}>
+      {/* <div className="chart-card">
+        <h3 className="chart-title">Fraud Trend Over Time (Monthly)</h3>
         <ResponsiveContainer width="100%" height={350}>
           <LineChart data={data?.fraudTrend || []}>
             <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1f2937' : '#e0e0e0'} />
@@ -214,15 +222,16 @@ const Charts = () => {
             <YAxis yAxisId="right" orientation="right" stroke={isDark ? '#94a3b8' : '#666'} />
             <Tooltip contentStyle={{ backgroundColor: isDark ? '#0b1220' : '#fff', border: `1px solid ${isDark ? '#1f2937' : '#ccc'}`, color: isDark ? '#e5e7eb' : '#000' }} />
             <Legend wrapperStyle={{ color: isDark ? '#cbd5e1' : '#000' }} />
-            <Line yAxisId="left" type="monotone" dataKey="total" stroke={isDark ? '#60a5fa' : '#3498db'} strokeWidth={2} name="Total Transactions" />
-            <Line yAxisId="left" type="monotone" dataKey="frauds" stroke={isDark ? '#f87171' : '#e74c3c'} strokeWidth={2} name="Fraud Count" />
-            <Line yAxisId="right" type="monotone" dataKey="fraudRate" stroke={isDark ? '#fbbf24' : '#f39c12'} strokeWidth={2} name="Fraud Rate (%)" strokeDasharray="5 5" />
+            <Line yAxisId="left" type="monotone" dataKey="total" stroke={isDark ? '#60a5fa' : '#3498db'} strokeWidth={2} name="Total Transactions" activeDot={false} />
+            <Line yAxisId="left" type="monotone" dataKey="frauds" stroke={isDark ? '#f87171' : '#e74c3c'} strokeWidth={2} name="Fraud Count" activeDot={false} />
+            <Line yAxisId="right" type="monotone" dataKey="fraudRate" stroke={isDark ? '#fbbf24' : '#f39c12'} strokeWidth={2} name="Fraud Rate (%)" strokeDasharray="5 5" activeDot={false} />
           </LineChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </div> */}
 
       {/* 9. Transaction Amount Distribution */}
-      <ChartCard title="Transaction Amount Distribution" isDark={isDark}>
+      <div className="chart-card">
+        <h3 className="chart-title">Transaction Amount Distribution</h3>
         <ResponsiveContainer width="100%" height={350}>
           <BarChart data={data?.amountDistribution || []}>
             <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1f2937' : '#e0e0e0'} />
@@ -230,14 +239,15 @@ const Charts = () => {
             <YAxis stroke={isDark ? '#94a3b8' : '#666'} tick={{ fontSize: 11 }} />
             <Tooltip contentStyle={{ backgroundColor: isDark ? '#0b1220' : '#fff', border: `1px solid ${isDark ? '#1f2937' : '#ccc'}`, color: isDark ? '#e5e7eb' : '#000', fontSize: 12 }} />
             <Legend wrapperStyle={{ color: isDark ? '#cbd5e1' : '#000', fontSize: 12 }} />
-            <Bar dataKey="count" fill={isDark ? '#60a5fa' : '#3b82f6'} name="Total Transactions" />
-            <Bar dataKey="frauds" fill={isDark ? '#f472b6' : '#ec4899'} name="Fraud Count" />
+            <Bar dataKey="count" fill={isDark ? '#60a5fa' : '#3b82f6'} name="Total Transactions" activeBar={false} />
+            <Bar dataKey="frauds" fill={isDark ? '#f472b6' : '#ec4899'} name="Fraud Count" activeBar={false} />
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </div>
 
       {/* 10. Fraud by Hour of Day */}
-      <ChartCard title="Fraud Activity by Hour of Day" isDark={isDark}>
+      {/* <div className="chart-card">
+        <h3 className="chart-title">Fraud Activity by Hour of Day</h3>
         <ResponsiveContainer width="100%" height={350}>
           <LineChart data={data?.fraudByHour || []}>
             <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1f2937' : '#e0e0e0'} />
@@ -246,15 +256,16 @@ const Charts = () => {
             <YAxis yAxisId="right" orientation="right" stroke={isDark ? '#94a3b8' : '#666'} />
             <Tooltip contentStyle={{ backgroundColor: isDark ? '#0b1220' : '#fff', border: `1px solid ${isDark ? '#1f2937' : '#ccc'}`, color: isDark ? '#e5e7eb' : '#000' }} />
             <Legend wrapperStyle={{ color: isDark ? '#cbd5e1' : '#000' }} />
-            <Line yAxisId="left" type="monotone" dataKey="total" stroke={isDark ? '#60a5fa' : '#3498db'} strokeWidth={2} name="Total Transactions" />
-            <Line yAxisId="left" type="monotone" dataKey="frauds" stroke={isDark ? '#f87171' : '#e74c3c'} strokeWidth={2} name="Fraud Count" />
-            <Line yAxisId="right" type="monotone" dataKey="fraudRate" stroke={isDark ? '#fbbf24' : '#f39c12'} strokeWidth={2} name="Fraud Rate (%)" strokeDasharray="5 5" />
+            <Line yAxisId="left" type="monotone" dataKey="total" stroke={isDark ? '#60a5fa' : '#3498db'} strokeWidth={2} name="Total Transactions" activeDot={false} />
+            <Line yAxisId="left" type="monotone" dataKey="frauds" stroke={isDark ? '#f87171' : '#e74c3c'} strokeWidth={2} name="Fraud Count" activeDot={false} />
+            <Line yAxisId="right" type="monotone" dataKey="fraudRate" stroke={isDark ? '#fbbf24' : '#f39c12'} strokeWidth={2} name="Fraud Rate (%)" strokeDasharray="5 5" activeDot={false} />
           </LineChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </div> */}
 
       {/* 11. Top Merchants by Fraud Count */}
-      <ChartCard title="Top 10 Merchants by Fraud Count" isDark={isDark}>
+      <div className="chart-card">
+        <h3 className="chart-title">Top 10 Merchants by Fraud Count</h3>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={data?.topFraudMerchants || []} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1f2937' : '#e0e0e0'} />
@@ -262,14 +273,15 @@ const Charts = () => {
             <YAxis dataKey="name" type="category" width={150} stroke={isDark ? '#94a3b8' : '#666'} />
             <Tooltip contentStyle={{ backgroundColor: isDark ? '#0b1220' : '#fff', border: `1px solid ${isDark ? '#1f2937' : '#ccc'}`, color: isDark ? '#e5e7eb' : '#000' }} />
             <Legend wrapperStyle={{ color: isDark ? '#cbd5e1' : '#000' }} />
-            <Bar dataKey="frauds" fill={isDark ? '#f472b6' : '#ec4899'} name="Fraud Count" />
-            <Bar dataKey="fraudRate" fill={isDark ? '#fbbf24' : '#f59e0b'} name="Fraud Rate (%)" />
+            <Bar dataKey="frauds" fill={isDark ? '#f472b6' : '#ec4899'} name="Fraud Count" activeBar={false} />
+            <Bar dataKey="fraudRate" fill={isDark ? '#fbbf24' : '#f59e0b'} name="Fraud Rate (%)" activeBar={false} />
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </div>
 
       {/* 12. Transaction Type vs Fraud Rate */}
-      <ChartCard title="Fraud Rate by Transaction Type" isDark={isDark}>
+      <div className="chart-card">
+        <h3 className="chart-title">Fraud Rate by Transaction Type</h3>
         <ResponsiveContainer width="100%" height={350}>
           <BarChart data={data?.transactionTypeFraud || []}>
             <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1f2937' : '#e0e0e0'} />
@@ -277,38 +289,11 @@ const Charts = () => {
             <YAxis stroke={isDark ? '#94a3b8' : '#666'} tick={{ fontSize: 11 }} />
             <Tooltip contentStyle={{ backgroundColor: isDark ? '#0b1220' : '#fff', border: `1px solid ${isDark ? '#1f2937' : '#ccc'}`, color: isDark ? '#e5e7eb' : '#000', fontSize: 12 }} />
             <Legend wrapperStyle={{ color: isDark ? '#cbd5e1' : '#000', fontSize: 12 }} />
-            <Bar dataKey="fraudRate" fill={isDark ? '#f472b6' : '#ec4899'} name="Fraud Rate (%)" />
-            <Bar dataKey="total" fill={isDark ? '#60a5fa' : '#3b82f6'} name="Total Transactions" />
+            <Bar dataKey="fraudRate" fill={isDark ? '#f472b6' : '#ec4899'} name="Fraud Rate (%)" activeBar={false} />
+            <Bar dataKey="total" fill={isDark ? '#60a5fa' : '#3b82f6'} name="Total Transactions" activeBar={false} />
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
-    </div>
-  );
-};
-
-const ChartCard = ({ title, children, isDark }) => {
-  console.log('ChartCard rendering with isDark:', isDark);
-  
-  return (
-    <div className="chart-card" style={{
-      backgroundColor: isDark ? '#0b1220' : '#ffffff',
-      borderRadius: '8px',
-      padding: '20px',
-      marginBottom: '30px',
-      boxShadow: isDark ? '0 2px 8px rgba(0,0,0,0.4)' : '0 2px 8px rgba(0,0,0,0.1)',
-      border: isDark ? '1px solid #1f2937' : 'none',
-      transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease'
-    }}>
-      <h2 style={{
-        marginBottom: '20px',
-        color: isDark ? '#e5e7eb' : '#2c3e50',
-        fontSize: '20px',
-        fontWeight: 'bold',
-        transition: 'color 0.3s ease'
-      }}>
-        {title}
-      </h2>
-      {children}
+      </div>
     </div>
   );
 };
