@@ -134,10 +134,12 @@ export default function App() {
                 <ManageData />
               ) : currentPage === 'chat' ? (
                 <ChatPage />
-              ) : currentPage === 'verify' ? (
-                <VerifyTransactionsPage onNavigate={handleNavigate} />
-              ) : currentPage === 'result' ? (
-                <TransactionResult result={verificationResult} onBack={handleBackToVerify} />
+              ) : currentPage === 'verify' || currentPage === 'result' ? (
+                <VerifyTransactionsPage 
+                  onNavigate={handleNavigate} 
+                  resultData={currentPage === 'result' ? verificationResult : null}
+                  onBackToVerify={handleBackToVerify}
+                />
               ) : currentPage === 'charts' ? (
                 <Charts />
               ) : currentPage === 'sql' ? (

@@ -299,6 +299,8 @@ def predict_multiple():
         try:
             csv_data = StringIO(file.stream.read().decode("UTF-8"))
             df = pd.read_csv(csv_data)
+            # Remove any 'Unnamed' columns (index columns)
+            df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
         except Exception as e:
             return jsonify({'error': f"Failed to read CSV file: {e}"}), 400
 
@@ -308,25 +310,37 @@ def predict_multiple():
 
         # Convert DataFrame rows to a list of dictionaries
         transactions = df.to_dict(orient='records')
-        print(f"Transcations: {transactions}")
+        
+        # Replace NaN with None for JSON serialization
+        import math
+        for transaction in transactions:
+            for key, value in transaction.items():
+                if isinstance(value, float) and math.isnan(value):
+                    transaction[key] = None
 
-        #transactions = df.values.tolist()
+        print(f"Transcations: {len(transactions)} transactions")
 
         predictions = []
 
         for transaction in transactions:
             try:
-                result = json_prediction(transaction)
-
+                # Use json_prediction_with_shap to get SHAP explanations for batch too
+                result = json_prediction_with_shap(transaction, model)
+                # Add original transaction data for frontend to use (NaN already replaced with None)
+                result['originalTransaction'] = transaction
                 predictions.append(result)
             except Exception as e:
                 predictions.append({
                     'input': transaction,
+                    'originalTransaction': transaction,
                     'error': str(e),
                     'message': 'Error processing transaction'
                 })
 
-        return jsonify({'predictions': predictions}), 200
+        response_data = {'predictions': predictions}
+        print(f"Returning response with {len(predictions)} predictions")
+        print(f"First prediction keys: {list(predictions[0].keys()) if predictions else 'No predictions'}")
+        return jsonify(response_data), 200
 
     except Exception as e:
         return jsonify({

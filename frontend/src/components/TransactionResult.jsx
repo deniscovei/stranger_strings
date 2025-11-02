@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function TransactionResult({ result, onBack }) {
+export default function TransactionResult({ result, onBack, hideBackButton = false }) {
   if (!result) {
     return (
       <section>
@@ -8,6 +8,28 @@ export default function TransactionResult({ result, onBack }) {
         <p>Loading...</p>
       </section>
     )
+  }
+
+  // Format feature name for display
+  const formatFeatureName = (name) => {
+    if (!name || typeof name !== 'string') return String(name)
+    
+    // Handle special prefixes
+    let displayName = name
+    
+    // Handle "no" prefix (e.g., notransactionType -> No Transaction Type)
+    if (name.startsWith('no') && name.length > 2 && name[2] === name[2].toLowerCase()) {
+      displayName = 'No ' + name.substring(2)
+    }
+    
+    // Remove underscores and convert to title case
+    return displayName
+      .replace(/_/g, ' ')
+      .replace(/([A-Z])/g, ' $1')
+      .trim()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ')
   }
 
   const isFraudulent = result.isFraud || result.prediction === 1
@@ -64,36 +86,160 @@ export default function TransactionResult({ result, onBack }) {
         )}
       </div>
 
+      {result.shapExplanation && result.shapExplanation.explanation_available && (
+        <div className="shap-explanation">
+          <h4>🔍 Feature Impact Analysis {result.shapExplanation.note ? '(Anomaly Detection)' : '(SHAP)'}</h4>
+          <p className="shap-description">
+            {result.shapExplanation.note || 'These features had the most significant impact on the fraud prediction:'}
+          </p>
+          
+          <div className="shap-features">
+            {result.shapExplanation.top_features.map((feature, index) => {
+              // Handle both SHAP values and contribution scores
+              const isIncreasing = feature.impact === 'increases_fraud_risk' || feature.impact === 'increases_anomaly_score'
+              const impactValue = feature.shap_value !== undefined ? feature.shap_value : feature.contribution
+              const absValue = Math.abs(impactValue)
+              const maxAbsValue = Math.max(...result.shapExplanation.top_features.map(f => 
+                Math.abs(f.shap_value !== undefined ? f.shap_value : f.contribution)
+              ))
+              const barWidth = (absValue / maxAbsValue) * 100
+              
+              return (
+                <div key={index} className="shap-feature-item">
+                  <div className="shap-feature-header">
+                    <span className="shap-feature-rank">#{index + 1}</span>
+                    <span className="shap-feature-name" title={feature.feature}>
+                      {formatFeatureName(feature.feature)}
+                    </span>
+                    <span className={`shap-feature-impact ${isIncreasing ? 'increase' : 'decrease'}`}>
+                      {isIncreasing ? '⬆️ Increases Risk' : '⬇️ Decreases Risk'}
+                    </span>
+                  </div>
+                  <div className="shap-feature-details">
+                    <span className="shap-feature-value">
+                      Value: <strong>{typeof feature.value === 'number' ? feature.value.toFixed(2) : feature.value}</strong>
+                    </span>
+                    <span className="shap-feature-shap">
+                      {feature.shap_value !== undefined ? (
+                        <>SHAP: <strong>{feature.shap_value.toFixed(4)}</strong></>
+                      ) : (
+                        <>Impact: <strong>{feature.contribution.toFixed(4)}</strong></>
+                      )}
+                    </span>
+                  </div>
+                  <div className="shap-bar-container">
+                    <div 
+                      className={`shap-bar ${isIncreasing ? 'positive' : 'negative'}`}
+                      style={{ width: `${barWidth}%` }}
+                    />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          
+          <div className="shap-footer">
+            <p className="shap-note">
+              💡 <strong>How to read this:</strong> {result.shapExplanation.note ? (
+                'Features with higher values had more influence on the anomaly detection. The bar length shows the magnitude of each feature\'s contribution.'
+              ) : (
+                'Features with positive SHAP values push the prediction towards fraud, while negative values push it towards legitimate. The bar length shows the magnitude of the impact.'
+              )}
+            </p>
+          </div>
+        </div>
+      )}
+
       {result.details && (
-        <div className="result-details">
-          <h4>Transaction Details</h4>
-          <div className="details-grid">
-            {Object.entries(result.details).map(([key, value]) => (
-              <div key={key} className="detail-item">
-                <span className="detail-label">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                <span className="detail-value">{String(value)}</span>
+        <div className="transaction-details-section">
+          <h4>💳 Transaction Details</h4>
+          <div className="transaction-details-grid">
+            {Object.entries(result.details)
+              .filter(([key, value]) => {
+                // Filter out isFraud field (already shown in main result card)
+                if (key === 'isFraud') return false
+                // Filter out empty, null, undefined values
+                if (value === null || value === undefined || value === '') return false
+                // Filter out 'N/A', 'null', 'undefined' strings
+                if (typeof value === 'string' && (
+                  value.toLowerCase() === 'n/a' || 
+                  value.toLowerCase() === 'null' || 
+                  value.toLowerCase() === 'undefined' ||
+                  value.trim() === ''
+                )) return false
+                return true
+              })
+              .map(([key, value]) => {
+                // Group related fields with icons
+                let icon = '📌'
+                const keyLower = key.toLowerCase()
+              
+              if (keyLower.includes('amount') || keyLower.includes('balance')) {
+                icon = '💰'
+              } else if (keyLower.includes('merchant') || keyLower.includes('name')) {
+                icon = '🏪'
+              } else if (keyLower.includes('date') || keyLower.includes('time')) {
+                icon = '📅'
+              } else if (keyLower.includes('card') || keyLower.includes('account')) {
+                icon = '💳'
+              } else if (keyLower.includes('country') || keyLower.includes('location')) {
+                icon = '🌍'
+              } else if (keyLower.includes('type') || keyLower.includes('category')) {
+                icon = '🏷️'
+              } else if (keyLower.includes('code') || keyLower.includes('mode')) {
+                icon = '🔢'
+              }
+              
+              // Format value based on type
+              let displayValue
+              let valueClass = ''
+              
+              if (typeof value === 'boolean') {
+                displayValue = value ? '✓ Yes' : '✗ No'
+                valueClass = value ? 'boolean-true' : 'boolean-false'
+              } else if (typeof value === 'number') {
+                displayValue = value.toFixed(2)
+              } else {
+                displayValue = value
+              }
+              
+              return (
+                <div key={key} className="transaction-detail-card">
+                  <div className="detail-icon">{icon}</div>
+                  <div className="detail-content">
+                    <label className="detail-label">{formatFeatureName(key)}</label>
+                    <span className={`detail-value ${valueClass}`}>
+                      {displayValue}
+                    </span>
+                  </div>
+                </div>
+              )
+              })}
+          </div>
+        </div>
+      )}
+
+      {result.reasons && result.reasons.length > 0 && (
+        <div className="key-factors-section">
+          <h4>🔍 Key Detection Factors</h4>
+          <div className="factors-list">
+            {result.reasons.map((reason, index) => (
+              <div key={index} className="factor-item">
+                <span className="factor-bullet">•</span>
+                <span className="factor-text">{reason}</span>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {result.reasons && result.reasons.length > 0 && (
-        <div className="result-reasons">
-          <h4>Key Factors</h4>
-          <ul>
-            {result.reasons.map((reason, index) => (
-              <li key={index}>{reason}</li>
-            ))}
-          </ul>
+      {!hideBackButton && (
+        <div className="result-actions">
+          <button className="chat-btn check-btn" onClick={onBack}>
+            ← Back to Verification
+          </button>
         </div>
       )}
-
-      <div className="result-actions">
-        <button className="chat-btn check-btn" onClick={onBack}>
-          Check Another Transaction
-        </button>
-      </div>
     </section>
   )
 }
