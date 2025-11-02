@@ -141,7 +141,7 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   padding: 12px 14px; 
   border-radius: 10px; 
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: #0f172a; 
+  color: #ffffff; 
   border: none; 
   cursor: pointer; 
   white-space: nowrap;
@@ -1119,7 +1119,7 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   padding: 12px 14px; 
   border-radius: 10px; 
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: #0f172a; 
+  color: #ffffff; 
   border: none; 
   cursor: pointer; 
   white-space: nowrap;
@@ -1976,14 +1976,14 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 }
 
 .toggle-btn:hover {
-  background: rgba(99, 102, 241, 0.1);
-  color: #6366f1;
+  background: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
 }
 
 .toggle-btn.active {
-  background: #6366f1;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
   color: white;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
 }
 
 .data-controls {
@@ -3019,10 +3019,10 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   max-width: calc(100% - 32px);
   max-height: 90vh;
   background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(16px);
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 1px rgba(99, 102, 241, 0.3);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(139, 92, 246, 0.15), 0 0 1px rgba(139, 92, 246, 0.3);
+  border: 1px solid rgba(139, 92, 246, 0.2);
   display: flex;
   flex-direction: column;
   animation: slideUp 0.3s ease;
@@ -3037,26 +3037,29 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 20px 24px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-  background: rgba(248, 250, 252, 0.8);
-  border-radius: 16px 16px 0 0;
+  padding: 24px 28px;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.15);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(124, 58, 237, 0.03) 100%);
+  border-radius: 20px 20px 0 0;
 }
 
 .merchant-modal .modal-header h3 {
   margin: 0 0 8px 0;
   padding-right: 12px;
   word-break: break-word;
+  color: #8b5cf6;
+  font-size: 24px;
+  font-weight: 700;
 }
 
 .merchant-modal .modal-close-btn {
-  background: rgba(148, 163, 184, 0.1);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 8px;
-  width: 36px;
-  height: 36px;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
   font-size: 18px;
-  color: #475569;
+  color: #8b5cf6;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -3079,13 +3082,13 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 }
 
 .info-badge {
-  padding: 4px 12px;
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  border-radius: 6px;
+  padding: 6px 14px;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: #6366f1;
+  color: #8b5cf6;
 }
 
 .merchant-modal .modal-body {
@@ -3107,12 +3110,19 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px;
-  background: rgba(248, 250, 252, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 12px;
+  padding: 18px;
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.6) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  border-radius: 14px;
   transition: all 0.3s ease;
   min-width: 0;
+}
+
+.stat-card:hover {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(124, 58, 237, 0.05) 100%);
+  border-color: rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+  transform: translateY(-2px);
 }
 
 .stat-card:hover {
@@ -3173,7 +3183,7 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   align-items: center;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 2px solid rgba(99, 102, 241, 0.2);
+  border-bottom: 2px solid rgba(139, 92, 246, 0.25);
   flex-shrink: 0;
 }
 
@@ -3181,7 +3191,7 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   margin: 0;
   font-size: 18px;
   font-weight: 700;
-  color: #1e293b;
+  color: #8b5cf6;
 }
 
 .transaction-count {
@@ -3200,13 +3210,14 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 }
 
 .merchant-transactions-list-container {
-  background: rgba(248, 250, 252, 0.6);
-  border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.6) 100%);
+  border-radius: 14px;
+  border: 1px solid rgba(139, 92, 246, 0.15);
   overflow-y: auto;
   margin-bottom: 16px;
   flex: 1;
   max-height: 400px;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.05);
 }
 
 .merchant-transaction-header {
@@ -3214,13 +3225,14 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   grid-template-columns: 1.2fr 1.5fr 1fr 1fr 0.9fr;
   gap: 12px;
   padding: 14px 20px;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.12) 100%);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(124, 58, 237, 0.12) 100%);
   font-weight: 700;
   font-size: 12px;
-  color: #475569;
+  color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  border-bottom: 2px solid rgba(99, 102, 241, 0.2);
+  border-bottom: 2px solid rgba(139, 92, 246, 0.2);
+  border-radius: 12px 12px 0 0;
 }
 
 .merchant-transaction-row {
@@ -3240,8 +3252,10 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 }
 
 .merchant-transaction-row:hover {
-  background: rgba(99, 102, 241, 0.05);
+  background: rgba(139, 92, 246, 0.06);
   transform: translateX(2px);
+  border-left: 3px solid rgba(139, 92, 246, 0.4);
+  padding-left: 17px;
 }
 
 .merchant-transaction-row.fraud-row {
@@ -3268,9 +3282,10 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   padding: 16px;
   flex-wrap: wrap;
   flex-shrink: 0;
-  background: rgba(248, 250, 252, 0.6);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(124, 58, 237, 0.03) 100%);
   border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  margin-top: 16px;
+  border: 1px solid rgba(139, 92, 246, 0.15);
 }
 
 .loading-state,
@@ -3861,14 +3876,14 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 }
 
 .dark .toggle-btn:hover {
-  background: rgba(139, 92, 246, 0.2);
-  color: #a78bfa;
+  background: rgba(63, 255, 168, 0.15);
+  color: #3fffa8;
 }
 
 .dark .toggle-btn.active {
-  background: #8b5cf6;
-  color: white;
-  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+  background: linear-gradient(135deg, #3fffa8 0%, #00e396 100%);
+  color: #0f172a;
+  box-shadow: 0 2px 8px rgba(63, 255, 168, 0.4);
 }
 
 /* Left Menu Dark Mode */
@@ -4664,8 +4679,9 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 /* Dark mode merchant modal */
 .dark .merchant-modal {
   background: rgba(17, 24, 39, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(63, 255, 168, 0.2);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 1px rgba(63, 255, 168, 0.3);
+  backdrop-filter: blur(20px);
 }
 
 .dark .merchant-modal.fraud-modal {
@@ -4673,10 +4689,19 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 1px rgba(239, 68, 68, 0.4);
 }
 
+.dark .merchant-modal .modal-header {
+  border-bottom: 1px solid rgba(63, 255, 168, 0.2);
+  background: linear-gradient(135deg, rgba(63, 255, 168, 0.08) 0%, rgba(0, 227, 150, 0.05) 100%);
+}
+
+.dark .merchant-modal .modal-header h3 {
+  color: #3fffa8;
+}
+
 .dark .merchant-modal .modal-close-btn {
-  background: rgba(75, 85, 99, 0.3);
-  border-color: rgba(156, 163, 175, 0.2);
-  color: #9ca3af;
+  background: rgba(63, 255, 168, 0.1);
+  border-color: rgba(63, 255, 168, 0.2);
+  color: #3fffa8;
 }
 
 .dark .merchant-modal .modal-close-btn:hover {
@@ -4686,20 +4711,21 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 }
 
 .dark .info-badge {
-  background: rgba(139, 92, 246, 0.2);
-  border-color: rgba(139, 92, 246, 0.3);
-  color: #a78bfa;
+  background: rgba(63, 255, 168, 0.15);
+  border-color: rgba(63, 255, 168, 0.3);
+  color: #3fffa8;
 }
 
 .dark .stat-card {
-  background: rgba(31, 41, 55, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.8) 0%, rgba(17, 24, 39, 0.6) 100%);
+  border: 1px solid rgba(63, 255, 168, 0.15);
 }
 
 .dark .stat-card:hover {
-  background: rgba(31, 41, 55, 0.8);
-  border-color: rgba(139, 92, 246, 0.3);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+  background: linear-gradient(135deg, rgba(63, 255, 168, 0.1) 0%, rgba(0, 227, 150, 0.08) 100%);
+  border-color: rgba(63, 255, 168, 0.3);
+  box-shadow: 0 4px 12px rgba(63, 255, 168, 0.2);
+  transform: translateY(-2px);
 }
 
 .dark .stat-card.fraud-card {
@@ -4727,11 +4753,11 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 }
 
 .dark .section-header {
-  border-bottom-color: rgba(139, 92, 246, 0.3);
+  border-bottom-color: rgba(63, 255, 168, 0.3);
 }
 
 .dark .section-header h4 {
-  color: #ffffff;
+  color: #3fffa8;
 }
 
 .dark .transaction-count {
@@ -4739,19 +4765,20 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 }
 
 .dark .merchant-transactions-list-container {
-  background: rgba(31, 41, 55, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.8) 0%, rgba(17, 24, 39, 0.6) 100%);
+  border: 1px solid rgba(63, 255, 168, 0.15);
+  box-shadow: 0 2px 8px rgba(63, 255, 168, 0.05);
 }
 
 .dark .merchant-pagination-controls {
-  background: rgba(31, 41, 55, 0.6);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, rgba(63, 255, 168, 0.08) 0%, rgba(0, 227, 150, 0.05) 100%);
+  border: 1px solid rgba(63, 255, 168, 0.15);
 }
 
 .dark .merchant-transaction-header {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+  background: linear-gradient(135deg, rgba(63, 255, 168, 0.12) 0%, rgba(0, 227, 150, 0.12) 100%);
   color: #d1d5db;
-  border-bottom-color: rgba(139, 92, 246, 0.3);
+  border-bottom-color: rgba(63, 255, 168, 0.25);
 }
 
 .dark .merchant-transaction-row {
@@ -4760,7 +4787,9 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 }
 
 .dark .merchant-transaction-row:hover {
-  background: rgba(139, 92, 246, 0.1);
+  background: rgba(63, 255, 168, 0.08);
+  border-left: 3px solid rgba(63, 255, 168, 0.5);
+  padding-left: 17px;
 }
 
 .dark .merchant-transaction-row.fraud-row {
@@ -4780,8 +4809,8 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 }
 
 .dark .spinner {
-  border-color: rgba(139, 92, 246, 0.2);
-  border-top-color: #a78bfa;
+  border-color: rgba(63, 255, 168, 0.2);
+  border-top-color: #3fffa8;
 }
 
 .dark .loading-state p,
