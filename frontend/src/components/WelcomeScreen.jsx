@@ -25,5 +25,6 @@ export default function WelcomeScreen({ onFinished }) {
     <div className={`welcome-screen ${fadeOut ? 'fade-out' : ''}`}>
       <img src={logo} alt="Stranger Strings Logo" className="welcome-logo" />
     </div>
+    
   )
 }

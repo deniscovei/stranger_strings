@@ -1,4 +1,5 @@
-import axios from 'axios'
+import * as axios from 'axios'
+
 
 export async function fetchData() {
 	// Expected backend endpoint: GET /api/data
