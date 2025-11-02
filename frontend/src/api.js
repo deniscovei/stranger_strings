@@ -2,8 +2,13 @@ import axios from 'axios'
 
 export async function fetchData() {
 	// Expected backend endpoint: GET /api/data
-	const res = await axios.get('/api/data')
-	return res.data
+  try{
+    const res = await axios.get('/api/data')
+    return res.data
+  } catch (err) {
+    console.error('Error in fetchData:', err.response || err.message || err);
+    throw err;
+  }
 }
 
 export async function fetchPredictions() {

@@ -1,9 +1,11 @@
 from flask import Flask
+from flask_cors import CORS
 import os
 from config import load_model
 from routes import health_bp, predict_bp, claudiu_bp, data_bp
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 # Load model at startup
 load_model()

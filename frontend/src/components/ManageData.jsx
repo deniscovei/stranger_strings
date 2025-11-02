@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { fetchTransactions, uploadDataFile } from '../api'
-
+import { fetchData, uploadDataFile } from '../api'
 
 export default function ManageData() {
   const [transactions, setTransactions] = useState([])
@@ -20,8 +19,10 @@ export default function ManageData() {
 
   const loadTransactions = async () => {
     try {
+      console.log('Fetching transactions...')
       setLoading(true)
-      const data = await fetchTransactions()
+      const data = await fetchData()
+      console.log('Transactions fetched:', data)
       setTransactions(data)
       setFilteredTransactions(data)
     } catch (err) {
@@ -29,6 +30,7 @@ export default function ManageData() {
       const mockData = generateMockData()
       setTransactions(mockData)
       setFilteredTransactions(mockData)
+      console.error('Failed to fetch transactions:', err.response || err.message || err)
     } finally {
       setLoading(false)
     }
@@ -52,11 +54,11 @@ export default function ManageData() {
 
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
-      filtered = filtered.filter(t => 
-        t.accountNumber?.toString().toLowerCase().includes(term) ||
-        t.merchantName?.toLowerCase().includes(term) ||
-        t.transactionType?.toLowerCase().includes(term) ||
-        t.merchantCategoryCode?.toLowerCase().includes(term)
+      filtered = filtered.filter(t =>
+          t.accountNumber?.toString().toLowerCase().includes(term) ||
+          t.merchantName?.toLowerCase().includes(term) ||
+          t.transactionType?.toLowerCase().includes(term) ||
+          t.merchantCategoryCode?.toLowerCase().includes(term)
       )
     }
 
@@ -104,7 +106,7 @@ export default function ManageData() {
     const merchantNames = ['Amazon', 'Walmart', 'Target', 'Best Buy', 'Home Depot', 'Starbucks', 'McDonald\'s', 'Shell', 'Costco', 'Apple Store']
     const transactionTypes = ['PURCHASE', 'REVERSAL', 'ADDRESS VERIFICATION']
     const merchantCategories = ['5411', '5812', '5541', '5999', '5732', '5814', '5912']
-    
+
     for (let i = 0; i < 50; i++) {
       const date = new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1, Math.floor(Math.random() * 24), Math.floor(Math.random() * 60))
       mockTransactions.push({
@@ -122,12 +124,12 @@ export default function ManageData() {
 
   const formatDateTime = (dateString) => {
     const date = new Date(dateString)
-    return date.toLocaleString('en-US', { 
-      year: 'numeric', 
-      month: '2-digit', 
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     })
   }
 
@@ -186,7 +188,7 @@ export default function ManageData() {
   return (
     <div className="manage-data-container">
       <h2>My Data</h2>
-      
+
       <div className="data-controls">
         <input
           type="text"
@@ -195,7 +197,7 @@ export default function ManageData() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        
+
         <select
           className="filter-dropdown"
           value={filterBy}
@@ -223,7 +225,7 @@ export default function ManageData() {
               <div>Category</div>
               <div>Status</div>
             </div>
-            
+
             {filteredTransactions.length === 0 ? (
               <div className="no-results">No transactions found</div>
             ) : (
@@ -310,15 +312,15 @@ export default function ManageData() {
           />
 
           <div className="data-actions">
-            <button 
-              className="upload-data-btn" 
+            <button
+              className="upload-data-btn"
               onClick={handleUploadData}
               disabled={uploading}
             >
               {uploading ? 'Uploading...' : 'Upload Data'}
             </button>
 
-            <button 
+            <button
               className="upload-data-btn"  // same class → same style
               onClick={handleRemoveData}
               disabled={transactions.length === 0}

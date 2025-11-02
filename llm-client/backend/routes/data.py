@@ -16,6 +16,25 @@ def out_of_range_cols(df, cols):
             bad[c] = oob.index.tolist()[:10]  # first few rows
     return bad
 
+@data_bp.route('/data', methods=['GET'])
+def get_data():
+    """Get all data from the transactions table"""
+    try:
+        print("Request received at /data endpoint")  # Add this log
+        rows = db.get_data()
+        # Ensure the data is returned as a list of dictionaries
+        columns = [
+            "accountNumber", "transactionDateTime", "transactionAmount",
+            "merchantName", "transactionType", "merchantCategoryCode",
+            "merchantCountryCode", "isFraud"
+        ]
+        data = [dict(zip(columns, row)) for row in rows]
+        return jsonify(data), 200
+    except Exception as e:
+        print(f"Error in /data endpoint: {e}")  # Add this log
+        return jsonify({'error': str(e)}), 500
+
+
 @data_bp.route('/upload', methods=['POST'])
 def upload_data():
     """Upload CSV file and insert into database"""

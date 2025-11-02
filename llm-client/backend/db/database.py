@@ -29,6 +29,27 @@ class Database:
             db_context = "Database connection failed. Unable to access transaction data."
             print(f"⚠ Warning: Could not connect to database - {e}\n")
 
+    def get_data(self):
+        """Return data to be displayed on frontend"""
+
+        try:
+            conn = psycopg2.connect(os.environ.get('DATABASE_URI'))
+            cursor = conn.cursor()
+
+            # Get table schema
+            cursor.execute("""
+                SELECT accountNumber, transactionDateTime, transactionAmount,
+                merchantName, transactionType, merchantCategoryCode,
+                merchantCountryCode, isFraud
+                FROM transactions;
+            """)
+            rows = cursor.fetchall()
+            return rows
+        except Exception as e:
+            db_context = "Database connection failed. Unable to access transaction data."
+            print(f"⚠ Warning: Could not connect to database - {e}\n")
+
+
     def insert_transaction(self, transaction: Dict[str, Any]) -> int:
         """Insert a single transaction"""
 
