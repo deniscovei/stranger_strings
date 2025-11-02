@@ -50,12 +50,14 @@ docker compose exec postgres psql -U mcp_readonly -d txdb -c "SELECT COUNT(*) FR
 
 # Run interactive LLM client
 docker compose run --rm llm-client
+```
 
-# Stop the container
+### 4. Stop services
+```bash
 docker compose down -v 
 ```
 
-### 3. Test the API
+### 5. Test the API
 ```bash
 curl http://localhost:5000/health
 ```
