@@ -17,23 +17,23 @@ export default function RightMenu({ onToggle, onOpenChat, onNavigate, isOpen = t
 
       <nav className="menu-items">
         <button className="menu-item" onClick={() => onNavigate?.('home')}>
-          📊 Dashboard
+          Dashboard
         </button>
         <button className="menu-item" onClick={() => onNavigate?.('charts')}>
-          📈 Analytics Charts
+          Analytics Charts
         </button>
         <button className="menu-item" onClick={() => onNavigate?.('sql')}>
           🗃️ SQL Query
         </button>
         <button className="menu-item" onClick={() => onNavigate?.('data')}>
-          💾 Manage Data
+          Manage Data
         </button>
         <button className="menu-item" onClick={() => onNavigate?.('verify')}>
-          ✓ Verify Transaction
+          Verify Transaction
         </button>
         <div className="menu-sep" />
         <button className="chat-btn" onClick={onOpenChat}>
-          💬 Open Chat
+          Open Chat
         </button>
       </nav>
 

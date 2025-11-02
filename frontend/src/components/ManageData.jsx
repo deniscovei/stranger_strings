@@ -239,7 +239,7 @@ export default function ManageData() {
               currentTransactions.map((transaction) => (
                 <div
                   key={transaction.id || transaction.accountNumber}
-                  className="transaction-row"
+                  className={`transaction-row ${transaction.isFraud ? 'fraud-row' : 'legitimate-row'}`}
                   onClick={() => handleRowClick(transaction)}
                   onKeyDown={(e) => handleRowKeyDown(e, transaction)}
                   role="button"

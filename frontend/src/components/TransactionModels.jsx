@@ -3,9 +3,11 @@ import React from 'react'
 export default function TransactionModal({ transaction, onClose }) {
   if (!transaction) return null
 
+  const isFraud = transaction.isFraud === 1 || transaction.isFraud === true
+
   return (
     <div className="transaction-modal-overlay" onClick={onClose}>
-      <div className="transaction-modal" onClick={(e) => e.stopPropagation()}>
+      <div className={`transaction-modal ${isFraud ? 'fraud-modal' : ''}`} onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h3>Transaction Details</h3>
           <button className="modal-close-btn" onClick={onClose}>✖</button>
