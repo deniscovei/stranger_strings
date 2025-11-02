@@ -5250,3 +5250,351 @@ th { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
 .dark .sql-null {
   color: #6b7280;
 }
+
+/* ===== AI Charts Styles ===== */
+.ai-charts-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+.ai-charts-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.ai-charts-header h2 {
+  margin: 0 0 12px 0;
+  font-size: 36px;
+  font-weight: 800;
+  color: #0f172a;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.ai-charts-subtitle {
+  margin: 0;
+  font-size: 16px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.chart-prompt-section {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(16px);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  margin-bottom: 32px;
+}
+
+.prompt-input-wrapper {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.chart-prompt-input {
+  flex: 1;
+  padding: 16px 20px;
+  font-size: 15px;
+  border: 2px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  background: rgba(248, 250, 252, 0.8);
+  color: #1e293b;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 120px;
+  transition: all 0.3s ease;
+}
+
+.chart-prompt-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.chart-prompt-input::placeholder {
+  color: #94a3b8;
+}
+
+.generate-chart-btn {
+  padding: 16px 32px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+}
+
+.generate-chart-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+}
+
+.generate-chart-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.generate-chart-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.chart-icon {
+  font-size: 20px;
+}
+
+.spinner-small {
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.chart-error-message {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chart-loading-state {
+  text-align: center;
+  padding: 64px 32px;
+}
+
+.chart-loader {
+  width: 60px;
+  height: 60px;
+  border: 5px solid rgba(99, 102, 241, 0.2);
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 24px;
+}
+
+.chart-loading-state p {
+  color: #64748b;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.chart-display-section {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(16px);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.chart-container {
+  width: 100%;
+  height: 500px;
+  margin-bottom: 24px;
+}
+
+.chart-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.chart-action-btn {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.chart-action-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.chart-action-btn.secondary {
+  background: rgba(148, 163, 184, 0.15);
+  color: #475569;
+}
+
+.chart-action-btn.secondary:hover:not(:disabled) {
+  background: rgba(148, 163, 184, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.chart-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chart-empty-state {
+  text-align: center;
+  padding: 80px 32px;
+}
+
+.empty-chart-icon {
+  font-size: 80px;
+  margin-bottom: 24px;
+  opacity: 0.5;
+}
+
+.chart-empty-state h3 {
+  margin: 0 0 12px 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.chart-empty-state > p {
+  margin: 0 0 32px 0;
+  color: #64748b;
+  font-size: 16px;
+}
+
+.chart-examples {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.examples-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+}
+
+.example-prompt {
+  display: block;
+  width: 100%;
+  padding: 14px 20px;
+  margin-bottom: 12px;
+  background: rgba(248, 250, 252, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 10px;
+  color: #475569;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.example-prompt:hover {
+  background: white;
+  border-color: #6366f1;
+  color: #6366f1;
+  transform: translateX(4px);
+}
+
+/* Dark mode for AI Charts */
+.dark .ai-charts-header h2 {
+  color: #ffffff;
+}
+
+.dark .ai-charts-subtitle {
+  color: #9ca3af;
+}
+
+.dark .chart-prompt-section {
+  background: rgba(17, 24, 39, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .chart-prompt-input {
+  background: rgba(31, 41, 55, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
+}
+
+.dark .chart-prompt-input:focus {
+  background: rgba(31, 41, 55, 1);
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+}
+
+.dark .chart-prompt-input::placeholder {
+  color: #6b7280;
+}
+
+.dark .chart-error-message {
+  background: rgba(127, 29, 29, 0.3);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.dark .chart-loading-state p {
+  color: #9ca3af;
+}
+
+.dark .chart-loader {
+  border-color: rgba(139, 92, 246, 0.3);
+  border-top-color: #a78bfa;
+}
+
+.dark .chart-display-section {
+  background: rgba(17, 24, 39, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .chart-action-btn.secondary {
+  background: rgba(75, 85, 99, 0.3);
+  color: #d1d5db;
+}
+
+.dark .chart-action-btn.secondary:hover:not(:disabled) {
+  background: rgba(75, 85, 99, 0.5);
+}
+
+.dark .chart-empty-state h3 {
+  color: #ffffff;
+}
+
+.dark .chart-empty-state > p {
+  color: #9ca3af;
+}
+
+.dark .examples-title {
+  color: #9ca3af;
+}
+
+.dark .example-prompt {
+  background: rgba(31, 41, 55, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #d1d5db;
+}
+
+.dark .example-prompt:hover {
+  background: rgba(31, 41, 55, 1);
+  border-color: #8b5cf6;
+  color: #a78bfa;
+}
