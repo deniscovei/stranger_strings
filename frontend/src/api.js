@@ -25,7 +25,41 @@ export async function uploadDataFile(file) {
 }
 
 export async function verifyTransaction(transactionData) {
-	// Expected backend endpoint: POST /api/verify-transaction
-	const res = await axios.post('/api/verify-transaction', transactionData)
+	// Backend endpoint: POST /api/predict (proxied to
+	// http://localhost:5000/predict)
+	const res =
+		await axios.post('/api/predict', transactionData,
+						 {headers : {'Content-Type' : 'application/json'}})
+	return res.data
+}
+
+export async function fetchChartData() {
+	// Expected backend endpoint: GET /charts/data
+	const res = await axios.get('/charts/data')
+	return res.data
+}
+
+export async function fetchChartSummary() {
+	// Expected backend endpoint: GET /charts/summary
+	const res = await axios.get('/charts/summary')
+	return res.data
+}
+
+export async function fetchTransactions() {
+	// Expected backend endpoint: GET /api/transactions
+	const res = await axios.get('/api/transactions')
+	return res.data
+}
+
+export async function sendChatMessage(message) {
+	// Backend endpoint: POST /api/chat (proxied to http://localhost:5000/chat)
+	// Sends: {"message": "..."}
+	// Returns: string response from AI
+	// Timeout set to 15 seconds for AI response
+	const res = await axios.post('/api/chat', {message}, {
+		headers : {'Content-Type' : 'application/json'},
+		timeout : 60000 // 60 seconds
+	})
+	// Backend returns a plain string, so res.data is the AI response
 	return res.data
 }
