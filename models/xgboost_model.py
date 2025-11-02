@@ -28,11 +28,11 @@ def train_xgboost(X_train, y_train, verbose=True):
     
     model = XGBClassifier(
         use_label_encoder=False,
-        eval_metric='logloss',  # XGBoost doesn't support f1 directly, use logloss
-        # scale_pos_weight=scale_pos_weight,
+        eval_metric='aucpr',  # XGBoost doesn't support f1 directly, use logloss
+        scale_pos_weight=scale_pos_weight,
         max_depth=6,
         learning_rate=0.1,
-        n_estimators=200,
+        n_estimators=1000,
         min_child_weight=1,
         subsample=0.8,
         colsample_bytree=0.8,
