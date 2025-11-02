@@ -19,7 +19,6 @@ from models import (
 )
 from models.lightgbm_model import train_lightgbm_with_random_search, evaluate_lightgbm
 
-
 def main(csv_path='dataset/transactions.csv', run_viz=False, run_random_search=False):
     """
     Main fraud detection pipeline
@@ -43,11 +42,11 @@ def main(csv_path='dataset/transactions.csv', run_viz=False, run_random_search=F
 
         create_correlation_matrices(df)
 
-    # Step 3: Train Isolation Forest (unsupervised baseline)
-    print('\nStep 3: Training Isolation Forest model...\n')
-    iso_model, y_train_pred_iso, y_test_pred_iso, iso_fi = train_and_evaluate_isolation_forest(
-        X_train, y_train, X_test, y_test, verbose=True
-    )
+    # # Step 3: Train Isolation Forest (unsupervised baseline)
+    # print('\nStep 3: Training Isolation Forest model...\n')
+    # iso_model, y_train_pred_iso, y_test_pred_iso, iso_fi = train_and_evaluate_isolation_forest(
+    #     X_train, y_train, X_test, y_test, verbose=True
+    # )
     
     # Step 4: Train XGBoost
     print('\nStep 4: Training XGBoost model...\n')
@@ -112,12 +111,12 @@ def main(csv_path='dataset/transactions.csv', run_viz=False, run_random_search=F
     print('COMPREHENSIVE MODEL COMPARISON - ALL 3 MODELS')
     print('='*60)
     
-    # Calculate metrics for all models
-    iso_metrics = {
-        'recall': recall_score(y_test, y_test_pred_iso),
-        'precision': precision_score(y_test, y_test_pred_iso),
-        'f1': f1_score(y_test, y_test_pred_iso)
-    }
+    # # Calculate metrics for all models
+    # iso_metrics = {
+    #     'recall': recall_score(y_test, y_test_pred_iso),
+    #     'precision': precision_score(y_test, y_test_pred_iso),
+    #     'f1': f1_score(y_test, y_test_pred_iso)
+    # }
     
     xgb_metrics = {
         'recall': recall_score(y_test, y_test_pred_xgb),
@@ -131,10 +130,10 @@ def main(csv_path='dataset/transactions.csv', run_viz=False, run_random_search=F
         'f1': f1_score(y_test, y_test_pred_lgb)
     }
     
-    print('\n--- Isolation Forest (Unsupervised Baseline) ---')
-    print(f'  Test Recall:    {iso_metrics["recall"]:.4f}')
-    print(f'  Test Precision: {iso_metrics["precision"]:.4f}')
-    print(f'  Test F1-Score:  {iso_metrics["f1"]:.4f}')
+    # print('\n--- Isolation Forest (Unsupervised Baseline) ---')
+    # print(f'  Test Recall:    {iso_metrics["recall"]:.4f}')
+    # print(f'  Test Precision: {iso_metrics["precision"]:.4f}')
+    # print(f'  Test F1-Score:  {iso_metrics["f1"]:.4f}')
     
     print('\n--- XGBoost (Supervised Baseline) ---')
     print(f'  Test Recall:    {xgb_metrics["recall"]:.4f}')
@@ -157,7 +156,7 @@ def main(csv_path='dataset/transactions.csv', run_viz=False, run_random_search=F
     print('-'*60)
     
     models_ranking = [
-        ('Isolation Forest', iso_metrics['recall']),
+        # ('Isolation Forest', iso_metrics['recall']),
         ('XGBoost', xgb_metrics['recall']),
         ('LightGBM', lgb_metrics['recall'])
     ]
@@ -176,7 +175,7 @@ def main(csv_path='dataset/transactions.csv', run_viz=False, run_random_search=F
     print('-'*60)
     
     f1_ranking = [
-        ('Isolation Forest', iso_metrics['f1']),
+        # ('Isolation Forest', iso_metrics['f1']),
         ('XGBoost', xgb_metrics['f1']),
         ('LightGBM', lgb_metrics['f1'])
     ]
@@ -205,11 +204,11 @@ def main(csv_path='dataset/transactions.csv', run_viz=False, run_random_search=F
     models_dir = 'trained_models'
     os.makedirs(models_dir, exist_ok=True)
     
-    # Save Isolation Forest model
-    iso_path = os.path.join(models_dir, 'isolation_forest_model.pkl')
-    with open(iso_path, 'wb') as f:
-        pickle.dump(iso_model, f)
-    print(f'\n✓ Saved Isolation Forest model to: {iso_path}')
+    # # Save Isolation Forest model
+    # iso_path = os.path.join(models_dir, 'isolation_forest_model.pkl')
+    # with open(iso_path, 'wb') as f:
+    #     pickle.dump(iso_model, f)
+    # print(f'\n✓ Saved Isolation Forest model to: {iso_path}')
     
     # Save XGBoost model
     xgb_path = os.path.join(models_dir, 'xgboost_model.pkl')
@@ -237,8 +236,8 @@ def main(csv_path='dataset/transactions.csv', run_viz=False, run_random_search=F
     print('\n' + '='*60)
     print('PIPELINE COMPLETE - LEGACY SUMMARY')
     print('='*60)
-    print(f'\nIsolation Forest Test Recall: {iso_metrics["recall"]:.4f}')
-    print(f'Isolation Forest Test Precision: {iso_metrics["precision"]:.4f}')
+    # print(f'\nIsolation Forest Test Recall: {iso_metrics["recall"]:.4f}')
+    # print(f'Isolation Forest Test Precision: {iso_metrics["precision"]:.4f}')
     print(f'\nXGBoost Test Recall: {comparison["xgb_recall"]:.4f}')
     print(f'XGBoost Test Precision: {comparison["xgb_precision"]:.4f}')
     print(f'\nLightGBM Test Recall: {comparison["lgb_recall"]:.4f}')
@@ -247,7 +246,7 @@ def main(csv_path='dataset/transactions.csv', run_viz=False, run_random_search=F
     print('\n' + '='*60)
     
     results = {
-        'iso_model': iso_model,
+        # 'iso_model': iso_model,
         'xgb_model': xgb_model,
         'lgb_model': lgb_model,
         'X_train': X_train,
@@ -255,7 +254,7 @@ def main(csv_path='dataset/transactions.csv', run_viz=False, run_random_search=F
         'y_train': y_train,
         'y_test': y_test,
         'comparison': comparison,
-        'iso_metrics': iso_metrics,
+        # 'iso_metrics': iso_metrics,
         'xgb_metrics': xgb_metrics,
         'lgb_metrics': lgb_metrics,
         'models_ranking': models_ranking,
